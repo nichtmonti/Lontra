@@ -68,13 +68,13 @@ Components: 40 Go, 36 npm, 1 embedded in a listed package.
 | github.com/tinylib/msgp | v1.6.4 | MIT | Copyright (c) 2014 Philip Hofer |
 | github.com/x448/float16 | v0.8.4 | MIT | Copyright (c) 2019 Montgomery Edwards⁴⁴⁸ and Faye Amacker |
 | Go standard library and runtime | go1.27.4 | BSD-3-Clause | Copyright 2009 The Go Authors. |
-| golang.org/x/crypto | v0.58.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
+| golang.org/x/crypto | v0.59.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
 | golang.org/x/image | v0.47.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
 | golang.org/x/net | v0.62.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
 | golang.org/x/oauth2 | v0.37.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
-| golang.org/x/sync | v0.24.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
-| golang.org/x/sys | v0.49.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
-| golang.org/x/text | v0.43.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
+| golang.org/x/sync | v0.25.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
+| golang.org/x/sys | v0.50.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
+| golang.org/x/text | v0.44.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
 | modernc.org/libc | v1.77.1 | BSD-3-Clause | Copyright (c) 2017 The Libc Authors. All rights reserved.<br>Copyright (c) 2009 The Go Authors. All rights reserved.<br>Copyright © 2005-2020 Rich Felker, et al.<br>Copyright © 1993,2004 Sun Microsystems or<br>Copyright © 2003-2011 David Schultz or<br>Copyright © 2003-2009 Steven G. Kargl or<br>Copyright © 2003-2009 Bruce D. Evans or<br>Copyright © 2008 Stephen L. Moshier or<br>Copyright © 2017-2018 Arm Limited<br>Copyright © 1999-2019, Arm Limited.<br>Copyright © 1994 David Burren. It is licensed under a BSD license.<br>Copyright (c) 2012 Dominik Honnef<br>Copyright (c) 2003-2025 Eelco Dolstra and the Nixpkgs/NixOS contributors |
 | modernc.org/mathutil | v1.7.1 | BSD-3-Clause | Copyright (c) 2014 The mathutil Authors. All rights reserved. |
 | modernc.org/memory | v1.12.1 | BSD-3-Clause | Copyright (c) 2017 The Memory Authors. All rights reserved.<br>Copyright (c) 2009 The Go Authors. All rights reserved.<br>Copyright (c) 2011, Evan Shaw <edsrzf@gmail.com> |
@@ -850,13 +850,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Applies to:
 
 - Go standard library and runtime go1.27.4 (LICENSE): Copyright 2009 The Go Authors.
-- golang.org/x/crypto v0.58.0 (LICENSE): Copyright 2009 The Go Authors.
+- golang.org/x/crypto v0.59.0 (LICENSE): Copyright 2009 The Go Authors.
 - golang.org/x/image v0.47.0 (LICENSE): Copyright 2009 The Go Authors.
 - golang.org/x/net v0.62.0 (LICENSE): Copyright 2009 The Go Authors.
 - golang.org/x/oauth2 v0.37.0 (LICENSE): Copyright 2009 The Go Authors.
-- golang.org/x/sync v0.24.0 (LICENSE): Copyright 2009 The Go Authors.
-- golang.org/x/sys v0.49.0 (LICENSE): Copyright 2009 The Go Authors.
-- golang.org/x/text v0.43.0 (LICENSE): Copyright 2009 The Go Authors.
+- golang.org/x/sync v0.25.0 (LICENSE): Copyright 2009 The Go Authors.
+- golang.org/x/sys v0.50.0 (LICENSE): Copyright 2009 The Go Authors.
+- golang.org/x/text v0.44.0 (LICENSE): Copyright 2009 The Go Authors.
 
 ```text
 Redistribution and use in source and binary forms, with or without
@@ -3680,12 +3680,12 @@ OTHER DEALINGS IN THE FONT SOFTWARE.
 Applies to:
 
 - Go standard library and runtime go1.27.4 (PATENTS): Copyright 2009 The Go Authors.
-- golang.org/x/crypto v0.58.0 (PATENTS): Copyright 2009 The Go Authors.
+- golang.org/x/crypto v0.59.0 (PATENTS): Copyright 2009 The Go Authors.
 - golang.org/x/image v0.47.0 (PATENTS): Copyright 2009 The Go Authors.
 - golang.org/x/net v0.62.0 (PATENTS): Copyright 2009 The Go Authors.
-- golang.org/x/sync v0.24.0 (PATENTS): Copyright 2009 The Go Authors.
-- golang.org/x/sys v0.49.0 (PATENTS): Copyright 2009 The Go Authors.
-- golang.org/x/text v0.43.0 (PATENTS): Copyright 2009 The Go Authors.
+- golang.org/x/sync v0.25.0 (PATENTS): Copyright 2009 The Go Authors.
+- golang.org/x/sys v0.50.0 (PATENTS): Copyright 2009 The Go Authors.
+- golang.org/x/text v0.44.0 (PATENTS): Copyright 2009 The Go Authors.
 
 ```text
 Additional IP Rights Grant (Patents)

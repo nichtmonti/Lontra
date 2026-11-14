@@ -39,16 +39,6 @@ reason = "tools/dex pseudo-version of v2.45.1 sorts below the 2.35.0 fix; the co
 id = "GO-2024-2476"
 reason = "tools/dex runs HTTP-only on loopback for tests; the TLS listener is never configured"
 
-# GO-2026-5932 — golang.org/x/crypto/openpgp is unmaintained. No fixed version
-# will exist; every x/crypto release carries the package, so every module that
-# pins x/crypto matches: tools/dex and tools/gitleaks (dev tools, [D-203]) as
-# much as the backend. Nothing in the app imports openpgp (govulncheck,
-# reachability-based, stays silent on the backend). Revisit if x/crypto
-# removes the package.
-[[IgnoredVulns]]
-id = "GO-2026-5932"
-reason = "openpgp is unmaintained with no fix and ships in every x/crypto; the app never imports it, and the dev tools (Dex, gitleaks) are not shipped"
-
 # GHSA-gcqx-w48m-w2h4 — deepmerge 4.3.1 (frontend/pnpm-lock.yaml), prototype
 # poisoning from a merged source object. No fixed version exists. Its one
 # consumer is @sveltejs/vite-plugin-svelte, which merges the project's own
