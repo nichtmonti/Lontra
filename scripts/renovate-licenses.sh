@@ -13,6 +13,8 @@ cd "$(dirname "$0")/.."
 GOTOOLCHAIN=$(sed -n 's/^toolchain //p' backend/go.mod)
 export GOTOOLCHAIN
 pnpm=$(sed -n 's/^RUN npm install -g pnpm@\([^ ]*\).*/\1/p' .devcontainer/Dockerfile)
+# An empty pin would make npx fetch the latest pnpm, and set -u lets "" pass.
+: "${GOTOOLCHAIN:?no toolchain line in backend/go.mod}" "${pnpm:?no pnpm pin in .devcontainer/Dockerfile}"
 echo "renovate-licenses: toolchain $GOTOOLCHAIN, pnpm $pnpm"
 npx --yes "pnpm@$pnpm" -C frontend install --frozen-lockfile
 node scripts/third-party-licenses.mjs

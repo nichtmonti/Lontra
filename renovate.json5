@@ -225,12 +225,14 @@
 		},
 		{
 			// An update to the devcontainer Dockerfile is a new CI image: rewrite
-			// its tag in every workflow in the same PR ([D-203]).
+			// its tag in every workflow in the same PR ([D-203]). Per update, as
+			// the rule below: in 'branch' mode Renovate runs only the first
+			// update's tasks, and the go toolchain group needs both ([D-356]).
 			matchFileNames: ['.devcontainer/Dockerfile'],
 			postUpgradeTasks: {
 				commands: ['sh scripts/ci-image-tag.sh --write'],
 				fileFilters: ['.woodpecker/*.yaml'],
-				executionMode: 'branch'
+				executionMode: 'update'
 			}
 		},
 		{
@@ -245,7 +247,7 @@
 				commands: ['sh scripts/renovate-licenses.sh'],
 				installTools: { golang: {} },
 				fileFilters: ['docs/THIRD_PARTY_LICENSES.md', 'docs/sbom.cdx.json'],
-				executionMode: 'branch'
+				executionMode: 'update'
 			}
 		},
 		{
