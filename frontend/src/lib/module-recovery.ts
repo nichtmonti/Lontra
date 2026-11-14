@@ -4,8 +4,10 @@
 // pause, at most twice per path per minute so it can never loop, and the report
 // carries what the page can see of the failure.
 
-/** Messages the three engines use for a module that could not be loaded. */
-const MODULE_LOAD_ERROR =
+/** Messages the three engines use for a module that could not be loaded.
+ * static/boot-guard.js keeps a copy of this pattern and of the reload guard
+ * below for the boot path ([D-357]); boot-guard.svelte.test.ts pins both. */
+export const MODULE_LOAD_ERROR =
 	/Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module|Unable to preload CSS/i;
 
 export function isModuleLoadError(message: string): boolean {

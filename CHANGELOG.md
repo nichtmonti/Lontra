@@ -12,6 +12,7 @@ Changes land under **Unreleased** in the commit that makes them; the release com
 
 - **Built with Go 1.27.4**, which fixes a standard-library vulnerability (GO-2026-6859, a race in net/http's `MaxBytesReader`).
 - **Go's crypto library updated** to `golang.org/x/crypto` 0.59.0, which no longer bundles the unmaintained `openpgp` package (GO-2026-5932, never used by the app); `x/sync`, `x/sys` and `x/text` move with it.
+- **A page whose code fails to load while it starts now recovers on its own in every browser.** Firefox and iOS Safari could stay blank when a boot file was dropped mid-load (the service worker answering it was stopped); a guard now reloads the page once, as the app already did for later screens ([D-357]).
 
 ## v0.18.0: the design pass, sheets that close in a quarter second, and product photos offline (2026-11)
 
@@ -1064,3 +1065,4 @@ First tagged build: a distroless multi-arch container (amd64 + arm64) with the S
 [D-353]: docs/internals/decisions.md#D-353
 [D-354]: docs/internals/decisions.md#D-354
 [D-355]: docs/internals/decisions.md#D-355
+[D-357]: docs/internals/decisions.md#D-357

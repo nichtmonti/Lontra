@@ -3,6 +3,8 @@
 // is reported to the server log.
 // [D-202] A route whose CODE failed to load is retried as a full page
 // load after a pause — at most twice a minute.
+// [D-357] A BOOT chunk that fails before any app code runs is recovered by
+// static/boot-guard.js, which shares the same guard.
 import { devices, expect, test, type Page } from './fixtures';
 import { registerAccount, createList } from './helpers';
 
@@ -75,4 +77,21 @@ test('a route that keeps failing shows the error page and is reported, without l
 	// so there is no loop to wait for.
 	await lastReport;
 	await expect.poll(() => loads).toBe(2);
+});
+
+test('a boot chunk that fails to load recovers with a full page load after a pause', async ({
+	page
+}) => {
+	const report = page.waitForRequest((r) => r.url().endsWith('/api/client-errors'));
+	let reloaded = false;
+	page.on('load', () => (reloaded = true));
+	// The entry fails for the first document only: no app code runs, so only
+	// the pre-boot guard can recover this one.
+	await page.route('**/_app/immutable/entry/**', (route) =>
+		reloaded ? route.continue() : route.abort()
+	);
+	await page.goto('/');
+	await expect(page.locator('[data-testid="app-shell"]')).toBeVisible({ timeout: 15_000 });
+	const sent = JSON.parse((await report).postData() ?? '{}') as { context?: string };
+	expect(sent.context).toContain('boot recovery=reload-1500ms');
 });

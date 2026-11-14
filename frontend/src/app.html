@@ -16,6 +16,10 @@
 		<!-- Before the stylesheets, so a dark choice paints dark from the first
 		     frame; see the file. -->
 		<script src="%sveltekit.assets%/theme.js"></script>
+		<!-- Before the module graph: recovers a boot chunk the service worker
+		     dropped, where the browser cannot route chunks past the worker
+		     ([D-357]). A file, like theme.js: the CSP allows the app's origin. -->
+		<script src="%sveltekit.assets%/boot-guard.js"></script>
 		<!-- In the shell, not added by the layout: the starter template's
 		     <svelte:head> icon existed only once the app's JS had run (and as an
 		     inlined data: URI), so bookmarks, history and iOS saw none. The SVG for
