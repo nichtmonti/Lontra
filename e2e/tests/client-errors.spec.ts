@@ -83,12 +83,16 @@ test('a boot chunk that fails to load recovers with a full page load after a pau
 	page
 }) => {
 	const report = page.waitForRequest((r) => r.url().endsWith('/api/client-errors'));
-	let reloaded = false;
-	page.on('load', () => (reloaded = true));
 	// The entry fails for the first document only: no app code runs, so only
-	// the pre-boot guard can recover this one.
+	// the pre-boot guard can recover this one. Counted by document request, not
+	// by `load`: the shell's import() does not hold `load` back, so the first
+	// document's `load` can reach the test before its entry request does.
+	let documents = 0;
+	page.on('request', (r) => {
+		if (r.isNavigationRequest() && r.frame() === page.mainFrame()) documents++;
+	});
 	await page.route('**/_app/immutable/entry/**', (route) =>
-		reloaded ? route.continue() : route.abort()
+		documents > 1 ? route.continue() : route.abort()
 	);
 	await page.goto('/');
 	await expect(page.locator('[data-testid="app-shell"]')).toBeVisible({ timeout: 15_000 });
