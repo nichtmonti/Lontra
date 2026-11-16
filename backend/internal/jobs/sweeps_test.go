@@ -312,10 +312,27 @@ func TestOrphanSweepDeletesOrphansAndSparesTheRest(t *testing.T) {
 	// (d) new account, no membership, no credential yet -> must survive
 	newbie := mk("newbie")
 
+	// (e) old, no membership, no credential, no OIDC login -> must be deleted
+	stranded := mk("stranded")
+	backdate(t, app, "accounts", stranded.Id, -70*day)
+
+	// (f) old, no membership, OIDC-only ([D-76]): nothing records an OIDC
+	// sign-in, so the sweep cannot tell it is in use -> must survive
+	oidcOnly := mk("oidconly")
+	backdate(t, app, "accounts", oidcOnly.Id, -70*day)
+	link := core.NewExternalAuth(app)
+	link.SetCollectionRef(oidcOnly.Collection().Id)
+	link.SetRecordRef(oidcOnly.Id)
+	link.SetProvider("oidc")
+	link.SetProviderId("oidconly")
+	if err := app.Save(link); err != nil {
+		t.Fatalf("save external auth: %v", err)
+	}
+
 	logs := testutil.CaptureLog(t)
 	mustSweep(t, app, account.SweepOrphans)
 
-	if !strings.Contains(logs.String(), `msg="shoppinglist: deleted accounts on no list and unused for 60 days" count=1`) {
+	if !strings.Contains(logs.String(), `msg="shoppinglist: deleted accounts on no list and unused for 60 days" count=2`) {
 		t.Errorf("the sweep's deletion is not logged:\n%s", logs)
 	}
 	if exists(t, app, "accounts", orphan.Id) {
@@ -332,6 +349,12 @@ func TestOrphanSweepDeletesOrphansAndSparesTheRest(t *testing.T) {
 	}
 	if !exists(t, app, "accounts", newbie.Id) {
 		t.Error("BRAND-NEW ACCOUNT DELETED — the 60-day age guard did not hold")
+	}
+	if exists(t, app, "accounts", stranded.Id) {
+		t.Error("credential-less orphan without an OIDC login survived the sweep")
+	}
+	if !exists(t, app, "accounts", oidcOnly.Id) {
+		t.Error("OIDC-ONLY ACCOUNT DELETED — an OIDC login did not protect the account")
 	}
 }
 

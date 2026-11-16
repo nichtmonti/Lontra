@@ -834,7 +834,7 @@ Scheduled in `internal/jobs`, each sweep written in the package that owns its ta
 
 - **`tombstone_gc`** hard-deletes tombstoned `items` and `list_categories` rows, **except `items` carrying a `last_bought_at`** (previous items, [§6.10] [D-18], kept indefinitely) **and `list_categories` carrying a `slug`** (a removed template aisle, which the missing-categories route must not add again, [D-251]). No cursor depends on the window ([§8.5]), so it only has to cover a realistic offline gap.
 - **`invite_sweep`** deletes invites past expiry, and revoked ones by their `updated`, which the revocation stamps.
-- **`orphan_sweep`** deletes accounts with **zero memberships**, older than the window and with no credential `last_used_at` within it, each through the [§4.5] teardown (`account.DeleteAccount`).
+- **`orphan_sweep`** deletes accounts with **zero memberships**, older than the window and with no credential `last_used_at` within it, each through the [§4.5] teardown (`account.DeleteAccount`). An account with an OIDC login (an `ExternalAuth` row) is never swept: the sweep is against open passkey signup, an OIDC login is gated by its provider, and nothing records its use ([D-192]).
 - **`barcode_photo_sweep`** deletes `barcode_cache` rows by `fetched_at` *whose photo no item still references*, tombstones included (equality against the exact issued URL, [D-21], [D-266]). Bounds `pb_data`. Deletes go through the record API one row at a time, so the image file goes with the row.
 - **`barcode_photo_retry`** downloads again the photos that failed for a reason that can pass, ten per run, one at a time; a photo that arrives goes to the items with that barcode and none ([D-21]).
 - **`merge_log_sweep`** deletes `merge_log` rows ([D-108]) by `merged_at`; a list's rows also go with the list ([§7.3]).
@@ -1035,6 +1035,7 @@ The standing rules it set are in [§14].
 [D-182]: decisions.md#D-182
 [D-183]: decisions.md#D-183
 [D-191]: decisions.md#D-191
+[D-192]: decisions.md#D-192
 [D-197]: decisions.md#D-197
 [D-200]: decisions.md#D-200
 [D-203]: decisions.md#D-203

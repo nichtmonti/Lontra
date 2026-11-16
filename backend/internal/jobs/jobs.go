@@ -36,8 +36,8 @@ var jobs = []job{
 	// Deletes invite links that expired, or were revoked or replaced, more
 	// than {window} ago
 	{"invite_sweep", daily, invites.Sweep, invites.SweepAfter},
-	// **Deletes** accounts that are on no list, are older than {window} and
-	// have used no passkey in {window}
+	// **Deletes** accounts that are on no list, are older than {window},
+	// have used no passkey in {window} and cannot sign in with OIDC
 	{"orphan_sweep", daily, account.SweepOrphans, account.OrphanAfter},
 	// Deletes product lookups and photos older than {window} that no item
 	// still shows

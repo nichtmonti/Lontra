@@ -94,7 +94,7 @@ delete data for good.
 |---|---|---|
 | `tombstone_gc` | daily, 03:00 UTC | **Deletes** items and categories removed more than 180 days ago, except items remembered under *Previous items* and the built-in aisles a list removed |
 | `invite_sweep` | daily, 03:00 UTC | Deletes invite links that expired, or were revoked or replaced, more than 30 days ago |
-| `orphan_sweep` | daily, 03:00 UTC | **Deletes** accounts that are on no list, are older than 60 days and have used no passkey in 60 days |
+| `orphan_sweep` | daily, 03:00 UTC | **Deletes** accounts that are on no list, are older than 60 days, have used no passkey in 60 days and cannot sign in with OIDC |
 | `barcode_photo_sweep` | daily, 03:00 UTC | Deletes product lookups and photos older than 180 days that no item still shows |
 | `barcode_photo_retry` | every 15 minutes | Downloads again, from the Open Food Facts photo hosts, product photos whose download failed in the last 2 days |
 | `merge_log_sweep` | daily, 03:00 UTC | Deletes records of duplicate items merged during sync, after 180 days |

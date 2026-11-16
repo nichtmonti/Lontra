@@ -13,6 +13,7 @@ import (
 	"github.com/pocketbase/pocketbase/tools/types"
 
 	"shoppinglist/internal/applog"
+	"shoppinglist/internal/oidclogin"
 	"shoppinglist/internal/security"
 )
 
@@ -78,11 +79,14 @@ func DeleteAccount(ctx context.Context, app core.App, acct *core.Record) error {
 }
 
 // OrphanAfter is how old an account on no list is, with no credential used
-// for as long, before the orphan sweep deletes it.
+// for as long, before the orphan sweep deletes it. An account with an OIDC
+// login is never swept.
 const OrphanAfter = 60 * 24 * time.Hour
 
 // SweepOrphans deletes accounts that have zero memberships, were created more
-// than OrphanAfter ago, and show no credential use within it (§13).
+// than OrphanAfter ago, show no credential use within it, and have no OIDC
+// login (§13). The sweep is against open passkey signup; an OIDC login is
+// provider-gated, and nothing records its use, so it is never swept.
 // It goes through DeleteAccount: a plain app.Delete would trip the
 // last-credential guard and roll the whole delete back. An account that fails
 // does not stop the others; every failure is returned, joined. The deletions
@@ -99,12 +103,22 @@ func SweepOrphans(app core.App) error {
 		return err
 	}
 	var errs []error
+	deleted := 0
 	for _, acct := range accounts {
-		if err := DeleteAccount(context.Background(), app, acct); err != nil {
-			errs = append(errs, fmt.Errorf("account %s: %w", acct.Id, err))
+		oidc, err := oidclogin.HasLogin(app, acct)
+		if err == nil && oidc {
+			continue
 		}
+		if err == nil {
+			err = DeleteAccount(context.Background(), app, acct)
+		}
+		if err != nil {
+			errs = append(errs, fmt.Errorf("account %s: %w", acct.Id, err))
+			continue
+		}
+		deleted++
 	}
-	if deleted := len(accounts) - len(errs); deleted > 0 {
+	if deleted > 0 {
 		applog.Info(app, fmt.Sprintf("deleted accounts on no list and unused for %d days", int(OrphanAfter.Hours()/24)), "count", deleted)
 	}
 	return errors.Join(errs...)

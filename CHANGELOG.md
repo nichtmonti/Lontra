@@ -6,6 +6,12 @@ Every release tag sits on the commit that adds its entry here (`docs(release): v
 
 Changes land under **Unreleased** in the commit that makes them; the release commit turns that heading into the version's.
 
+## Unreleased
+
+**For operators.** Nothing to do before upgrading.
+
+- **An account that signs in with OIDC is no longer deleted for being on no list.** The daily `orphan_sweep` removed every account on no list whose passkeys had gone unused for 60 days, which an account with only an OIDC login always looked like, however often it signed in; its nickname, settings and link to the provider went with it. Such an account is now never swept ([D-192]).
+
 ## v0.18.1: Go 1.27.4 for a net/http advisory, and a page that recovers when its first files fail to load (2026-11)
 
 **For operators.** Nothing to do before upgrading. Developers: rebuild the devcontainer for Go 1.27.4.
