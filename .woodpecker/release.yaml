@@ -129,7 +129,7 @@ steps:
       # and frontend/.gitignore ignores the Paraglide 3 compile cache the
       # build writes into project.inlang/, so goreleaser still sees a clean
       # tree.
-      - export GOMODCACHE="${CI_WORKSPACE:-$PWD}/.gomod" && go -C tools/task install tool
+      - export GOMODCACHE="$PWD/.gomod" && go -C tools/task install tool
       # The SPA's version is the commit's time, so a rebuild of the tag is
       # byte-identical ([D-338]).
       - export SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)

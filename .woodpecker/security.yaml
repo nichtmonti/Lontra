@@ -30,7 +30,7 @@ variables:
     GOMAXPROCS: "2"
     GOMEMLIMIT: "512MiB"
   - &go_build_cache /var/lib/woodpecker-cache/go-build:/root/.cache/go-build
-  - &go_mod_cache export GOMODCACHE="${CI_WORKSPACE:-$PWD}/.gomod"
+  - &go_mod_cache export GOMODCACHE="$PWD/.gomod"
   # go-task, the gate's runner (tools/task, [D-177]): the osv step runs the
   # gate's own task.
   - &install_task go -C tools/task install tool

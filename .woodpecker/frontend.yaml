@@ -21,7 +21,7 @@ variables:
   # go-task, the gate's runner (tools/task, [D-177]): the steps run the same
   # tasks the local gate does. Built from its module, with the shared build
   # cache; the module cache stays per pipeline ([D-60], go.yaml).
-  - &install_task export GOMODCACHE="${CI_WORKSPACE:-$PWD}/.gomod" GOCACHE=/root/.cache/go-build && go -C tools/task install tool
+  - &install_task export GOMODCACHE="$PWD/.gomod" GOCACHE=/root/.cache/go-build && go -C tools/task install tool
 
 when:
   - event: [push, pull_request, manual]

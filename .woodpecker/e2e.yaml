@@ -32,7 +32,7 @@ variables:
   # ([D-60], go.yaml), the build cache shared; the official proxy and sumdb.
   # GOCOVERDIR: every binary the steps build is built with -cover and writes
   # what it reached there on exit, for the coverage step ([D-203]).
-  - &install_task export GOMODCACHE="${CI_WORKSPACE:-$PWD}/.gomod" GOCOVERDIR="${CI_WORKSPACE:-$PWD}/.cover" GOCACHE=/root/.cache/go-build GOPROXY=https://proxy.golang.org,direct GOSUMDB=sum.golang.org GOFLAGS= && mkdir -p "$GOCOVERDIR" && go -C tools/task install tool
+  - &install_task export GOMODCACHE="$PWD/.gomod" GOCOVERDIR="$PWD/.cover" GOCACHE=/root/.cache/go-build GOPROXY=https://proxy.golang.org,direct GOSUMDB=sum.golang.org GOFLAGS= && mkdir -p "$GOCOVERDIR" && go -C tools/task install tool
 
 when:
   - event: [push, pull_request, manual]
