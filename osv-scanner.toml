@@ -16,7 +16,7 @@
 # here.)
 [[IgnoredVulns]]
 id = "GHSA-q7pp-wcgr-pffx"
-reason = "imaging is an indirect dep of pocketbase/tools/filesystem; no fixed version released, and PocketBase v0.40.4 still requires v1.6.2 (re-checked 2026-09); track on the next PB bump"
+reason = "imaging is an indirect dep of pocketbase/tools/filesystem; no fixed version released, and PocketBase v0.40.6 still requires v1.6.2 (re-checked 2026-11-16); track on the next PB bump"
 
 # The Dex pin (tools/dex/go.mod, [D-154]) — a test-only OIDC provider: it runs
 # beside the OIDC tests on loopback and is never built into the app
