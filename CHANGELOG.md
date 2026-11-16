@@ -6,7 +6,7 @@ Every release tag sits on the commit that adds its entry here (`docs(release): v
 
 Changes land under **Unreleased** in the commit that makes them; the release commit turns that heading into the version's.
 
-## Unreleased
+## v0.18.2: an OIDC account on no list is no longer deleted, and a removed row hands on the keyboard focus (2026-11)
 
 **For operators.** Nothing to do before upgrading.
 
