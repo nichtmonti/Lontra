@@ -22,6 +22,7 @@
 	import { reactivate } from '#lib/actions/items.js';
 	import type { Item } from '#lib/db.js';
 	import { createTapGuard, tapPoint } from '#lib/components/shop/tap-guard.js';
+	import { focusNeighbour } from '#lib/components/common/focus-neighbour.js';
 	import { t } from '#lib/i18n/index.js';
 	import OfflineHint from '#lib/components/common/OfflineHint.svelte';
 	import AisleHeader from '#lib/components/common/AisleHeader.svelte';
@@ -69,10 +70,17 @@
 	let hasDates = $derived(items.some((i) => i.last_bought_at || i.checked_at));
 
 	// A re-added row leaves, and the next one moves up under the finger
-	// ([D-213], [D-293]).
+	// ([D-213], [D-293]). Its focus goes to the next row, else the one
+	// before, across the aisles; the screen's rows are its RuledRows'
+	// children, and those share one parent.
 	const acceptTap = createTapGuard();
 	function readd(item: Item, event: MouseEvent): void {
-		if (acceptTap(tapPoint(event))) void reactivate(item);
+		if (!acceptTap(tapPoint(event))) return;
+		focusNeighbour(event, {
+			within: (row) => row.closest('.ruled-rows')?.parentElement,
+			rows: '.prev-item'
+		});
+		void reactivate(item);
 	}
 </script>
 

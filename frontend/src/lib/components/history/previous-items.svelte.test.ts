@@ -375,6 +375,80 @@ describe('PreviousItems', () => {
 		});
 	});
 
+	// WCAG 2.4.3: a re-added row leaves the screen; its focus goes to the row
+	// that takes its place, else the one before, across the aisles, as a
+	// ticked tile and a restored done row hand theirs on.
+	it('hands the focus on when a focused row is re-added', async () => {
+		await historySort.set('category');
+		const produce = makeCategory({ id: 'produce', list: 'list-f', name: 'Obst', sort_order: 1 });
+		const dairy = makeCategory({ id: 'dairy', list: 'list-f', name: 'Molkerei', sort_order: 2 });
+		const bought = (name: string, category: string) =>
+			makeItem({
+				list: 'list-f',
+				name,
+				category_key: category,
+				checked: true,
+				checked_at: daysAgo(8),
+				last_bought_at: daysAgo(8)
+			});
+		await seedList({
+			listId: 'list-f',
+			categories: [produce, dairy],
+			items: [bought('Apfel', produce.id), bought('Milch', dairy.id), bought('Quark', dairy.id)]
+		});
+		const { container } = renderPrevious('list-f');
+		// Settled: both aisles drawn under their names, in the list's order.
+		await waitFor(() =>
+			expect([...container.querySelectorAll('.cat-head-name')].map((h) => h.textContent)).toEqual([
+				'Obst',
+				'Molkerei'
+			])
+		);
+		const [first, second, third] = screen.getAllByTestId('prev-item');
+		const gone = (row: HTMLElement) => waitFor(() => expect(row.isConnected).toBe(false));
+
+		// From the keyboard: into the next aisle's first row.
+		first.focus();
+		await fireEvent.click(first, { detail: 0 });
+		expect(document.activeElement).toBe(second);
+		await gone(first);
+
+		// A tap on the focused row moves it too, without scrolling.
+		const focus = vi.spyOn(HTMLElement.prototype, 'focus');
+		await fireEvent.click(second, { detail: 1, clientX: 10, clientY: 10 });
+		expect(document.activeElement).toBe(third);
+		expect(focus).toHaveBeenLastCalledWith({ preventScroll: true });
+		focus.mockRestore();
+		await gone(second);
+
+		// A tap on a row without the focus takes nothing.
+		const outside = document.createElement('button');
+		document.body.append(outside);
+		outside.focus();
+		await fireEvent.click(third, { detail: 1, clientX: 200, clientY: 200 });
+		expect(document.activeElement).toBe(outside);
+		outside.remove();
+	});
+
+	it('hands the focus back to the row before when the last one is re-added', async () => {
+		const bought = (name: string, days: number) =>
+			makeItem({
+				list: 'list-g',
+				name,
+				checked: true,
+				checked_at: daysAgo(days),
+				last_bought_at: daysAgo(days)
+			});
+		await seedList({ listId: 'list-g', items: [bought('Brot', 8), bought('Salz', 9)] });
+		renderPrevious('list-g');
+
+		const rows = await screen.findAllByTestId('prev-item');
+		expect(rows).toHaveLength(2);
+		rows[1].focus();
+		await fireEvent.click(rows[1], { detail: 0 });
+		expect(document.activeElement).toBe(rows[0]);
+	});
+
 	// [D-304] The list's app bar ‹ is the one way back.
 	it("names itself in the list's app bar, with no back control of its own ([D-323])", async () => {
 		await seedList({ listId: 'list-9', items: [] });

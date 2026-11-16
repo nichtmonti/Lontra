@@ -25,6 +25,7 @@
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { createTapGuard, tapPoint } from './tap-guard';
+	import { focusNeighbour } from '#lib/components/common/focus-neighbour.js';
 
 	interface Props {
 		listId: string;
@@ -67,25 +68,17 @@
 		const button = event.currentTarget;
 		const tile = button instanceof HTMLElement ? button.closest('[data-item]') : null;
 		if (!acceptTap(tapPoint(event), tile)) return;
-		if (button instanceof HTMLElement && document.activeElement === button) {
-			focusNeighbour(button, event.detail > 0);
-		}
+		// A ticked tile leaves the grid: its focus goes to the tile that takes
+		// its place, else the one before, else "edit list".
+		focusNeighbour(event, {
+			within: (row) => row.closest('.shop-items'),
+			rows: '.tile-check',
+			fallback: () => addButton
+		});
 		void toggleChecked(item);
 	}
 
-	// A ticked tile leaves the grid, and its focus with it: the next Tab would
-	// start again at the app bar. The tile that takes its place gets it, else
-	// the one before, else "edit list" (WCAG 2.4.3). A tap moves it without
-	// scrolling, so the grid does not jump under a finger.
 	let addButton = $state<HTMLElement | null>(null);
-	function focusNeighbour(button: HTMLElement, pointer: boolean): void {
-		// In the order the grid draws them, which only the DOM knows.
-		const grid = button.closest('.shop-items');
-		const checks = [...(grid?.querySelectorAll<HTMLElement>('.tile-check') ?? [])];
-		const at = checks.indexOf(button);
-		const next = checks[at + 1] ?? checks[at - 1] ?? addButton;
-		next?.focus({ preventScroll: pointer });
-	}
 
 	// The list density ([D-313]). The one place density becomes structure;
 	// every size arrives through the root [data-density] tokens.

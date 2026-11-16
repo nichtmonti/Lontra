@@ -18,6 +18,7 @@
 	import { cubicOut } from 'svelte/easing';
 	import { dur, flipNear, ROW_FLIP_MS } from '#lib/state/motion.js';
 	import { createTapGuard, tapPoint } from './tap-guard';
+	import { focusNeighbour } from '#lib/components/common/focus-neighbour.js';
 
 	interface Props {
 		items: Item[];
@@ -32,18 +33,15 @@
 	// Open by default, so a restore is one tap.
 	let doneOpen = $state(true);
 
-	// A restored row leaves this section with its focus: the next row gets it,
-	// else the one before, else the section's head (WCAG 2.4.3), as a ticked
-	// tile hands it on in ShopView. A tap moves it without scrolling.
+	// A restored row leaves this section: its focus goes to the next row, else
+	// the one before, else the section's head.
 	function restore(item: Item, event: MouseEvent): void {
 		if (!acceptTap(tapPoint(event))) return;
-		const button = event.currentTarget;
-		if (button instanceof HTMLElement && document.activeElement === button) {
-			const rows = [...(button.parentElement?.querySelectorAll<HTMLElement>('.done-row') ?? [])];
-			const at = rows.indexOf(button);
-			const head = button.closest('section')?.querySelector<HTMLElement>('.done-head');
-			(rows[at + 1] ?? rows[at - 1] ?? head)?.focus({ preventScroll: event.detail > 0 });
-		}
+		focusNeighbour(event, {
+			within: (row) => row.parentElement,
+			rows: '.done-row',
+			fallback: (row) => row.closest('section')?.querySelector<HTMLElement>('.done-head')
+		});
 		void onrestore(item);
 	}
 </script>
