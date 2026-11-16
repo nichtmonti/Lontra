@@ -89,8 +89,9 @@ func newItem(t *testing.T, app core.App, list *core.Record, name, quantity strin
 
 // inviteOpts configures newInvite.
 type inviteOpts struct {
-	revoked bool
-	expired bool
+	revoked  bool
+	expired  bool
+	noExpiry bool // expires_at left empty
 }
 
 // newInvite creates an invites row on list with a known raw token, returning
@@ -105,13 +106,15 @@ func newInvite(t *testing.T, app core.App, list *core.Record, rawToken string, o
 	rec.Set("list", list.Id)
 	rec.Set("token_hash", pbsecurity.SHA256(rawToken))
 	rec.Set("revoked", opts.revoked)
-	if opts.expired {
+	switch {
+	case opts.noExpiry: // expires_at stays empty
+	case opts.expired:
 		past, err := types.ParseDateTime("2020-01-01 10:00:00.000Z")
 		if err != nil {
 			t.Fatalf("parse past date: %v", err)
 		}
 		rec.Set("expires_at", past)
-	} else {
+	default:
 		future, err := types.ParseDateTime("2099-01-01 10:00:00.000Z")
 		if err != nil {
 			t.Fatalf("parse future date: %v", err)
@@ -258,6 +261,18 @@ func TestPreviewExpiredDenied(t *testing.T) {
 	}
 }
 
+// TestPreviewWithoutExpiryDenied: a row without an expiry fails closed.
+func TestPreviewWithoutExpiryDenied(t *testing.T) {
+	app, mux := setupInvitesApp(t)
+	list := newList(t, app)
+	newInvite(t, app, list, "raw-token-noexpiry", inviteOpts{noExpiry: true})
+
+	rec, _ := testutil.DoReq(mux, http.MethodPost, "/api/invites/preview", `{"token":"raw-token-noexpiry"}`, nil)
+	if rec.Code != http.StatusBadRequest {
+		t.Errorf("status = %d, want 400: %s", rec.Code, rec.Body.String())
+	}
+}
+
 // TestPreviewRateLimited (§10): the preview route is rate-limited per IP.
 // Uses a dedicated RemoteAddr (TEST-NET-3, 203.0.113.0/24) instead of
 // httptest's default 192.0.2.1 so saturating this limiter cannot poison the
@@ -394,6 +409,8 @@ func TestJoinRevokedOrExpiredDenied(t *testing.T) {
 	}{
 		{"revoked", inviteOpts{revoked: true}, "raw-token-join-revoked", "joiner-rev"},
 		{"expired", inviteOpts{expired: true}, "raw-token-join-expired", "joiner-exp"},
+		// Fails closed: a row without an expiry is not a perpetual link.
+		{"no expiry", inviteOpts{noExpiry: true}, "raw-token-join-noexpiry", "joiner-noexp"},
 	}
 
 	for _, tc := range cases {

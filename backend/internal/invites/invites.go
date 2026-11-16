@@ -61,8 +61,10 @@ func findValidByHash(app core.App, hash string) (*core.Record, error) {
 	if rec.GetBool("revoked") {
 		return nil, nil
 	}
+	// No expiry counts as expired: every minted link has one, so a row
+	// without (a dashboard edit, a restore) fails closed.
 	expiresAt := rec.GetDateTime("expires_at")
-	if !expiresAt.IsZero() && expiresAt.Before(types.NowDateTime()) {
+	if expiresAt.IsZero() || expiresAt.Before(types.NowDateTime()) {
 		return nil, nil
 	}
 	return rec, nil

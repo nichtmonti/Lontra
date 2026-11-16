@@ -12,6 +12,7 @@ Changes land under **Unreleased** in the commit that makes them; the release com
 
 - **An account that signs in with OIDC is no longer deleted for being on no list.** The daily `orphan_sweep` removed every account on no list whose passkeys had gone unused for 60 days, which an account with only an OIDC login always looked like, however often it signed in; its nickname, settings and link to the provider went with it. Such an account is now never swept ([D-192]).
 - **An item can no longer be stored without a name.** The server took an item whose name was empty or only spaces from a sync or a backup import, though the app itself never sends one, and folded every such item on a list into one. Such an item is now refused, in a sync and in a backup import.
+- **An invite link with no expiry date no longer works.** The app always sets one; a link whose date was emptied, in the admin dashboard or by a restore, used to stay valid for ever and now counts as expired ([D-31]).
 
 ## v0.18.1: Go 1.27.4 for a net/http advisory, and a page that recovers when its first files fail to load (2026-11)
 
@@ -885,6 +886,7 @@ First tagged build: a distroless multi-arch container (amd64 + arm64) with the S
 [D-25]: docs/internals/decisions.md#D-25
 [D-28]: docs/internals/decisions.md#D-28
 [D-29]: docs/internals/decisions.md#D-29
+[D-31]: docs/internals/decisions.md#D-31
 [D-36]: docs/internals/decisions.md#D-36
 [D-40]: docs/internals/decisions.md#D-40
 [D-42]: docs/internals/decisions.md#D-42

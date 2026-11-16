@@ -290,7 +290,7 @@ Seeded on boot ([§6.12]); superuser-only writes. Clients **read** templates but
 | list | relation → lists | |
 | token_hash | string | **sha256 of the token**, the lookup key ([§7.1]); the token's 32 random bytes ([§10.1]) make a fast hash enough |
 | token | string | the live link's token ([§7.1]), read under the member-only rules; empty on links minted before the column [D-294] |
-| expires_at | datetime | the link's lifetime ([§7.1]) from the server clock at minting ([§7.6]) |
+| expires_at | datetime | the link's lifetime ([§7.1]) from the server clock at minting ([§7.6]); a row without one counts as expired |
 | revoked | bool | |
 | created_by | relation → accounts, **non-cascading** [D-32] | |
 
