@@ -144,6 +144,11 @@ func processOp(app core.App, op pushOp, callerID string, membership *membershipC
 	// `list` would escape the membership check below. A legit client can still
 	// hit a cap: `maxlength` counts UTF-16 units, the cap UTF-8 bytes.
 	unknown, oversized, badType := fieldProblems(op.Collection, op.Changed)
+	// An item is created with its name; an update may leave it out.
+	if _, named := op.Changed["name"]; badType == "" && !named &&
+		op.Type == "create" && op.Collection == collectionItems {
+		badType = "name"
+	}
 	if unknown != "" {
 		return deniedField(op, reasonFieldUnknown, unknown), nil
 	}

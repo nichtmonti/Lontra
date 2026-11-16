@@ -69,7 +69,7 @@ func TestPush_Denied_CarriesReason(t *testing.T) {
 		{
 			name: "field over the contract cap",
 			op: pushOp{Collection: collectionItems, RecordID: randid.ID(), ListID: listID, Type: "create",
-				Changed: map[string]any{"note": strings.Repeat("x", 4097)}},
+				Changed: map[string]any{"name": "Note", "note": strings.Repeat("x", 4097)}},
 			wantReason: "field_too_long",
 			wantField:  "note",
 		},

@@ -316,3 +316,51 @@ func TestPush_WrongTypedValue_Denied(t *testing.T) {
 		}
 	}
 }
+
+// TestPush_BlankItemName_Denied: an item has a name. A create with a blank,
+// whitespace-only, null or absent name, and an update that blanks one, deny
+// as field_invalid: every blank name shares the [D-29] merge key "", so one
+// member's blank create would fold into another's. An update that leaves the
+// name out still applies.
+func TestPush_BlankItemName_Denied(t *testing.T) {
+	app, mux := setupSyncApp(t)
+	acctID, tok := testutil.CreateAccount(t, app, "Alice")
+	listID := testutil.CreateListFor(t, app, acctID, "Test")
+	milk := seedItemRow(t, app, listID, "Milk", nil)
+
+	creates := []map[string]any{
+		{"name": ""},
+		{"name": " 　\t "},
+		{"name": nil},
+		{"quantity": "2"},
+	}
+	for i, changed := range creates {
+		op := pushOp{OpID: "create-" + string(rune('a'+i)), Collection: collectionItems, RecordID: randid.ID(),
+			ListID: listID, Type: "create", Changed: changed}
+		r := push(t, mux, tok, []pushOp{op})[0]
+		if r.Status != "denied" || r.Reason != reasonFieldInvalid || r.Field != "name" {
+			t.Errorf("create %v: status=%v reason=%v field=%v, want denied/%s/name", changed, r.Status, r.Reason, r.Field, reasonFieldInvalid)
+		}
+		if rec, _ := app.FindRecordById(collectionItems, op.RecordID); rec != nil {
+			t.Errorf("create %v: the item was created", changed)
+		}
+	}
+
+	for i, name := range []any{"", "  ", nil} {
+		r := push(t, mux, tok, []pushOp{{OpID: "blank-" + string(rune('a'+i)), Collection: collectionItems,
+			RecordID: milk.Id, ListID: listID, Type: "update",
+			Changed: map[string]any{"name": name}, Base: map[string]any{"name": "Milk"}}})[0]
+		if r.Status != "denied" || r.Reason != reasonFieldInvalid || r.Field != "name" {
+			t.Errorf("update name=%v: status=%v reason=%v field=%v, want denied/%s/name", name, r.Status, r.Reason, r.Field, reasonFieldInvalid)
+		}
+	}
+
+	r := push(t, mux, tok, []pushOp{{OpID: "qty", Collection: collectionItems, RecordID: milk.Id, ListID: listID,
+		Type: "update", Changed: map[string]any{"quantity": "1 l"}, Base: map[string]any{"quantity": ""}}})[0]
+	if r.Status != "applied" {
+		t.Errorf("update without a name: status=%v reason=%v, want applied", r.Status, r.Reason)
+	}
+	if rec, _ := app.FindRecordById(collectionItems, milk.Id); rec.GetString("name") != "Milk" || rec.GetString("quantity") != "1 l" {
+		t.Errorf("item after the pushes: name=%q quantity=%q, want Milk / 1 l", rec.GetString("name"), rec.GetString("quantity"))
+	}
+}

@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"shoppinglist/internal/fieldcontract"
+	"shoppinglist/internal/normalize"
 )
 
 // The per-field byte caps live in internal/fieldcontract, shared with the
@@ -32,9 +33,18 @@ func typed(collection, field string, v any) bool {
 	}
 }
 
+// BlankItemName reports whether name leaves an item without one: nothing is
+// left of it once normalized ([D-44]), so whitespace alone is blank. Every
+// blank name would share the name_norm "", and the [D-29] merge would fold
+// them into one row. The push route and the backup import both refuse one.
+func BlankItemName(name string) bool {
+	return normalize.Name(name) == ""
+}
+
 // fieldProblems reports the first allowlist violation, the first cap
-// violation and the first wrong-typed value in changed, in field order. A bad
-// type is only reachable for a KNOWN field.
+// violation and the first invalid value in changed, in field order: a value
+// of the wrong type, or a blank item name (null included). An invalid value
+// is only reachable for a KNOWN field.
 func fieldProblems(collection string, changed map[string]any) (unknown, oversized, badType string) {
 	for _, field := range sortedFields(changed) {
 		if isSignal(field) {
@@ -54,6 +64,14 @@ func fieldProblems(collection string, changed map[string]any) (unknown, oversize
 				badType = field
 			}
 			continue // a mistyped value has no meaningful cap either
+		}
+		if collection == collectionItems && field == "name" {
+			if name, _ := changed[field].(string); BlankItemName(name) {
+				if badType == "" {
+					badType = field
+				}
+				continue
+			}
 		}
 		if oversized == "" {
 			if limit, hasCap := fieldcontract.MaxBytes(collection, field); hasCap {

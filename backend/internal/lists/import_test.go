@@ -705,6 +705,19 @@ func TestImportRefusesUnreadableRows(t *testing.T) {
 		{"empty last_bought_at", func(b map[string]any) {
 			b["items"].([]any)[1].(map[string]any)["last_bought_at"] = ""
 		}, "invalid last_bought_at"},
+		// Every blank name shares the [D-29] merge key "".
+		{"empty item name", func(b map[string]any) {
+			b["items"].([]any)[0].(map[string]any)["name"] = ""
+		}, "item name is required"},
+		{"whitespace item name", func(b map[string]any) {
+			b["items"].([]any)[0].(map[string]any)["name"] = " \u3000\t"
+		}, "item name is required"},
+		{"null item name", func(b map[string]any) {
+			b["items"].([]any)[0].(map[string]any)["name"] = nil
+		}, "item name is required"},
+		{"absent item name", func(b map[string]any) {
+			delete(b["items"].([]any)[0].(map[string]any), "name")
+		}, "item name is required"},
 		{"numeric last_bought_at", func(b map[string]any) {
 			b["items"].([]any)[1].(map[string]any)["last_bought_at"] = 1767261600
 		}, "invalid request body"},

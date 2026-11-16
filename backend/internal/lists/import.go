@@ -9,6 +9,7 @@ import (
 	"github.com/pocketbase/pocketbase/tools/types"
 
 	"shoppinglist/internal/fieldcontract"
+	"shoppinglist/internal/sync"
 )
 
 // The backup envelope and count caps come from internal/fieldcontract,
@@ -145,6 +146,9 @@ func validateBackup(app core.App, b importBackupPayload, maxItems int) (string, 
 	// One future-tolerance deadline per request, not one time.Now() per item.
 	deadline := time.Now().Add(5 * time.Minute)
 	for _, item := range b.Items {
+		if sync.BlankItemName(item.Name) {
+			return "item name is required", nil
+		}
 		if msg := firstOverCap("items", []fieldValue{
 			{"name", item.Name},
 			{"name_de", strOrEmpty(item.NameDE)},
