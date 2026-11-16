@@ -48,13 +48,18 @@
 		onedit?: (patch: ItemEditPatch) => void;
 		/** What the remove button does; defaults to removing the item. */
 		onremove?: () => void;
+		/** The row that takes the focus when `item`'s leaves with the removal;
+		 *  asked while that row is still drawn. Without it the focus goes
+		 *  back to the row that opened the sheet. */
+		rowAfterRemove?: (item: Item) => HTMLElement | null | undefined;
 		/** Whether another row on the list already has this name: such a
 		 *  rename is not saved, since the server merges names only on an add
 		 *  and the list would show the name twice. */
 		nameTaken?: (name: string, item: Item) => boolean;
 	}
 
-	let { item, categories, templates, onclose, onedit, onremove, nameTaken }: Props = $props();
+	let { item, categories, templates, onclose, onedit, onremove, rowAfterRemove, nameTaken }: Props =
+		$props();
 
 	// What the sheet shows, kept while it slides closed; edits go to `item`.
 	const shown = new Kept(() => item);
@@ -132,9 +137,21 @@
 		if (!target) return;
 		// Not close(): committing drafts would race the delete.
 		committed = $state.snapshot(drafts);
+		focusAfterClose = rowAfterRemove?.(target) ?? null;
 		if (onremove) onremove();
 		else void removeItem(target);
 		onclose();
+	}
+
+	// The removed row cannot take the focus back, so the sheet would drop it
+	// on the page (WCAG 2.4.3).
+	let focusAfterClose: HTMLElement | null = null;
+	function onCloseAutoFocus(event: Event): void {
+		const next = focusAfterClose;
+		focusAfterClose = null;
+		if (!next?.isConnected) return;
+		event.preventDefault();
+		next.focus({ preventScroll: true });
 	}
 </script>
 
@@ -147,7 +164,14 @@
 	{/if}
 {/snippet}
 
-<Sheet open={item !== null} title={t('list_detail_title')} onclose={close} {headerActions} done>
+<Sheet
+	open={item !== null}
+	title={t('list_detail_title')}
+	onclose={close}
+	{headerActions}
+	{onCloseAutoFocus}
+	done
+>
 	{#if shown.value}
 		{@const row = shown.value}
 		<div class="flex flex-col">

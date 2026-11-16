@@ -14,6 +14,7 @@ Changes land under **Unreleased** in the commit that makes them; the release com
 - **An item can no longer be stored without a name.** The server took an item whose name was empty or only spaces from a sync or a backup import, though the app itself never sends one, and folded every such item on a list into one. Such an item is now refused, in a sync and in a backup import.
 - **An invite link with no expiry date no longer works.** The app always sets one; a link whose date was emptied, in the admin dashboard or by a restore, used to stay valid for ever and now counts as expired ([D-31]).
 - **Putting an item back on the list from “Previous items” with the keyboard keeps your place.** The focus moved to the top of the page; it now goes to the next item, as it already did when ticking off an item or putting back a done one.
+- **Removing an item from “Edit item” keeps your place too.** The sheet had no row left to return the focus to and dropped it on the page; it now goes to the next item on the list, or the one before.
 
 ## v0.18.1: Go 1.27.4 for a net/http advisory, and a page that recovers when its first files fail to load (2026-11)
 

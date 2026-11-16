@@ -21,6 +21,7 @@
 	import PrevItemsLink from '#lib/components/common/PrevItemsLink.svelte';
 	import { scrollBehavior } from '#lib/state/motion.js';
 	import { removeItem } from '#lib/actions/items.js';
+	import { neighbourOf } from '#lib/components/common/focus-neighbour.js';
 	import { nameTakenBy } from '#lib/dedup.js';
 	import type { Item } from '#lib/db.js';
 
@@ -74,11 +75,22 @@
 		return nameTakenBy(living, name, item.id);
 	}
 
-	// The add box's dedup jump (§9.1).
-	function handleJump(itemId: string): void {
-		const el = [...(listRoot?.querySelectorAll<HTMLElement>('[data-item]') ?? [])].find(
+	function slotOf(itemId: string): HTMLElement | undefined {
+		return [...(listRoot?.querySelectorAll<HTMLElement>('[data-item]') ?? [])].find(
 			(slot) => slot.dataset.item === itemId
 		);
+	}
+
+	// The row whose name takes the focus when the sheet removes its item: the
+	// next one, else the one before.
+	function rowAfterRemove(item: Item): HTMLElement | null | undefined {
+		const name = slotOf(item.id)?.querySelector<HTMLElement>('.row-name');
+		return name && neighbourOf(name, { within: () => listRoot, rows: '.row-name' });
+	}
+
+	// The add box's dedup jump (§9.1).
+	function handleJump(itemId: string): void {
+		const el = slotOf(itemId);
 		if (!el) return;
 		// A JS argument, which app.css's reduced-motion rule cannot reach.
 		el.scrollIntoView({ behavior: scrollBehavior(), block: 'center' });
@@ -118,6 +130,7 @@
 		{categories}
 		templates={templatesMap}
 		onclose={detail.close}
+		{rowAfterRemove}
 		{nameTaken}
 	/>
 </div>

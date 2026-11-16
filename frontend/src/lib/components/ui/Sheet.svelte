@@ -23,9 +23,21 @@
 		/** The sheet's action, on its bottom edge while the content scrolls
 		 *  under it ([D-327]). */
 		footer?: Snippet;
+		/** bits-ui's own, before it hands the focus back to what opened the
+		 *  sheet: prevented, the focus stays where the caller put it. */
+		onCloseAutoFocus?: (event: Event) => void;
 	}
 
-	let { open, title: titleText, onclose, children, headerActions, footer, done }: Props = $props();
+	let {
+		open,
+		title: titleText,
+		onclose,
+		children,
+		headerActions,
+		footer,
+		done,
+		onCloseAutoFocus
+	}: Props = $props();
 </script>
 
 <Dialog.Root
@@ -47,6 +59,7 @@
 			data-slot="sheet-content"
 			class="fixed inset-x-0 bottom-0 z-(--layer-modal) mx-auto mt-24 flex h-auto max-h-[80dvh] max-w-(--app-max) flex-col rounded-t-card border-t border-line-strong bg-surface px-4 pt-4 pb-[calc(18px+env(safe-area-inset-bottom))] text-sm text-foreground shadow-sheet outline-none duration-(--motion-sheet-in) data-[state=closed]:duration-(--motion-sheet-out) ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom"
 			onOpenAutoFocus={(e) => e.preventDefault()}
+			{onCloseAutoFocus}
 		>
 			<OverlayHead class="sheet-head mb-2.5" actions={headerActions}>
 				<!-- A title, like a screen's ([D-278]). -->

@@ -110,3 +110,33 @@ test('detail-sheet edits, the inline quantity chip, remove and restore all reach
 	await deviceB.context.close();
 	await page.context().close();
 });
+
+// The removed row cannot take the focus back from the sheet (WCAG 2.4.3):
+// the row after it does, and the one before when it was the last.
+test('removing from the item sheet hands the focus to a neighbouring row', async ({ page }) => {
+	await registerAccount(page, 'Anna');
+	await createList(page, 'Wochenshop');
+	await openListView(page);
+	for (const name of ['Kekse', 'Senf', 'Radiergummi']) await addItemByTyping(page, name);
+
+	const names = page.locator('[data-testid="row"] .row-name-main');
+	await expect(names).toHaveCount(3);
+	// In the order the list draws them.
+	const [, middle, last] = await names.allTextContents();
+	const sheet = page.getByRole('dialog', { name: 'Artikel bearbeiten' });
+
+	async function removeByKeyboard(name: string): Promise<void> {
+		await itemRow(page, name).locator('.row-name').focus();
+		await page.keyboard.press('Enter');
+		await sheet.getByRole('button', { name: `${name} von der Liste entfernen` }).focus();
+		await page.keyboard.press('Enter');
+		await expect(itemRow(page, name)).toHaveCount(0);
+	}
+
+	await removeByKeyboard(middle);
+	await expect(itemRow(page, last).locator('.row-name')).toBeFocused();
+
+	await removeByKeyboard(last);
+	await expect(names).toHaveCount(1);
+	await expect(names.locator('xpath=ancestor::button')).toBeFocused();
+});
