@@ -36,8 +36,8 @@ variables:
   # explicit because the step mounts it; the image default lines up, this
   # guards against an image bump moving it. No GOMODCACHE here — the first
   # command of each step exports it into the workspace [D-60], as `$PWD`,
-  # which the step starts in: Woodpecker fills in `${…}` before the shell
-  # runs, and CI_WORKSPACE is not among the names it knows then.
+  # which the step starts in: Woodpecker fills in a braced variable before
+  # the shell runs, and CI_WORKSPACE is not among the names it knows then.
   - &go_env
     GOCACHE: /root/.cache/go-build
     GOPROXY: https://proxy.golang.org,direct
