@@ -104,13 +104,19 @@
 <!-- Create/join/import, rendered in the empty state and the footer. The
      offline hint stays out: its parent and spacing differ by call site. -->
 {#snippet homeActions()}
-	<Button type="button" disabled={!$online} onclick={actions.create}>
+	<Button type="button" class="tablet:px-4" disabled={!$online} onclick={actions.create}>
 		{t('home_new_list')}
 	</Button>
-	<Button variant="outline" type="button" disabled={!$online} onclick={actions.join}>
+	<Button
+		variant="outline"
+		type="button"
+		class="tablet:px-4"
+		disabled={!$online}
+		onclick={actions.join}
+	>
 		{t('home_join_list')}
 	</Button>
-	<Button variant="outline" type="button" onclick={actions.openImport}>
+	<Button variant="outline" type="button" class="tablet:px-4" onclick={actions.openImport}>
 		{t('home_import_list')}
 	</Button>
 {/snippet}
@@ -206,7 +212,12 @@
 		</div>
 
 		<div class="flex flex-col gap-2 px-4 pb-5 pt-1">
-			{@render homeActions()}
+			<!-- A phone stacks them full width; a tablet sets them in a row, each
+			     as wide as its label with the page's 16px either side, wrapping
+			     when large text makes the row too long ([D-359]). -->
+			<div class="flex flex-col gap-2 tablet:flex-row tablet:flex-wrap">
+				{@render homeActions()}
+			</div>
 			{#if !$online}
 				<OfflineHint class="mt-2" message={t('home_online_only')} />
 			{/if}

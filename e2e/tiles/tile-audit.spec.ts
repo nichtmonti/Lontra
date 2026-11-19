@@ -22,9 +22,9 @@ import { openGallery } from './gallery';
 const KINDS = ['plain', 'photo', 'scan', 'failed'] as const;
 const DENSITIES = ['comfortable', 'compact', 'list'] as const;
 const SCALES = [100, 150, 200] as const;
-// 320 and 390 are phones; 1133 is the widest supported screen, an iPad mini
+// 320 and 390 are phones; 1376 is the widest supported screen, a 13" iPad
 // held landscape ([D-358]) — the most columns the grid ever lays out.
-const WIDTHS = [320, 390, 1133] as const;
+const WIDTHS = [320, 390, 1376] as const;
 
 /** Waits until the tiles have stopped moving: the pop-in animation scales
  *  them (and so their measured boxes), photos decode, and the clamp

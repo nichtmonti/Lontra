@@ -11,8 +11,10 @@
 		base: "rounded-control border border-transparent bg-clip-padding text-sm font-demi [&_svg:not([class*='size-'])]:size-4 inline-flex shrink-0 items-center justify-center whitespace-nowrap transition-colors select-none disabled:pointer-events-none disabled:border-transparent disabled:bg-tint-strong disabled:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0",
 		variants: {
 			variant: {
+				// Its edge is its fill, as the solid danger's is: a clear edge would
+				// leave the fill 1px short of an outlined button beside it.
 				default:
-					'bg-primary text-primary-foreground hover:bg-primary-press active:bg-primary-press',
+					'border-primary bg-primary text-primary-foreground hover:border-primary-press hover:bg-primary-press active:border-primary-press active:bg-primary-press',
 				// The secondary: white, with an edge at 3:1 so it reads as a button
 				// on its own, and never green: green is the primary's ([D-284]).
 				outline:

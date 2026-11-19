@@ -8,7 +8,9 @@ Changes land under **Unreleased** in the commit that makes them; the release com
 
 ## Unreleased
 
-- **The app now fills an iPad held landscape, up to an iPad mini.** The column used to stop at 820px — an iPad's portrait width — so a landscape iPad mini showed the app letterboxed between wide empty margins, with four tile columns. The column now widens to 1133px, the mini's landscape width, and the shopping grid gains columns with it: six at full width, fewer as you enlarge the text. Phones are unchanged, and larger screens keep the centred column ([D-358]).
+- **The app now fills an iPad held landscape.** The column used to stop at 820px, an iPad's portrait width, so an iPad held landscape showed the app between wide empty margins, with four tile columns. The column now widens to the widest iPad's landscape width, so every iPad fills its screen, and the shopping grid gains columns with it, fewer as you enlarge the text. Phones are unchanged, and wider screens keep a centred column ([D-358]).
+- **On an iPad, the app takes an iPad app's shapes.** A sheet opens as a card in the upper part of the screen instead of rising full width from the bottom edge, and grows downward without moving what you just pressed; "New list", "Join with invite" and "Import list" sit side by side instead of stretching across the screen, wrapping when the text is large; the "Shopping" and "Editing" tabs keep a phone's width, centred. A phone, held either way, is unchanged ([D-359]).
+- **The lines between rows in a sheet end where its content does**, instead of running a few pixels past it ("Share & members", "Lists", "List settings", "Passkeys", "Hidden suggestions") ([D-327]).
 
 ## v0.18.2: an OIDC account on no list is no longer deleted, and a removed row hands on the keyboard focus (2026-11)
 
@@ -1082,3 +1084,4 @@ First tagged build: a distroless multi-arch container (amd64 + arm64) with the S
 [D-355]: docs/internals/decisions.md#D-355
 [D-357]: docs/internals/decisions.md#D-357
 [D-358]: docs/internals/decisions.md#D-358
+[D-359]: docs/internals/decisions.md#D-359

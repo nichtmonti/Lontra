@@ -1,7 +1,7 @@
 <!--
-  The one bottom-sheet primitive, so modality behaves alike on every surface
+  The one sheet primitive, so modality behaves alike on every surface
   ([D-348]): a bits-ui dialog, the app's dialogs' own primitive, drawn at the
-  bottom edge. bits-ui does the portal, focus trap and return, scroll lock,
+  bottom edge on a phone and as a card on a tablet ([D-359]). bits-ui does the portal, focus trap and return, scroll lock,
   Escape and outside taps; ui/dialog's Root adds Back. Nothing here moves the
   sheet for the keyboard: the browser brings a focused field into view.
 -->
@@ -54,10 +54,13 @@
 		/>
 		<!-- 80dvh, not 80vh: `vh` assumes the mobile URL bar expanded, so the
 		     sheet would stop short. No focus moved on open: a focused field
-		     would raise the keyboard over a sheet the user only meant to read. -->
+		     would raise the keyboard over a sheet the user only meant to read.
+		     On a tablet it is iPadOS's form sheet ([D-359]): a card centred across
+		     the scrim, its top fixed so it grows downward, floating with a
+		     dialog's shadow and sliding in from the screen's foot. -->
 		<DialogPrimitive.Content
 			data-slot="sheet-content"
-			class="fixed inset-x-0 bottom-0 z-(--layer-modal) mx-auto mt-24 flex h-auto max-h-[80dvh] max-w-(--app-max) flex-col rounded-t-card border-t border-line-strong bg-surface px-4 pt-4 pb-[calc(18px+env(safe-area-inset-bottom))] text-sm text-foreground shadow-sheet outline-none duration-(--motion-sheet-in) data-[state=closed]:duration-(--motion-sheet-out) ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom"
+			class="fixed inset-x-0 bottom-0 z-(--layer-modal) mx-auto mt-24 flex h-auto max-h-[80dvh] max-w-(--app-max) flex-col rounded-t-card border-t border-line-strong bg-surface px-4 pt-4 pb-[calc(18px+env(safe-area-inset-bottom))] text-sm text-foreground shadow-sheet outline-none duration-(--motion-sheet-in) data-[state=closed]:duration-(--motion-sheet-out) ease-[cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom tablet:top-(--sheet-top) tablet:bottom-auto tablet:mt-0 tablet:max-w-(--sheet-max) tablet:rounded-card tablet:border tablet:pb-4 tablet:shadow-pop tablet:data-[state=closed]:slide-out-to-bottom-[100dvh] tablet:data-[state=open]:slide-in-from-bottom-[100dvh]"
 			onOpenAutoFocus={(e) => e.preventDefault()}
 			{onCloseAutoFocus}
 		>

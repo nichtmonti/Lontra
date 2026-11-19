@@ -4,7 +4,8 @@
   `inset` is where the line starts: the row gutter on a page, the text
   column after a leading plate (`--row-rule-inset`). In a sheet, `flush`
   lets the rows (SettingsRow's `flush`) reach into the sheet's slack and
-  starts the line at it. `closed` draws the same line under the last row,
+  starts and ends the line at it, so the line spans the sheet's content
+  column as its title row does. `closed` draws the same line under the last row,
   for rows a different part follows (the share sheet's roster). The one way rows on a page are separated ([D-326]).
 -->
 <script lang="ts">
@@ -35,7 +36,7 @@
 		closed && 'ruled-rows-closed',
 		className
 	)}
-	style="--rule-inset: {inset}"
+	style="--rule-inset: {inset}; --rule-end: {flush ? '0.375rem' : '0px'}"
 >
 	{@render children()}
 </div>

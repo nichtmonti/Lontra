@@ -40,11 +40,14 @@
 	const root = tv({
 		variants: {
 			variant: {
-				band: 'grid h-11 gap-1 rounded-control border border-border bg-background p-1',
+				band: 'grid h-11 grid-cols-[repeat(var(--segments),minmax(0,1fr))] gap-1 rounded-control border border-border bg-background p-1',
 				// The list's view switch on the app bar's foot ([D-276]): a rule
 				// above sets it off from the title row, and the chosen tab's line
-				// sits on the bar's own bottom border.
-				tabs: 'grid h-11 border-t border-border px-4',
+				// sits on the bar's own bottom border. On a tablet the tabs keep
+				// a phone's width, centred, as iPadOS's tab bar does ([D-359]).
+				tabs:
+					'grid h-11 grid-cols-[repeat(var(--segments),minmax(0,1fr))] border-t border-border px-4 ' +
+					'tablet:grid-cols-[repeat(var(--segments),minmax(0,var(--tab-max)))] tablet:justify-center',
 				chips: 'flex flex-wrap gap-2'
 			}
 		}
@@ -94,9 +97,7 @@
 			aria-label={label}
 			data-testid={testid}
 			class={cn(root({ variant }), klass)}
-			style={variant !== 'chips'
-				? `grid-template-columns: repeat(${options.length}, minmax(0, 1fr))`
-				: undefined}
+			style="--segments: {options.length}"
 		>
 			{#each options as o (o.value)}
 				<Tabs.Trigger
@@ -123,9 +124,7 @@
 		aria-label={label}
 		data-testid={testid}
 		class={cn(root({ variant }), klass)}
-		style={variant !== 'chips'
-			? `grid-template-columns: repeat(${options.length}, minmax(0, 1fr))`
-			: undefined}
+		style="--segments: {options.length}"
 	>
 		{#each options as o (o.value)}
 			<RadioGroup.Item

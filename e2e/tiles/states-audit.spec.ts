@@ -24,8 +24,8 @@ const PAGES: { name: string; query: GalleryQuery }[] = [
 ];
 const SCALES = [100, 200] as const;
 // The widths [D-213]'s checks span: a phone and the widest supported screen,
-// an iPad mini held landscape ([D-358]).
-const WIDTHS = [390, 1133] as const;
+// a 13" iPad held landscape ([D-358]).
+const WIDTHS = [390, 1376] as const;
 
 /** Waits for finite animations (tile pop-in, sheet slides) to finish. */
 async function settle(page: Page) {

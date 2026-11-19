@@ -26,6 +26,11 @@
    RadioGroup marks it checked, Tabs active. */
 @custom-variant chosen (&:is([data-state='checked'], [data-state='active']));
 @custom-variant unchosen (&:is([data-state='unchecked'], [data-state='inactive']));
+/* A tablet-sized screen, iPadOS's regular width and height: at least the
+   smallest iPad's short side wide, and taller than any phone held landscape
+   (≤440px) but shorter than an iPad mini held landscape under all of
+   Safari's bars, so a landscape phone keeps the phone layout ([D-359]). */
+@custom-variant tablet (@media (min-width: 744px) and (min-height: 500px));
 
 /*
  * The category tint ramp.
@@ -152,7 +157,8 @@
 }
 
 /* Rows ruled like a list's (§9.1, [D-326]): each row after the first carries
- * a hairline from `--rule-inset` to the far edge, never a box ([D-269]); the
+ * a hairline from `--rule-inset` to `--rule-end` short of the far edge (0 on
+ * a page, the sheet's slack in a sheet), never a box ([D-269]); the
  * last row none ([D-128]). The one way rows on a page are separated:
  * RuledRows wraps it, and a container that must stay the rows' parent (a
  * drag-and-drop zone) takes it directly. */
@@ -160,16 +166,16 @@
 	& > * + * {
 		background-image: linear-gradient(var(--border), var(--border));
 		background-repeat: no-repeat;
-		background-size: calc(100% - var(--rule-inset, 0px)) 1px;
-		background-position: right top;
+		background-size: calc(100% - var(--rule-inset, 0px) - var(--rule-end, 0px)) 1px;
+		background-position: right var(--rule-end, 0px) top;
 	}
 }
 /* The same line under the last row, where another part follows the rows. */
 @utility ruled-rows-closed {
 	background-image: linear-gradient(var(--border), var(--border));
 	background-repeat: no-repeat;
-	background-size: calc(100% - var(--rule-inset, 0px)) 1px;
-	background-position: right bottom;
+	background-size: calc(100% - var(--rule-inset, 0px) - var(--rule-end, 0px)) 1px;
+	background-position: right var(--rule-end, 0px) bottom;
 }
 
 /* A highlighted option in a list of rows (the typeahead): a 3px line on its
@@ -473,12 +479,12 @@
 	/* The app is a single centered column. On phones the viewport is narrower
 	   than this so the shell simply fills the screen; wider than the cap the
 	   shell holds here so the app reads as a column, not a stretched-out
-	   webpage. The cap is an iPad mini held landscape (1133px, [D-358]), the
-	   widest screen the layout supports; larger screens keep the column
-	   centred. [D-49] — surfaces that should span the column (the bottom
+	   webpage. The cap is the widest iPad held landscape (1376px, a 13"
+	   iPad Pro, [D-358]), so every iPad fills its screen; larger screens
+	   keep the column centred. [D-49] — surfaces that should span the column (the bottom
 	   Sheet) track this token; snackbars (toast/install) keep their own
 	   narrower caps. */
-	--app-max: 1133px;
+	--app-max: 1376px;
 
 	/* Shop-grid geometry that does NOT switch with density ([D-83]). Everything
 	   that DOES switch lives in the three [data-density] blocks in
@@ -535,6 +541,18 @@
 	/* The product-details sheet's image height ([D-86]) — named per the
 	   no-hardcoded-widths rule that governs --focus-max. */
 	--sheet-img-h: 220px;
+
+	/* A sheet on a tablet is a centred card this wide, iPadOS's form sheet
+	   (540pt, [D-359]); on a phone it spans the screen from the bottom edge. */
+	--sheet-max: 540px;
+	/* Where that card's top sits: fixed, so the card grows downward and a
+	   change in its content never moves what is above it ([D-359]). */
+	--sheet-top: 10dvh;
+
+	/* A tab of the list's view switch on a tablet: a phone's tab width (half
+	   a 390px screen's content), so the tabs sit centred instead of
+	   stretching across the bar ([D-359]). */
+	--tab-max: 11rem;
 
 	/* Focus surfaces (auth screen, join screen, the scan sheet) are a second,
 	   narrower column. Same rule as --app-max: named widths only, no

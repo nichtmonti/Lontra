@@ -1,12 +1,14 @@
-import { chromium, expect, test, type Page } from './fixtures';
+import { chromium, expect, test, type Locator, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
+import sharp from 'sharp';
 import {
 	addItemByTyping,
 	createList,
 	openListView,
 	openShopView,
-	registerAccount
+	registerAccount,
+	showInviteLink
 } from './helpers';
 
 // Layout contract regression gate.
@@ -18,7 +20,7 @@ import {
 //      English) and steals ~15px from the column; `scrollbar-gutter: stable`
 //      reserves that space up front. The spec forces scrollbars on (headless
 //      Chromium hides them by default) and uses an 800px-wide viewport — below
-//      --app-max (1133px) + scrollbar width — so a scrollbar appearing would
+//      --app-max (1376px) + scrollbar width — so a scrollbar appearing would
 //      actually change the column's size. The assertion decomposes into the
 //      rule (scrollbar-gutter: stable computed) plus scrolling-state width
 //      equality.
@@ -87,7 +89,7 @@ test('the app column width is invariant across locales, pages and viewport heigh
 		const listUrl = await createList(page, 'Layoutprobe');
 
 		const samples: Sample[] = [];
-		// Viewport width 800: BELOW --app-max (1133px) + a classic scrollbar (~15px),
+		// Viewport width 800: BELOW --app-max (1376px) + a classic scrollbar (~15px),
 		// so the shell is not width-capped and the scrollbar's appearance actually
 		// changes the column size (800 vs ~785px). At desktop widths the shell is
 		// capped either way and only shifts — which is the same defect's visible
@@ -497,3 +499,118 @@ test(
 		await expect(tile).toHaveAttribute('data-door', '');
 	}
 );
+
+/** Waits until a sheet's slide-in has finished, so its box is where it rests. */
+async function settled(sheet: Locator): Promise<void> {
+	await sheet.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+}
+
+/** The darkest channel value in a strip of the page: a drawn rule is darker
+ *  than the sheet's surface around it. */
+async function darkest(page: Page, clip: { x: number; y: number; width: number; height: number }) {
+	const { data } = await sharp(await page.screenshot({ clip }))
+		.raw()
+		.toBuffer({ resolveWithObject: true });
+	return Math.min(...data);
+}
+
+// A tablet (iPadOS's regular width and height, [D-359]) gets the iPad's
+// layout: sheets are cards, the home's actions a row, the list's view tabs
+// centred. A phone held landscape is as wide but not as tall, and keeps the
+// phone's.
+test('an iPad mini held landscape lays out as a tablet, a phone held landscape as a phone', async ({
+	page
+}) => {
+	await page.setViewportSize({ width: 1133, height: 744 });
+	await registerAccount(page, 'Layoutipad');
+	await createList(page, 'Layoutprobe');
+
+	// The view tabs: a phone's tab width each, centred on the bar.
+	const toggle = page.getByTestId('view-toggle');
+	const bar = (await toggle.boundingBox())!;
+	const shop = (await page.getByTestId('view-toggle-shop').boundingBox())!;
+	const list = (await page.getByTestId('view-toggle-list').boundingBox())!;
+	expect(shop.width).toBeLessThanOrEqual(176.5);
+	expect(Math.abs(shop.x - bar.x - (bar.x + bar.width - list.x - list.width))).toBeLessThan(1);
+
+	// The share sheet: a 540px card, centred across the column, its top at
+	// --sheet-top (10dvh). The column, not the viewport: Chromium reserves the scrollbar gutter
+	// (`scrollbar-gutter: stable`) even with its scrollbars hidden, and the
+	// card and the column share what is left.
+	const column = async () => (await page.locator('.app-shell').boundingBox())!;
+	await page.getByTestId('list-menu').click();
+	await page.getByRole('button', { name: 'Teilen & Mitglieder' }).click();
+	// By its name: the list's ⋮ is a sheet too, on its way out.
+	const sheet = page.getByRole('dialog', { name: 'Teilen & Mitglieder' });
+	await expect(sheet).toBeVisible();
+	await settled(sheet);
+	const card = (await sheet.boundingBox())!;
+	expect(card.width).toBe(540);
+	const shell = await column();
+	expect(Math.abs(card.x + card.width / 2 - (shell.x + shell.width / 2))).toBeLessThan(1);
+	expect(Math.abs(card.y - 74.4)).toBeLessThan(1);
+
+	// The roster's rule ends where the sheet's content does (its ✕), not in
+	// the slack the flush rows reach into: the strip right of the content
+	// edge is surface, the strip left of it is rule.
+	const roster = (await sheet.locator('.roster').boundingBox())!;
+	const edge = Math.round(card.x + card.width - 16);
+	const ruleY = Math.floor(roster.y + roster.height - 1);
+	const inside = await darkest(page, { x: edge - 6, y: ruleY, width: 6, height: 1 });
+	const outside = await darkest(page, { x: edge, y: ruleY, width: 6, height: 1 });
+	const surface = await darkest(page, { x: edge, y: ruleY - 4, width: 6, height: 1 });
+	expect(inside, 'the rule is drawn up to the content edge').toBeLessThan(surface);
+	expect(outside, 'and not past it').toBe(surface);
+
+	// Its content changing height moves nothing above it: a new link, then
+	// the QR, each grow the card, and the switch stays under the finger that
+	// pressed it.
+	await showInviteLink(page);
+	const mode = sheet.getByTestId('share-mode');
+	const switchAt = (await mode.boundingBox())!.y;
+	await mode.getByRole('tab', { name: 'QR' }).click();
+	await expect(sheet.getByTestId('qr')).toBeVisible();
+	const grown = (await sheet.boundingBox())!;
+	expect(grown.height, 'the premise: the QR changes the height').not.toBe(card.height);
+	expect(grown.y).toBe(card.y);
+	expect((await mode.boundingBox())!.y).toBe(switchAt);
+	await page.keyboard.press('Escape');
+	await expect(sheet).toBeHidden();
+
+	// The home's actions: one row.
+	await page.goto('/');
+	const actions = page
+		.getByRole('button')
+		.filter({ hasText: /^(Neue Liste|Mit Einladung beitreten|Liste importieren)$/ });
+	await expect(actions).toHaveCount(3);
+	const tops = await actions.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().top));
+	expect(new Set(tops).size, 'the three actions share a row').toBe(1);
+
+	// Safari on an iPad mini held landscape, under its tab, tab-bar and
+	// favourites bars, still counts as a tablet.
+	await page.setViewportSize({ width: 1133, height: 560 });
+	const short = await actions.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().top));
+	expect(new Set(short).size, 'a short iPad keeps the row').toBe(1);
+
+	// An iPad mini held portrait with large text: the row wraps rather than
+	// running off the screen.
+	await page.setViewportSize({ width: 744, height: 1133 });
+	await page.evaluate(() => (document.documentElement.style.fontSize = '150%'));
+	const right = await page.locator('.app-shell').evaluate((el) => el.getBoundingClientRect().right);
+	const ends = await actions.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().right));
+	expect(Math.max(...ends), 'every action on the screen').toBeLessThanOrEqual(right);
+	await page.evaluate(() => (document.documentElement.style.fontSize = ''));
+
+	// A phone held landscape: the actions stacked, the sheet on the foot.
+	await page.setViewportSize({ width: 932, height: 430 });
+	const stacked = await actions.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().top));
+	expect(new Set(stacked).size, 'the three actions stack').toBe(3);
+	await page.getByRole('link', { name: /Layoutprobe/ }).click();
+	await page.getByTestId('list-menu').click();
+	await page.getByRole('button', { name: 'Teilen & Mitglieder' }).click();
+	await expect(sheet).toBeVisible();
+	await settled(sheet);
+	const foot = (await sheet.boundingBox())!;
+	expect(foot.width).toBe((await column()).width);
+	expect(Math.abs(foot.y + foot.height - 430)).toBeLessThan(1);
+});
