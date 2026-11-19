@@ -6,6 +6,10 @@ Every release tag sits on the commit that adds its entry here (`docs(release): v
 
 Changes land under **Unreleased** in the commit that makes them; the release commit turns that heading into the version's.
 
+## Unreleased
+
+- **The app now fills an iPad held landscape, up to an iPad mini.** The column used to stop at 820px — an iPad's portrait width — so a landscape iPad mini showed the app letterboxed between wide empty margins, with four tile columns. The column now widens to 1133px, the mini's landscape width, and the shopping grid gains columns with it: six at full width, fewer as you enlarge the text. Phones are unchanged, and larger screens keep the centred column ([D-358]).
+
 ## v0.18.2: an OIDC account on no list is no longer deleted, and a removed row hands on the keyboard focus (2026-11)
 
 **For operators.** Nothing to do before upgrading.
@@ -1077,3 +1081,4 @@ First tagged build: a distroless multi-arch container (amd64 + arm64) with the S
 [D-354]: docs/internals/decisions.md#D-354
 [D-355]: docs/internals/decisions.md#D-355
 [D-357]: docs/internals/decisions.md#D-357
+[D-358]: docs/internals/decisions.md#D-358

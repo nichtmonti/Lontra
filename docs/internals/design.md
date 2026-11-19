@@ -609,7 +609,7 @@ Categories exist for **ordering** the store walk, not for labelling. A list's ca
 **Item visuals.** A category's emoji and colour show on its header, on a list row's chip in A→Z, and on each list-density row ([D-37], [D-313]); emoji are OpenMoji artwork drawn through `CategoryIcon` ([D-180], [D-181]). The shop view shows an item's **product photo** (`image_url`, [§9.2]) or its name; the list view shows no photos. **An item reads in three tiers**, name over quantity over note, with no quantity under 13px and no note under 12px ([D-275]).
 
 **Shop view ([D-83]).**
-- **Tiles** under category headers in category order, or one flat locale-collated grid in A→Z. Two columns on phones, more as the viewport grows ([D-49]).
+- **Tiles** under category headers in category order, or one flat locale-collated grid in A→Z. Two columns on phones, more as the viewport grows, up to the shell's cap — an iPad mini held landscape, 1133px ([D-49], [D-358]).
 - A device-local **density**, `meta.ui_density` (comfortable, compact or list, [D-313]), set in the sort menu ([D-271]); it changes neither colours nor check-off targets.
 - **A tile never drops a field**, only truncates it.
 - **The info door shows exactly while the tile hides something** the read-only details sheet would show: a cut name or note, a barcode, or (as a list-density row) a photo. The sheet shows image, barcode, quantity, category, note and attribution.
@@ -1107,3 +1107,4 @@ The standing rules it set are in [§14].
 [D-347]: decisions.md#D-347
 [D-351]: decisions.md#D-351
 [D-353]: decisions.md#D-353
+[D-358]: decisions.md#D-358

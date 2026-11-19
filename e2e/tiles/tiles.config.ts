@@ -26,8 +26,9 @@ export default defineConfig({
 	// in the audit itself.
 	retries: 0,
 	workers: 2,
-	// The dev server transforms the gallery's graph on the first visit.
-	timeout: 180_000,
+	// The dev server transforms the gallery's graph on the first visit, and
+	// the state audit sweeps two widths beside the text scales ([D-358]).
+	timeout: 360_000,
 	reporter: [['list']],
 	webServer: viteDevServer(PORT, 'tiles'),
 	use: { baseURL: `http://127.0.0.1:${PORT}` },

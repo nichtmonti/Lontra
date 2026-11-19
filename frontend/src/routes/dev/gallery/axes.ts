@@ -132,7 +132,7 @@ export const AXES = {
 		type: 'one',
 		label: 'Breite',
 		group: 'main',
-		choices: px([320, 360, 390, 430, 600, 768, 820], 'px'),
+		choices: px([320, 360, 390, 430, 600, 768, 820, 1133], 'px'),
 		default: '390'
 	},
 	scale: {

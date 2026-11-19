@@ -23,6 +23,9 @@ const PAGES: { name: string; query: GalleryQuery }[] = [
 	{ name: 'A–Z order', query: { content: 'everyday', order: 'az' } }
 ];
 const SCALES = [100, 200] as const;
+// The widths [D-213]'s checks span: a phone and the widest supported screen,
+// an iPad mini held landscape ([D-358]).
+const WIDTHS = [390, 1133] as const;
 
 /** Waits for finite animations (tile pop-in, sheet slides) to finish. */
 async function settle(page: Page) {
@@ -117,20 +120,23 @@ for (const { name, query } of PAGES)
 	test(`${name}: no axe violation, no target under 44px, every picture drawn`, async ({ page }) => {
 		await page.setViewportSize({ width: 1400, height: 1000 });
 		const findings: string[] = [];
-		for (const scale of SCALES) {
-			await openGallery(page, { ...ALL, ...query, scale });
-			await settle(page);
-			const results = await new AxeBuilder({ page })
-				.include('[data-variant="current"] .frame')
-				.withTags(WCAG_TAGS)
-				// axe sizes a target by its box and cannot see the ::after
-				// extensions; the hit-test sweep below holds the stricter 44px.
-				.disableRules(['target-size'])
-				.analyze();
-			for (const v of results.violations)
-				for (const n of v.nodes) findings.push(`${scale}% axe ${v.id}: ${n.target.join(' ')}`);
-			for (const f of await smallTargets(page)) findings.push(`${scale}% target ${f}`);
-			for (const f of await undrawnPictures(page)) findings.push(`${scale}% picture ${f}`);
-		}
+		for (const scale of SCALES)
+			for (const width of WIDTHS) {
+				await openGallery(page, { ...ALL, ...query, scale, width });
+				await settle(page);
+				const results = await new AxeBuilder({ page })
+					.include('[data-variant="current"] .frame')
+					.withTags(WCAG_TAGS)
+					// axe sizes a target by its box and cannot see the ::after
+					// extensions; the hit-test sweep below holds the stricter 44px.
+					.disableRules(['target-size'])
+					.analyze();
+				for (const v of results.violations)
+					for (const n of v.nodes)
+						findings.push(`${scale}% ${width}px axe ${v.id}: ${n.target.join(' ')}`);
+				for (const f of await smallTargets(page)) findings.push(`${scale}% ${width}px target ${f}`);
+				for (const f of await undrawnPictures(page))
+					findings.push(`${scale}% ${width}px picture ${f}`);
+			}
 		expect(findings, findings.join('\n')).toEqual([]);
 	});

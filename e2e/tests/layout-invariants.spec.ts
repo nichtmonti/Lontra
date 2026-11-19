@@ -18,7 +18,7 @@ import {
 //      English) and steals ~15px from the column; `scrollbar-gutter: stable`
 //      reserves that space up front. The spec forces scrollbars on (headless
 //      Chromium hides them by default) and uses an 800px-wide viewport — below
-//      --app-max (820px) + scrollbar width — so a scrollbar appearing would
+//      --app-max (1133px) + scrollbar width — so a scrollbar appearing would
 //      actually change the column's size. The assertion decomposes into the
 //      rule (scrollbar-gutter: stable computed) plus scrolling-state width
 //      equality.
@@ -87,7 +87,7 @@ test('the app column width is invariant across locales, pages and viewport heigh
 		const listUrl = await createList(page, 'Layoutprobe');
 
 		const samples: Sample[] = [];
-		// Viewport width 800: BELOW --app-max (820px) + a classic scrollbar (~15px),
+		// Viewport width 800: BELOW --app-max (1133px) + a classic scrollbar (~15px),
 		// so the shell is not width-capped and the scrollbar's appearance actually
 		// changes the column size (800 vs ~785px). At desktop widths the shell is
 		// capped either way and only shifts — which is the same defect's visible

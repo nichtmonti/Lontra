@@ -471,11 +471,14 @@
 	--band-h: 56px;
 
 	/* The app is a single centered column. On phones the viewport is narrower
-	   than this so the shell simply fills the screen; on a laptop the shell
-	   caps here so the app reads as a column, not a stretched-out webpage.
-	   [D-49] — surfaces that should span the column (the bottom Sheet) track
-	   this token; snackbars (toast/install) keep their own narrower caps. */
-	--app-max: 820px;
+	   than this so the shell simply fills the screen; wider than the cap the
+	   shell holds here so the app reads as a column, not a stretched-out
+	   webpage. The cap is an iPad mini held landscape (1133px, [D-358]), the
+	   widest screen the layout supports; larger screens keep the column
+	   centred. [D-49] — surfaces that should span the column (the bottom
+	   Sheet) track this token; snackbars (toast/install) keep their own
+	   narrower caps. */
+	--app-max: 1133px;
 
 	/* Shop-grid geometry that does NOT switch with density ([D-83]). Everything
 	   that DOES switch lives in the three [data-density] blocks in
