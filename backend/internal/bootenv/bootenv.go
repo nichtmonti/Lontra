@@ -79,8 +79,8 @@ func Register(app core.App) {
 }
 
 // AppName is the app's name wherever something outside its own UI shows one:
-// the PocketBase dashboard and the OS passkey picker ([D-222], [D-223]).
-const AppName = "Shoppinglist"
+// the PocketBase dashboard and the OS passkey picker ([D-223], [D-361]).
+const AppName = "Lontra"
 
 // ApplySettings seeds the admin settings from the environment and saves only
 // when something changed, so a boot is not a write. A set variable wins over

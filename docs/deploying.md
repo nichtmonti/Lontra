@@ -1,4 +1,4 @@
-# Deploying shoppinglist
+# Deploying Lontra
 
 The short path from nothing to a running, locked-down instance. Each step links
 to the [deployment reference](deploy-reference.md), which has every setting and

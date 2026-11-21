@@ -1,4 +1,4 @@
-# Operating shoppinglist
+# Operating Lontra
 
 Running an instance day to day. To set one up, start with
 [`deploying.md`](deploying.md); every setting is in the

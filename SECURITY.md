@@ -1,6 +1,6 @@
 # Security policy
 
-shoppinglist handles sign-ins (passkeys and OpenID Connect) and the shopping
+Lontra handles sign-ins (passkeys and OpenID Connect) and the shopping
 lists of everyone on an instance, so security reports are very welcome.
 
 ## Reporting a vulnerability

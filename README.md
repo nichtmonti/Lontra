@@ -1,8 +1,8 @@
-<h1 align="center"><a href="https://codeberg.org/sclermont/shoppinglist"><img src="frontend/static/favicon.svg" width="44" align="absmiddle" alt=""></a> shoppinglist</h1>
+<h1 align="center"><a href="https://codeberg.org/sclermont/shoppinglist"><img src="frontend/static/favicon.svg" width="44" align="absmiddle" alt=""></a> Lontra</h1>
 
 <p align="center">A shared shopping list for your household, hosted by you. Syncs live, works without signal, signs in with passkeys.</p>
 
-<p align="center"><sub>Developed on <a href="https://codeberg.org/sclermont/shoppinglist">Codeberg</a>; the GitHub repository is a mirror.</sub></p>
+<p align="center"><sub>Developed on <a href="https://codeberg.org/sclermont/shoppinglist">Codeberg</a>; the GitHub repository is a mirror. The repository, the image and the settings keep the app's first name, shoppinglist.</sub></p>
 
 <div align="center">
 

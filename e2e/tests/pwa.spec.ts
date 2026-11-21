@@ -142,3 +142,17 @@ test('the app shell names its tab and home-screen icons, and the server serves e
 		expect(res.headers()['content-type'], href).toContain(type);
 	}
 });
+
+// iOS labels a home-screen icon with the page's title unless the shell names
+// one, and on a list's page the title is the list's name ([D-361]).
+test('the app shell gives iOS the manifest’s name for the home-screen label', async ({
+	request
+}) => {
+	const shell = await (await request.get('/')).text();
+	const manifest = (await (await request.get('/manifest.webmanifest')).json()) as {
+		short_name: string;
+	};
+	expect(shell).toContain(
+		`<meta name="apple-mobile-web-app-title" content="${manifest.short_name}" />`
+	);
+});

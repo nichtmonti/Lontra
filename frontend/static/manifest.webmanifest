@@ -1,6 +1,6 @@
 {
-	"name": "Shopping list",
-	"short_name": "Shopping list",
+	"name": "Lontra",
+	"short_name": "Lontra",
 	"description": "An installable, offline-first shared shopping list.",
 	"start_url": "/",
 	"scope": "/",

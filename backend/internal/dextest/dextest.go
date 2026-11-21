@@ -108,7 +108,7 @@ func Config(issuer, redirectURI string, users ...User) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "issuer: %s\nstorage:\n  type: memory\nweb:\n  http: %s\n", issuer, u.Host)
 	b.WriteString("oauth2:\n  skipApprovalScreen: true\nenablePasswordDB: true\n")
-	fmt.Fprintf(&b, "staticClients:\n  - id: %s\n    secret: %s\n    name: Einkaufsliste\n    redirectURIs: [%q]\n",
+	fmt.Fprintf(&b, "staticClients:\n  - id: %s\n    secret: %s\n    name: Lontra\n    redirectURIs: [%q]\n",
 		ClientID, ClientSecret, redirectURI)
 	b.WriteString("staticPasswords:\n")
 	for _, usr := range users {

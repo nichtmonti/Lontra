@@ -26,7 +26,7 @@
 	}
 </script>
 
-<FocusTitle title={t('demo_title')} locale />
+<FocusTitle title={t('demo_title')} tagline={t('common_app_tagline')} locale />
 <Hint size="sm">{t('demo_intro')}</Hint>
 <Button
 	class="mt-4"

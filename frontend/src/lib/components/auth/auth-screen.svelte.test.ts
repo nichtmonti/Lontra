@@ -64,6 +64,13 @@ describe('AuthScreen', () => {
 		expect(screen.getByRole('button', { name: 'Mit Passkey anmelden' })).toBeDefined();
 	});
 
+	// [D-361]: the name alone does not say what the app is.
+	it('says under its name what the app is', async () => {
+		await renderAuth();
+		expect(screen.getByRole('heading', { level: 1, name: 'Lontra' })).toBeDefined();
+		expect(screen.getByText('Die gemeinsame Einkaufsliste')).toBeDefined();
+	});
+
 	it('names the two doors with their own headings', async () => {
 		await renderAuth();
 		expect(screen.getByRole('heading', { name: 'Schon ein Konto?' })).toBeDefined();
@@ -137,6 +144,7 @@ describe('AuthScreen', () => {
 		await renderAuth();
 
 		expect(screen.getByRole('heading', { name: 'Passkeys nicht unterstützt' })).toBeDefined();
+		expect(screen.queryByText('Die gemeinsame Einkaufsliste')).toBeNull();
 		expect(screen.queryByRole('button', { name: 'Konto erstellen' })).toBeNull();
 	});
 });

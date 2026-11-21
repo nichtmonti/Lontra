@@ -198,7 +198,11 @@
 	     screen needs its language switch here. On the join screen, which has
 	     its own title, only a browser that cannot sign in says so. -->
 	{#if !joining && !demoOnly}
-		<FocusTitle title={unsupported ? t('auth_no_passkey_support') : t('auth_title')} locale />
+		<FocusTitle
+			title={unsupported ? t('auth_no_passkey_support') : t('auth_title')}
+			tagline={unsupported ? undefined : t('common_app_tagline')}
+			locale
+		/>
 	{:else if joining && unsupported}
 		<h2 class="type-heading">{t('auth_no_passkey_support')}</h2>
 	{/if}

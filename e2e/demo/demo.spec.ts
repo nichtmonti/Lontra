@@ -25,7 +25,7 @@ test('a visitor gets in with one button, to the example lists and the demo notic
 }) => {
 	await page.goto('/');
 	// No passkey, no OIDC: the demo's own screen is the whole auth screen.
-	await expect(page.getByRole('heading', { name: 'Einkaufsliste (Demo)' })).toBeVisible();
+	await expect(page.getByRole('heading', { name: 'Lontra (Demo)' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Mit Passkey anmelden' })).toHaveCount(0);
 
 	await startDemo(page);
