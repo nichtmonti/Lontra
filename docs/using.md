@@ -86,6 +86,10 @@ it went somewhere it shouldn't, and "Revoke link" ends it without a new one.
 
 <img src="images/share-sheet.png" width="220" alt="The share sheet: members, the invite link, and the reset and revoke buttons">
 
+On a shared list, "Rename" in the list's **⋮** menu also offers a "Name just
+for you": only you see it, on all your devices, in place of the "Name for
+everyone". Leave it empty to see the name for everyone again.
+
 ## Coming from another app
 
 A list from another app, a note or a chat comes over as text. Share it from

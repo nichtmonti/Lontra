@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { db } from '#lib/db.js';
+import { db, type Membership } from '#lib/db.js';
 import { authState } from '#lib/auth/state.js';
 import { putSynced } from '#lib/test-kit/db.js';
 import { runSyncCycle, resetReferenceMirrorCheck } from './cycle';
@@ -34,7 +34,7 @@ describe('sync cycle', () => {
 	// RequireAuth: a rejected token is a 401, never the rule-filtered 200-empty
 	// the memberships collection answered with ([D-28]). So the 401 alone
 	// expires the session, and nothing is purged.
-	const membership = (list: string) => ({
+	const membership = (list: string): Membership => ({
 		id: `mem-${list}`,
 		account: 'acc1',
 		list,
@@ -137,6 +137,47 @@ describe('sync cycle', () => {
 		expect(onGone).toHaveBeenCalledWith('list-gone', 'Garten');
 	});
 
+	// A list left on this device while the digest was on its way: the leave
+	// purged it, and the digest no longer lists it. Not a vanished list, so
+	// no notice for what the user just did.
+	it('a list left during the digest request raises no gone notice', async () => {
+		await db.memberships.bulkPut([membership('list-keep'), membership('list-left')]);
+		await db.lists.put({ id: 'list-left', name: 'Garten', updated: '' });
+		const deps = quietDeps();
+		const onGone = vi.fn();
+		const result = await runSyncCycle({
+			...deps,
+			drain: { ...deps.drain, onGone },
+			digestTransport: async () => {
+				await purgeList('list-left');
+				return [entryFor('list-keep')];
+			}
+		});
+
+		expect(result.purged).toEqual([]);
+		expect(onGone).not.toHaveBeenCalled();
+	});
+
+	// A list created or joined while the digest was on its way, which the
+	// digest was too early to list: it stays.
+	it('a list joined during the digest request is not purged', async () => {
+		await db.memberships.put(membership('list-keep'));
+		const onGone = vi.fn();
+		const deps = quietDeps();
+		const result = await runSyncCycle({
+			...deps,
+			drain: { ...deps.drain, onGone },
+			digestTransport: async () => {
+				await db.memberships.put(membership('list-new'));
+				return [entryFor('list-keep')];
+			}
+		});
+
+		expect(result.purged).toEqual([]);
+		expect(onGone).not.toHaveBeenCalled();
+		expect(await db.memberships.get('mem-list-new')).toEqual(membership('list-new'));
+	});
+
 	it('a membership re-made under a new id replaces the old row for its list', async () => {
 		// Left and re-joined on another device while this one was away: the
 		// server's membership for list-a is a new record, the local one is stale.
@@ -163,8 +204,120 @@ describe('sync cycle', () => {
 		});
 
 		expect(await db.lists.get('list-a')).toEqual({ id: 'list-a', name: 'New name', updated: '' });
-		// The membership row carries no name at all any more.
+		// The membership row carries the shared name's override slot, empty
+		// here: the rename moved the lists row, not the membership ([D-08]).
 		expect(await db.memberships.get('mem-list-a')).toEqual(membership('list-a'));
+	});
+
+	// [D-360]: the member's private override rides their own membership row
+	// on the digest and is mirrored with it; the shared name stays the list's.
+	it('a local_name from another of the account’s devices is mirrored onto the membership', async () => {
+		await db.memberships.put(membership('list-a'));
+		await db.lists.put({ id: 'list-a', name: 'Zuhause', updated: '' });
+		const entry = entryFor('list-a', 'Zuhause');
+		entry.membership.local_name = 'Zuhause bei Anna';
+		entry.membership.local_name_revision = 1;
+
+		await runSyncCycle({
+			...quietDeps(),
+			digestTransport: vi.fn().mockResolvedValue([entry])
+		});
+
+		expect((await db.memberships.get('mem-list-a'))?.local_name).toBe('Zuhause bei Anna');
+		expect((await db.lists.get('list-a'))?.name).toBe('Zuhause');
+	});
+
+	it('a digest from a server without private names clears the cached override and revision', async () => {
+		await db.memberships.put({
+			...membership('list-a'),
+			local_name: 'Zuhause bei Anna',
+			local_name_revision: 3
+		});
+		const entry = entryFor('list-a', 'Zuhause');
+
+		await runSyncCycle({
+			...quietDeps(),
+			digestTransport: vi.fn().mockResolvedValue([entry])
+		});
+
+		const row = await db.memberships.get('mem-list-a');
+		expect(row?.local_name).toBeUndefined();
+		expect(row?.local_name_revision).toBeUndefined();
+	});
+
+	it('an in-flight digest cannot undo a rename with the same timestamp and a newer revision', async () => {
+		await db.memberships.put({
+			...membership('list-a'),
+			local_name: '',
+			local_name_revision: 0
+		});
+		const entry = entryFor('list-a', 'Zuhause');
+		entry.membership.local_name = '';
+		entry.membership.local_name_revision = 0;
+
+		await runSyncCycle({
+			...quietDeps(),
+			digestTransport: async () => {
+				await db.memberships.update('mem-list-a', {
+					local_name: 'Zuhause bei Anna',
+					local_name_revision: 1
+				});
+				return [entry];
+			}
+		});
+
+		expect((await db.memberships.get('mem-list-a'))?.local_name).toBe('Zuhause bei Anna');
+	});
+
+	it('a fresh digest accepts a revision rewound by a database restore', async () => {
+		await db.memberships.put({
+			...membership('list-a'),
+			local_name: 'New name',
+			local_name_revision: 3
+		});
+		const entry = entryFor('list-a');
+		entry.membership.local_name = 'Restored name';
+		entry.membership.local_name_revision = 1;
+
+		await runSyncCycle({
+			...quietDeps(),
+			digestTransport: vi.fn().mockResolvedValue([entry])
+		});
+
+		expect(await db.memberships.get('mem-list-a')).toMatchObject({
+			local_name: 'Restored name',
+			local_name_revision: 1
+		});
+	});
+
+	it('a cleared override arrives as an empty local_name and is mirrored', async () => {
+		await db.memberships.put({ ...membership('list-a'), local_name: 'Zuhause bei Anna' });
+		const entry = entryFor('list-a', 'Zuhause');
+		entry.membership.local_name = '';
+		entry.membership.local_name_revision = 1;
+
+		await runSyncCycle({
+			...quietDeps(),
+			digestTransport: vi.fn().mockResolvedValue([entry])
+		});
+
+		expect((await db.memberships.get('mem-list-a'))?.local_name).toBe('');
+	});
+
+	it('a non-string local_name aborts the cycle like any malformed membership', async () => {
+		await db.memberships.put(membership('list-keep'));
+		const entry = {
+			...entryFor('list-keep'),
+			membership: { ...membership('list-keep'), local_name: 42 }
+		};
+
+		await expect(
+			runSyncCycle({
+				...quietDeps(),
+				digestTransport: vi.fn().mockResolvedValue([entry])
+			})
+		).rejects.toThrow('not membership data');
+		expect(await db.memberships.toArray()).toEqual([membership('list-keep')]);
 	});
 
 	it('a newly joined list has its name before its items are pulled', async () => {
@@ -857,6 +1010,19 @@ describe('sync cycle', () => {
 
 		expect(await db.lists.get('listZ')).toBeDefined();
 		expect(onGone).not.toHaveBeenCalled();
+	});
+
+	// [D-360]: the gone notice names the list as the user's screens showed
+	// it — their override when set, else the shared name.
+	it('the gone notice speaks the member’s own name for the list', async () => {
+		await db.lists.put({ id: 'listZ', name: 'Zuhause', updated: '' });
+		await db.memberships.put({ ...membership('listZ'), local_name: 'Zuhause bei Anna' });
+		const onGone = vi.fn();
+
+		await purgeGoneList('listZ', onGone, () => true);
+
+		expect(onGone).toHaveBeenCalledWith('listZ', 'Zuhause bei Anna');
+		expect(await db.memberships.count()).toBe(0);
 	});
 
 	// [putOnlyChanged] The per-cycle memberships/lists upserts bulkPut only new

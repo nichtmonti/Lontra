@@ -32,12 +32,15 @@ import {
 } from './prefs';
 import { suppressedNames } from './suppression';
 
-/** A list the user is on: their membership row, with the list's name ([D-08]). */
-export type MyList = Membership & { name: string };
+/** A list the user is on: their membership row, with the name their screens
+ *  show — their private override when set, else the list's shared name
+ *  ([D-08], [D-360]) — and the shared name itself, for what acts on it. */
+export type MyList = Membership & { name: string; globalName: string };
 
 /** A membership row joined with its list's row (absent until the cycle names it). */
 function myList(membership: Membership, list: ListRow | undefined): MyList {
-	return { ...membership, name: list?.name ?? '' };
+	const globalName = list?.name ?? '';
+	return { ...membership, name: membership.local_name || globalName, globalName };
 }
 
 /**
@@ -55,7 +58,7 @@ function onePerList(rows: Membership[]): Membership[] {
 	return [...byList.values()];
 }
 
-/** The user's lists ARE their membership rows (§9.3); the name is the list's own. */
+/** The user's lists are their membership rows, joined to the list index (§9.3). */
 export const memberships = live<MyList[]>(
 	async () => {
 		const [rows, lists] = await Promise.all([db.memberships.toArray(), db.lists.toArray()]);

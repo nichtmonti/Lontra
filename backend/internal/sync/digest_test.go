@@ -281,6 +281,59 @@ func TestDigest_CarriesOwnMembership(t *testing.T) {
 	}
 }
 
+// TestDigest_CarriesLocalName ([D-360]): the member's private override rides
+// their OWN membership row on the digest, next to the shared name — and only
+// theirs: a co-member's entry for the same list carries the shared name and
+// an empty local_name, never the override.
+func TestDigest_CarriesLocalName(t *testing.T) {
+	app, mux := setupSyncApp(t)
+	acctA, tokA := testutil.CreateAccount(t, app, "Alice")
+	acctB, tokB := testutil.CreateAccount(t, app, "Bob")
+	listID := testutil.CreateListFor(t, app, acctA, "Zuhause")
+	own := testutil.AddMembership(t, app, acctB, listID)
+	own.Set("local_name", "Zuhause bei Ben")
+	own.Set("local_name_revision", 2)
+	if err := app.SaveNoValidate(own); err != nil {
+		t.Fatalf("set local_name: %v", err)
+	}
+
+	entryFor := func(tok string) digestEntry {
+		t.Helper()
+		rec, body := testutil.DoReq(mux, http.MethodGet, "/api/sync/digest", "", testutil.AuthHeader(tok))
+		if rec.Code != http.StatusOK {
+			t.Fatalf("status = %d: %s", rec.Code, body)
+		}
+		var entries []digestEntry
+		if err := json.Unmarshal(rec.Body.Bytes(), &entries); err != nil {
+			t.Fatalf("unmarshal: %v", err)
+		}
+		if len(entries) != 1 {
+			t.Fatalf("entries = %d, want 1", len(entries))
+		}
+		return entries[0]
+	}
+
+	b := entryFor(tokB)
+	if b.Name != "Zuhause" {
+		t.Errorf("shared name = %q, want %q", b.Name, "Zuhause")
+	}
+	if b.Membership.LocalNameRevision != 2 {
+		t.Errorf("Bob's revision = %d, want 2", b.Membership.LocalNameRevision)
+	}
+	if b.Membership.LocalName != "Zuhause bei Ben" {
+		t.Errorf("Bob's local_name = %q, want his override", b.Membership.LocalName)
+	}
+
+	a := entryFor(tokA)
+	if a.Membership.LocalNameRevision != 0 {
+		t.Errorf("Alice's revision = %d, want 0", a.Membership.LocalNameRevision)
+	}
+	if a.Name != "Zuhause" || a.Membership.LocalName != "" {
+		t.Errorf("Alice's entry = name %q local_name %q, want the shared name and no override of Bob's",
+			a.Name, a.Membership.LocalName)
+	}
+}
+
 // TestDigest_StableWhenUnchanged: two GETs with no writes in between → identical hash.
 func TestDigest_StableWhenUnchanged(t *testing.T) {
 	app, mux := setupSyncApp(t)

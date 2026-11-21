@@ -122,6 +122,12 @@
 				"name": { "max_bytes": 200 }
 			}
 		},
+		"memberships": {
+			"$comment": "NOT a push collection. `local_name` is the member's private override of the list's shared name ([D-360]), empty by default; the list local-name route writes it on the caller's own row and applies this cap. Sized like the shared name it overrides. It never leaves the owner: reads are own-rows-only, and the digest carries it on the owner's membership alone.",
+			"writable": {
+				"local_name": { "max_bytes": 200 }
+			}
+		},
 		"list_categories": {
 			"writable": {
 				"name": { "max_bytes": 128 },

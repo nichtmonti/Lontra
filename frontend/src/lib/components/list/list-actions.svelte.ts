@@ -15,7 +15,15 @@ import { goForward } from '#lib/history-layers.svelte.js';
 import { resolve } from '$app/paths';
 import { t, type MessageKey } from '#lib/i18n/index.js';
 import { AsyncDialog } from '#lib/state/async-action.svelte.js';
-import { clearHistory, cloneList, exportList, leaveList, renameList } from '#lib/actions/lists.js';
+import {
+	clearHistory,
+	cloneList,
+	exportList,
+	leaveList,
+	renameList,
+	renameListLocal
+} from '#lib/actions/lists.js';
+import type { MyList } from '#lib/state/data.js';
 import { showFailure, showToast } from '#lib/toasts.js';
 import Tags from '@lucide/svelte/icons/tags';
 import Users from '@lucide/svelte/icons/users';
@@ -91,10 +99,19 @@ export const HOME_ACTIONS: readonly ListAction[] = LIST_ACTIONS.filter(
 	(a) => a !== ACTIONS.categories
 );
 
+// The list's one rename ([D-360]): the names it opens with, which the submit
+// compares against.
+export type RenameDialog = {
+	kind: 'rename';
+	listId: string;
+	globalName: string;
+	localName: string;
+};
+
 // The sheets; AsyncDialog closes one only on success, so a failure shows in
 // the sheet the user is still looking at.
 export type ListDialog =
-	| { kind: 'rename'; listId: string; current: string }
+	| RenameDialog
 	| { kind: 'clone'; listId: string; name: string }
 	| { kind: 'leave'; listId: string; name: string }
 	| { kind: 'clear-history'; listId: string; name: string };
@@ -116,8 +133,12 @@ export class ListActions {
 	/** Whether a server-only action can run now; its control is greyed out otherwise. */
 	available = (id: ListActionId): boolean => !ACTIONS[id].online || this.#isOnline();
 
-	run = (id: ListActionId, listId: string, name: string): void => {
+	/** `list` is the joined row: `name` is what the user's screens show,
+	 *  `globalName` the shared one. Rename shows both, clone copies the
+	 *  shared one, leave and clear-history speak the shown one ([D-360]). */
+	run = (id: ListActionId, list: MyList): void => {
 		if (!this.available(id)) return;
+		const listId = list.list;
 		switch (id) {
 			case 'categories':
 				void goForward(resolve('/list/[id]/categories', { id: listId }));
@@ -126,25 +147,40 @@ export class ListActions {
 				this.shareFor = listId;
 				break;
 			case 'rename':
-				this.dialog.open({ kind: 'rename', listId, current: name });
+				this.dialog.open({
+					kind: 'rename',
+					listId,
+					globalName: list.globalName,
+					localName: list.local_name ?? ''
+				});
 				break;
 			case 'clone':
-				this.dialog.open({ kind: 'clone', listId, name });
+				this.dialog.open({ kind: 'clone', listId, name: list.globalName });
 				break;
 			case 'export':
 				this.#exportBackup(listId);
 				break;
 			case 'clear-history':
-				this.dialog.open({ kind: 'clear-history', listId, name });
+				this.dialog.open({ kind: 'clear-history', listId, name: list.name });
 				break;
 			case 'leave':
-				this.dialog.open({ kind: 'leave', listId, name });
+				this.dialog.open({ kind: 'leave', listId, name: list.name });
 				break;
 		}
 	};
 
-	submitRename = async (listId: string, name: string): Promise<void> => {
-		await this.dialog.run(() => renameList(listId, name));
+	/** Sends the names that differ from the ones the dialog opened with:
+	 *  the shared one, then the private one ([D-08], [D-360]). After a
+	 *  failure of the second, a retry sends the first again, unchanged. */
+	submitRename = async (
+		from: RenameDialog,
+		globalName: string,
+		localName: string
+	): Promise<void> => {
+		await this.dialog.run(async () => {
+			if (globalName !== from.globalName) await renameList(from.listId, globalName);
+			if (localName !== from.localName) await renameListLocal(from.listId, localName);
+		});
 	};
 
 	submitClone = async (listId: string, name: string): Promise<void> => {

@@ -207,8 +207,8 @@ test('dead-controls: home (populated, ≥2 lists)', async () => {
 		return menu;
 	});
 
-	// The first card's ⋯ menu — this is where "Backup exportieren"
-	// and "Umbenennen (mein Name)" live, not on the card itself.
+	// The first card's ⋯ menu — this is where "Backup exportieren" and
+	// "Umbenennen" live, not on the card itself.
 	await walkSurface(page, 'home card ⋯ menu', async () => {
 		await reachHome();
 		await page.locator('[aria-label^="Aktionen für"]').first().click();

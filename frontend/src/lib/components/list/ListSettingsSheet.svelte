@@ -11,6 +11,7 @@
 	import SettingsRow from '#lib/components/settings/SettingsRow.svelte';
 	import Sheet from '#lib/components/ui/Sheet.svelte';
 	import { online } from '#lib/state/online.js';
+	import type { MyList } from '#lib/state/data.js';
 	import {
 		LEAVE_ACTION as leave,
 		LIST_ACTIONS,
@@ -18,12 +19,7 @@
 		type ListActionId
 	} from './list-actions.svelte';
 
-	let {
-		listId,
-		name,
-		open,
-		onclose
-	}: { listId: string; name: string; open: boolean; onclose: () => void } = $props();
+	let { list, open, onclose }: { list: MyList; open: boolean; onclose: () => void } = $props();
 
 	// The route's, whose dialogs its layout renders.
 	const actions = getListActions();
@@ -33,13 +29,13 @@
 	// looking.
 	function choose(id: ListActionId): void {
 		onclose();
-		actions.run(id, listId, name);
+		actions.run(id, list);
 	}
 
 	const listActions = LIST_ACTIONS.filter((a) => a !== leave);
 </script>
 
-<Sheet {open} title={name || t('list_settings')} {onclose}>
+<Sheet {open} title={list.name || t('list_settings')} {onclose}>
 	<!-- The note under the rows it greys, 8px below ([D-327]). -->
 	<div class="flex flex-col gap-2">
 		<RuledRows flush>

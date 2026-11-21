@@ -5,7 +5,7 @@ import type { MyList } from './state/data';
 import { reconcileOrder, sortLists } from './list-order';
 
 function member(list: string, name: string): MyList {
-	return { id: `m-${list}`, account: 'a', list, name, created: '', updated: '' };
+	return { id: `m-${list}`, account: 'a', list, name, globalName: name, created: '', updated: '' };
 }
 
 const rows = [member('l1', 'Wocheneinkauf'), member('l2', 'Baumarkt'), member('l3', 'Party')];

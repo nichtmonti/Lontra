@@ -30,6 +30,7 @@ const (
 	RateListCreate        budgetName = "list_create"        // `POST /api/lists`: one row plus a category copy per call
 	RateListImport        budgetName = "list_import"        // `POST /api/lists/import`: up to 2000 items per call, the amplifier
 	RateListClone         budgetName = "list_clone"         // `POST /api/lists/{listId}/clone`: a whole list, the other amplifier
+	RateLocalName         budgetName = "local_name"         // `POST /api/lists/{listId}/local-name`: one private list name
 	RateClearHistory      budgetName = "clear_history"      // `POST /api/lists/{listId}/clear-history`: a bulk update across a list
 	RateMissingCategories budgetName = "missing_categories" // `POST /api/lists/{listId}/categories/missing`: at most one row per template per call
 	RateInviteRevoke      budgetName = "invite_revoke"      // `POST /api/lists/{listId}/invite/revoke`, mint's twin
@@ -64,6 +65,7 @@ var policy = map[budgetName]budget{
 	RateListCreate:        {5 * time.Minute, 30},
 	RateListImport:        {5 * time.Minute, 10},
 	RateListClone:         {5 * time.Minute, 10},
+	RateLocalName:         {time.Minute, 30},
 	RateClearHistory:      {5 * time.Minute, 30},
 	RateMissingCategories: {5 * time.Minute, 30},
 	RateInviteRevoke:      {time.Minute, 30},

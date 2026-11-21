@@ -35,11 +35,13 @@ const c = contract as unknown as Contract;
 
 /**
  * Every collection the contract caps: `SyncCollection` plus the collections
- * written by server routes, which must never be reachable from the outbox. The
- * cap lookups take this wider type so route-written inputs (list name,
- * nickname) are capped from the same numbers ([D-08]).
+ * written outside the outbox (server routes and the §11 direct updates),
+ * which must never be reachable from it. The cap lookups take this wider
+ * type so those inputs (list name, nickname, the private local_name) are
+ * capped from the same numbers ([D-08], [D-360]).
  */
-export type ContractCollection = SyncCollection | 'lists' | 'accounts' | 'credentials';
+export type ContractCollection =
+	SyncCollection | 'lists' | 'accounts' | 'credentials' | 'memberships';
 
 /** The rows a list may hold by default, tombstones included ([D-217]). */
 export const MAX_ITEMS_PER_LIST: number = c.max_items_per_list;

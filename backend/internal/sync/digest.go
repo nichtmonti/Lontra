@@ -32,6 +32,11 @@ type membershipView struct {
 	List    string `json:"list"`
 	Created string `json:"created"`
 	Updated string `json:"updated"`
+	// LocalName is the member's private override of the list's name, empty
+	// when they have none ([D-360]). It rides the owner's own membership row,
+	// so a co-member never sees it.
+	LocalName         string `json:"local_name"`
+	LocalNameRevision int    `json:"local_name_revision"`
 }
 
 // digestHandler implements GET /api/sync/digest (§8.5): one digestEntry per
@@ -89,11 +94,13 @@ func digestHandler(e *core.RequestEvent) error {
 			Hash:       hash,
 			Name:       names[listID],
 			Membership: membershipView{
-				ID:      mem.Id,
-				Account: mem.GetString("account"),
-				List:    listID,
-				Created: mem.GetDateTime("created").String(),
-				Updated: mem.GetDateTime("updated").String(),
+				ID:                mem.Id,
+				Account:           mem.GetString("account"),
+				List:              listID,
+				Created:           mem.GetDateTime("created").String(),
+				Updated:           mem.GetDateTime("updated").String(),
+				LocalName:         mem.GetString("local_name"),
+				LocalNameRevision: mem.GetInt("local_name_revision"),
 			},
 		})
 	}

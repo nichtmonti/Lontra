@@ -63,8 +63,8 @@
 
 	// The route's, whose dialogs its layout renders.
 	const actions = getListActions();
-	// The confirmation names the list.
-	let listName = $derived($memberships.find((m) => m.list === listId)?.name ?? '');
+	// The confirmation names the list as the user's screens show it ([D-360]).
+	let myList = $derived($memberships.find((m) => m.list === listId));
 	// Offered while there is a date to forget, on a previous item or an
 	// active row's „Zuletzt" hint.
 	let hasDates = $derived(items.some((i) => i.last_bought_at || i.checked_at));
@@ -132,7 +132,7 @@
 			label={t(clear.label)}
 			opens
 			disabled={!$online}
-			onclick={() => actions.run(clear.id, listId, listName)}
+			onclick={() => myList && actions.run(clear.id, myList)}
 		>
 			{#snippet icon()}<clear.icon aria-hidden="true" />{/snippet}
 		</SettingsRow>

@@ -66,6 +66,17 @@ function assertMembershipData(recs: unknown): asserts recs is Membership[] {
 		if (typeof r?.id !== 'string' || typeof r.list !== 'string' || typeof r.account !== 'string') {
 			throw new Error('sync: memberships response is not membership data');
 		}
+		// [D-360] optional: a server older than local_name carries none.
+		if (
+			(r.local_name !== undefined && typeof r.local_name !== 'string') ||
+			(r.local_name_revision !== undefined &&
+				(typeof r.local_name !== 'string' ||
+					typeof r.local_name_revision !== 'number' ||
+					!Number.isSafeInteger(r.local_name_revision) ||
+					r.local_name_revision < 0))
+		) {
+			throw new Error('sync: memberships response is not membership data');
+		}
 	}
 }
 
@@ -172,7 +183,11 @@ async function syncSteps(deps: CycleDeps, scope: SessionScope): Promise<CycleRes
 	if (abandoned()) return nothing();
 
 	// 2. The digest, which carries the memberships ([D-28]). A 401 expires the
-	// session and aborts the cycle before anything is purged.
+	// session and aborts the cycle before anything is purged. What this device
+	// held before asking: a private name mirrored meanwhile is newer than the
+	// digest ([D-360]), and a list joined meanwhile is not one that vanished.
+	const before = await db.memberships.toArray();
+	if (abandoned()) return nothing();
 	let server: DigestEntry[];
 	try {
 		server = await fetchServerDigest(deps.digestTransport, signal);
@@ -185,12 +200,15 @@ async function syncSteps(deps: CycleDeps, scope: SessionScope): Promise<CycleRes
 	assertMembershipData(memberships);
 	const purged: string[] = [];
 
-	// A local membership the server no longer lists is a vanished list ([D-28]);
-	// this is the only path that learns it, so the §8.6 notice fires here ([D-138]).
+	// A membership held before and after the request that the server no longer
+	// lists is a vanished list ([D-28]); this is the only path that learns it,
+	// so the §8.6 notice fires here ([D-138]). One left on this device during
+	// the request is gone from Dexie already and raises none.
 	const localMemberships = await db.memberships.toArray();
+	const heldBefore = new Set(before.map((m) => m.list));
 	const serverListIds = new Set(memberships.map((m) => m.list));
 	for (const local of localMemberships) {
-		if (!serverListIds.has(local.list)) {
+		if (heldBefore.has(local.list) && !serverListIds.has(local.list)) {
 			await purgeGoneList(local.list, deps.drain?.onGone, () => scope.owned());
 			purged.push(local.list);
 		}
@@ -199,16 +217,35 @@ async function syncSteps(deps: CycleDeps, scope: SessionScope): Promise<CycleRes
 	// is the "pulled" signal ([D-185]) and waits for step 3. The home tells "not
 	// pulled yet" from "no lists" by the stamp ([D-182]), so it is written
 	// before the slow steps below.
+	const membershipRevisions = new Map(before.map((m) => [m.id, m.local_name_revision]));
 	const written = await writeOwned([db.memberships, db.lists, db.meta], async () => {
+		const knownMemberships = await db.memberships.bulkGet(memberships.map((m) => m.id));
 		await putOnlyChanged(
 			db.memberships,
-			memberships.map((m) => ({
-				id: m.id,
-				account: m.account,
-				list: m.list,
-				created: m.created,
-				updated: m.updated
-			}))
+			memberships.map((m, index) => {
+				const known = knownMemberships[index];
+				// An older server omits the field, invalidating the override and its revision.
+				const revision = m.local_name_revision;
+				// A restore can rewind the revision already present before the request.
+				// Preserve a newer revision only when it arrived during this pull.
+				if (
+					known?.local_name_revision !== undefined &&
+					revision !== undefined &&
+					known.local_name_revision > revision &&
+					known.local_name_revision !== membershipRevisions.get(m.id)
+				) {
+					return known;
+				}
+				return {
+					id: m.id,
+					account: m.account,
+					list: m.list,
+					created: m.created,
+					updated: m.updated,
+					local_name: m.local_name,
+					local_name_revision: revision
+				};
+			})
 		);
 		// By id too: a list left and re-joined elsewhere has a new membership row.
 		const serverIds = new Set(memberships.map((m) => m.id));

@@ -49,6 +49,7 @@ vi.mock('#lib/auth/index.js', async () => {
 vi.mock('#lib/actions/lists.js', () => ({
 	createList: vi.fn(),
 	renameList: vi.fn(),
+	renameListLocal: vi.fn(),
 	leaveList: vi.fn().mockResolvedValue(undefined),
 	cloneList: vi.fn(),
 	exportList: vi.fn(),
@@ -63,7 +64,13 @@ import { db, type RosterEntry } from '#lib/db.js';
 import { resetDb, makeItem, makeMembership, putMyList, putSynced } from '#lib/test-kit/db.js';
 import { listOrder, listSort } from '#lib/state/prefs.js';
 import { online as onlineStore } from '#lib/state/online.js';
-import { createList, exportList, leaveList, renameList } from '#lib/actions/lists.js';
+import {
+	createList,
+	exportList,
+	leaveList,
+	renameList,
+	renameListLocal
+} from '#lib/actions/lists.js';
 import { goto } from '$app/navigation';
 import { t } from '#lib/i18n/index.js';
 import * as appState from '#lib/test-kit/app-state.svelte.js';
@@ -866,8 +873,8 @@ describe('ListsHome create/join/rename dialogs', () => {
 		await fireEvent.click(await screen.findByRole('menuitem', { name: 'Umbenennen' }));
 
 		const dialog = await screen.findByRole('dialog', { name: 'Umbenennen' });
-		// [D-08]: the name is the list's, so the dialog says who it changes it for.
-		expect(within(dialog).getByText('Der neue Name gilt für alle Mitglieder.')).toBeDefined();
+		// [D-08]: the list's one name; on a list only this account is on there
+		// is no private one to offer ([D-360]).
 		const input = within(dialog).getByLabelText<HTMLInputElement>('Name');
 		expect(input.value).toBe('Familie');
 
@@ -888,6 +895,60 @@ describe('ListsHome create/join/rename dialogs', () => {
 
 		expect(await screen.findByRole('link', { name: 'Großfamilie öffnen' })).toBeDefined();
 		expect(screen.queryByRole('link', { name: 'Familie öffnen' })).toBeNull();
+	});
+
+	// [D-360]: two lists both called "Zuhause" — the private override tells
+	// them apart on this account's cards, and the shared name stays for the
+	// co-members.
+	it('shows the private name on the card, and the rename sets it', async () => {
+		await putMyList('list-a', 'Zuhause');
+		await putMyList('list-b', 'Zuhause');
+		await putList('list-a', '2026-01-01T00:00:00.000Z');
+		await putList('list-b', '2026-01-02T00:00:00.000Z');
+		await db.roster.bulkPut([roster('list-a', 'acc-1', 'Anna'), roster('list-a', 'acc-2', 'Ben')]);
+
+		render(ListsHome);
+		// Both cards carry the shared name until one is overridden.
+		expect(await screen.findAllByRole('link', { name: 'Zuhause öffnen' })).toHaveLength(2);
+
+		await fireEvent.click(
+			(await screen.findAllByRole('button', { name: 'Aktionen für Zuhause' }))[0]
+		);
+		await fireEvent.click(await screen.findByRole('menuitem', { name: 'Umbenennen' }));
+
+		const dialog = await screen.findByRole('dialog', { name: 'Umbenennen' });
+		const input = await within(dialog).findByLabelText<HTMLInputElement>('Name nur für dich');
+		// Nothing set yet: the field opens empty with the shared name as its
+		// placeholder, so the common reference stays visible.
+		expect(input.value).toBe('');
+		expect(input.placeholder).toBe('Zuhause');
+
+		await fireEvent.input(input, { target: { value: 'Zuhause bei Anna' } });
+		await fireEvent.click(within(dialog).getByRole('button', { name: 'Speichern' }));
+		await waitFor(() =>
+			expect(vi.mocked(renameListLocal)).toHaveBeenCalledWith('list-a', 'Zuhause bei Anna')
+		);
+		expect(vi.mocked(renameList)).not.toHaveBeenCalled();
+
+		// The action is mocked; the mirror write it stands for is what the
+		// card reads. One card takes the override, the other keeps the name.
+		const mem = await db.memberships.where('list').equals('list-a').first();
+		await db.memberships.update(mem!.id, { local_name: 'Zuhause bei Anna' });
+		expect(await screen.findByRole('link', { name: 'Zuhause bei Anna öffnen' })).toBeDefined();
+		expect(screen.getAllByRole('link', { name: 'Zuhause öffnen' })).toHaveLength(1);
+	});
+
+	it('an overridden card still offers the shared name to rename and duplicate', async () => {
+		await putMyList('list-a', 'Zuhause', { local_name: 'Zuhause bei Anna' });
+		await putList('list-a', '2026-01-01T00:00:00.000Z');
+
+		render(ListsHome);
+		await fireEvent.click(
+			await screen.findByRole('button', { name: 'Aktionen für Zuhause bei Anna' })
+		);
+		await fireEvent.click(await screen.findByRole('menuitem', { name: 'Umbenennen' }));
+		const dialog = await screen.findByRole('dialog', { name: 'Umbenennen' });
+		expect(within(dialog).getByLabelText<HTMLInputElement>('Name für alle').value).toBe('Zuhause');
 	});
 
 	it('asks for the invite in-app instead of via window.prompt', async () => {

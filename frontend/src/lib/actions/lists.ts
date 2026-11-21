@@ -1,6 +1,7 @@
-// List lifecycle: the transactional routes of §7.5 / §7.6 and the two direct-PB
-// writes of §11 (rename, leave). None of this rides the outbox, so all of it is
-// online-only ([D-09], §9.3): lists are set up online, shopping works offline.
+// List lifecycle: the transactional routes of §7.5 / §7.6 and the
+// direct-PB writes of §11 (shared rename, leave). None of this rides
+// the outbox, so all of it is online-only ([D-09], §9.3): lists are set up
+// online, shopping works offline.
 import { db, ownMembership } from '#lib/db.js';
 import { pb } from '#lib/pb.js';
 import { applyServerPatch, pullFromServer, purgeList, refreshRoster } from '#lib/sync/index.js';
@@ -123,7 +124,7 @@ async function findOwnMembershipId(listId: string): Promise<string | null> {
 }
 
 /**
- * §6.4 / §9.3: the list's one name ([D-08]), renamed by any member with a
+ * §6.4 / §9.3: the shared list name ([D-08]), renamed by any member with a
  * direct-PB update, never a sync op. A sign-out while the update is in flight
  * discards its echo, so the wiped row is not rewritten ([D-109]).
  */
@@ -133,6 +134,33 @@ export async function renameList(listId: string, name: string): Promise<void> {
 	if (!session.owned()) return;
 	await db.lists.update(listId, { name });
 }
+
+/**
+ * [D-360] The member's private name for the list: an override of the shared
+ * name on their OWN membership row, never a sync op and never visible to a
+ * co-member. Empty clears it, and the shared name stands again. The digest
+ * carries it to the account's other devices; this mirror write makes it show
+ * here at once. A sign-out while the update is in flight discards its echo
+ * ([D-109]).
+ */
+export async function renameListLocal(listId: string, localName: string): Promise<void> {
+	const session = sessionScope();
+	const result = await pb.send<{ id: string; local_name: string; local_name_revision: number }>(
+		`/api/lists/${listId}/local-name`,
+		{ method: 'POST', body: { local_name: localName.trim() }, signal: session.signal }
+	);
+	await db.transaction('rw', db.memberships, async () => {
+		if (!session.owned()) return;
+		const current = await db.memberships.get(result.id);
+		if (current && (current.local_name_revision ?? -1) < result.local_name_revision) {
+			await db.memberships.update(result.id, {
+				local_name: result.local_name,
+				local_name_revision: result.local_name_revision
+			});
+		}
+	});
+}
+
 /**
  * [D-72] `POST /api/lists/{listId}/clone`: the server copies the live
  * categories and items into a fresh list ([D-72]). The server holds no UI

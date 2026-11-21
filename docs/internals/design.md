@@ -73,7 +73,7 @@ An installable Progressive Web App for shared shopping lists:
 └──────────────────────────────────────────────────────────┘
 ```
 
-**Write path:** every client mutation to shared data goes through `POST /api/sync/push` (server-side per-field merge, [§8]). PB auto-CRUD serves **reads and realtime only** (incl. read-only `category_templates` / `item_dictionary`), except that the sync engine reads through the authenticated `GET /api/sync/digest` and `GET /api/sync/snapshot/{listId}`, so a refusal is never an empty 200 ([D-28], [D-173]). Direct client writes to `items` / `list_categories` are denied by rule, and to `lists` all but a member's rename ([§6.4], [§11]).
+**Write path.** Item and category mutations go through `POST /api/sync/push` with server-side per-field merge ([§8]). Direct client writes to those collections are denied by rule. The sync engine reads through the authenticated `GET /api/sync/digest` and `GET /api/sync/snapshot/{listId}` so a refusal is never an empty 200 ([D-28], [D-173]). The record API also serves reads, realtime and the direct writes listed in [§11].
 
 ---
 
@@ -213,7 +213,7 @@ A passkey ceremony's session lives in server memory, not in a collection ([§5.5
 | Field | Type | Notes |
 |---|---|---|
 | id | 32-hex random | server-minted [D-08] |
-| name | string | **the list's one name, shared by every member** [D-08]; capped by the field contract; any member renames it |
+| name | string | the list's **shared name** ([D-08]), capped by the field contract and writable by any member |
 | updated | | server-stamped (PB built-in) |
 
 **No owner field. No `deleted_at`.** A list exists exactly as long as ≥1 membership points at it. The one client write is a member's **rename**: a direct update of `name` under the members-only update rule ([§11]), bounded by the lists update guard. The sync engine never carries a `lists` op [D-08]; co-members get the new name from the [§8.5] digest.
@@ -224,9 +224,11 @@ A passkey ceremony's session lives in server memory, not in a collection ([§5.5
 | id | PB record id | |
 | account | relation → accounts | deleted by the account-deletion route ([§4.5]), **not** a relation cascade |
 | list | relation → lists | |
+| local_name_revision | integer | starts at zero and advances on each private name change ([D-360]) |
+| local_name | string | the member's **private override** of `lists.name`, empty by default ([D-360]): written through the private rename route. Empty renders the shared name |
 | created / updated | | |
 
-No name of its own, no update rule [D-08]; readable only by its owner (the roster route exposes only account, nickname and join time, [§7.4]). Unique index on `(account, list)`. **No `deleted_at`**: leave = hard delete ([§7.2]).
+Readable only by its owner, so the override never reaches a co-member (the roster route exposes only account, nickname and join time, [§7.4]). Unique index on `(account, list)`. **No `deleted_at`**: leave = hard delete ([§7.2]). The override rides the owner's own membership row on the [§8.5] digest, which is how it reaches the account's other devices [D-360].
 
 ### 6.6 `items`
 | Field | Type | Notes |
@@ -398,7 +400,7 @@ Growing the global taxonomy is an **operator** action ([D-15]) with two tools th
 
 ## 7. Sharing & membership model
 
-- **No owner; all members are equal:** any member edits items and categories, invites, sees the roster (account id + nickname: identities are not private), renames the list (one name for all, `lists.name` [D-08]) and leaves.
+- **All members have equal permissions.** Any member can edit items and categories, invite others, see the roster, change the shared name ([D-08]), set their own private name ([D-360]) and leave.
 - **No one deletes a list directly**; it goes when its **last member leaves** ([§7.3]). No one can evict a bad actor; others can only leave.
 
 ### 7.1 Invite lifecycle (link-only)
@@ -559,7 +561,7 @@ Three layers: freshness, a consistency probe, and a repair authority [D-28] [D-4
 
 ### 8.6 `gone` handling
 
-On `status: "gone"` or the membership set ([§8.5]) showing the list vanished (usually the latter, after a `not_member` denial triggers a full cycle, [D-138]): drop all `pending_ops` with that `list_id`, delete the list and its records from Dexie, and show the [§7.3] notice, named from the local `lists` row read before the purge. Never retry.
+On `status: "gone"` or the membership set ([§8.5]) showing the list vanished (usually the latter, after a `not_member` denial triggers a full cycle, [D-138]), drop all `pending_ops` with that `list_id` and delete the list and its records from Dexie. Show the [§7.3] notice using the display name read before the purge ([§6.5]). Never retry.
 
 **`gone` means the list is gone** [D-103]. A push against a missing row on a **living** list answers `denied`/`row_missing`, a terminal denial ([§8.4]); a single swept row never triggers a whole-list purge. A `create` for a nonexistent list answers `gone` ([§8.3]).
 
@@ -670,7 +672,7 @@ The app root is the **„Meine Listen“ home**: the user's `memberships` as car
 
 **Cold start.** A new account has no lists ([§7.5]): the home offers „Neue Liste“, „Mit Einladung beitreten“ and „Liste importieren“. It does so only once memberships have been pulled (`meta.memberships_synced_at`, stamped right after the membership upsert, wiped on sign-out); before that a zero-list home shows „Deine Listen werden geladen …“ with no actions ([D-182]).
 
-**A list's ⋮**, inside the list and on its card, offers ([D-270], [D-271]): edit categories ([§6.7], inside the list only), share ([§7.1]), rename (any member, [D-08]), duplicate ([§7.5]), export a backup ([D-72]), leave ([§7.2]). Rename, duplicate and leave are server calls, greyed out offline ([§11]).
+**A list's ⋮**, inside the list and on its card, offers share ([§7.1]), rename ([D-08]; on a shared list with the member's private name under the shared one, [D-360]), duplicate ([§7.5]), export a backup ([D-72]) and leave ([§7.2]). The in-list menu also offers category editing ([§6.7]). Rename, duplicate and leave are server calls, greyed out offline ([§11]). See [D-270] and [D-271] for where each control appears.
 
 ---
 ## 10. Security summary
@@ -691,6 +693,7 @@ The app root is the **„Meine Listen“ home**: the user's `memberships` as car
 | `list_create` | 30 per 5 minutes | `POST /api/lists`: one row plus a category copy per call |
 | `list_import` | 10 per 5 minutes | `POST /api/lists/import`: up to 2000 items per call, the amplifier |
 | `list_clone` | 10 per 5 minutes | `POST /api/lists/{listId}/clone`: a whole list, the other amplifier |
+| `local_name` | 30 per minute | `POST /api/lists/{listId}/local-name`: one private list name |
 | `clear_history` | 30 per 5 minutes | `POST /api/lists/{listId}/clear-history`: a bulk update across a list |
 | `missing_categories` | 30 per 5 minutes | `POST /api/lists/{listId}/categories/missing`: at most one row per template per call |
 | `invite_revoke` | 30 per minute | `POST /api/lists/{listId}/invite/revoke`, mint's twin |
@@ -755,7 +758,7 @@ Rules live in checked-in migrations ([§14]).
 | `accounts` | self only (`id = @request.auth.id`; `emailVisibility` false) | none (passkey routes, and the [§5.9] OIDC hook, which pre-creates at system level [D-76]) | self: the update hook refuses a changed `handle` and caps `nickname`, PocketBase's own form refuses the auth fields (`email`, `verified`, `tokenKey`; email is never set: [§4.4], [D-25]) [D-32] | none (account-deletion route only, [§4.5]) |
 | `credentials` | own only | none (passkey routes only) | **deny** (no rule, migration 1778000003; `friendly_name` via `POST /api/credentials/{id}/rename`, [§5.4]) | own, guarded by the **last-credential delete-hook** ([§5.4]): refuses removing the last credential of an account with no OIDC login; account-deletion route exempt via a context-scoped bypass ([D-32]) |
 | `lists` | requester has a membership on the list | **deny** (route [§7.5]) | requester has a membership on the list; `name` only in effect (its only own column), bounded and kept non-empty by the lists update guard [D-08] | **deny** (cascade only) |
-| `memberships` | **own rows only** (roster via route [§7.4]) | **deny** (join route) | **deny** ([D-08]) | **own only** (= leave, fires cascade [§7.3]) |
+| `memberships` | **own rows only** (roster via route [§7.4]) | **deny** (join route) | **deny** (private rename via `POST /api/lists/{listId}/local-name`, [D-360]) | **own only** (= leave, fires cascade [§7.3]) |
 | `items` | requester has a membership on `item.list` | **deny** | **deny** | **deny** (all writes via sync push) |
 | `list_categories` | requester has a membership on the list | **deny** | **deny** | **deny** (all writes via sync push) |
 | `category_templates` | **authenticated** (read-only reference) | none (superuser only) | none | none |
@@ -920,6 +923,7 @@ The standing rules it set are in [§14].
 [§5.9]: #5-9-oidc-login-opt-in-alternative-d-76
 [§6.1]: #6-1-accounts-auth-collection
 [§6.4]: #6-4-lists
+[§6.5]: #6-5-memberships
 [§6.6]: #6-6-items
 [§6.7]: #6-7-categories-per-list-copied-from-a-global-seed-at-creation-d-14
 [§6.9]: #6-9-item_dictionary-global-app-seeded-read-only-to-clients
@@ -1109,3 +1113,4 @@ The standing rules it set are in [§14].
 [D-353]: decisions.md#D-353
 [D-358]: decisions.md#D-358
 [D-359]: decisions.md#D-359
+[D-360]: decisions.md#D-360

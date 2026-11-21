@@ -76,8 +76,8 @@ async function seedFixture(): Promise<void> {
 	});
 	await db.items.bulkPut([itemNull, itemTombCat, itemNormal, itemChecked]);
 
-	// [D-08] the name is the list's own, on its lists row — not on the membership.
-	await putMyList(LIST, 'Wochenshop');
+	// A shareable backup carries the shared name ([D-360]).
+	await putMyList(LIST, 'Wochenshop', { local_name: 'My weekly shop' });
 }
 
 describe('buildListBackup', () => {

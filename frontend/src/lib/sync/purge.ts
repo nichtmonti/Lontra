@@ -1,6 +1,6 @@
 // §8.6 vanished-list cleanup: purge a list's local data from every table that
 // holds it (the two shadows included).
-import { db, listDataTables } from '#lib/db.js';
+import { db, listDataTables, ownMembership } from '#lib/db.js';
 import type { SyncNotices } from './types';
 
 /** False when `owned` says the work it belongs to has ended (§5.6 [D-109]):
@@ -25,13 +25,16 @@ export async function purgeList(
 
 /**
  * Purge a list the server no longer gives this account, then raise the §8.6
- * notice with its name — read first, since the purge deletes the row it lives on.
+ * notice with its name — read first, since the purge deletes the rows it
+ * lives on. The member's own override ([D-360]) names it when they set one:
+ * it is the name their screens showed.
  */
 export async function purgeGoneList(
 	listId: string,
 	onGone: SyncNotices['onGone'],
 	owned: () => boolean
 ): Promise<void> {
-	const name = (await db.lists.get(listId))?.name ?? '';
+	const [list, membership] = await Promise.all([db.lists.get(listId), ownMembership(listId)]);
+	const name = membership?.local_name || list?.name || '';
 	if (await purgeList(listId, owned)) onGone?.(listId, name);
 }

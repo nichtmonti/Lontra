@@ -53,7 +53,7 @@ export interface ListCategory {
 }
 
 // A list the account belongs to, as the §8.5 digest reports it. `name` is the
-// list's one name ([D-08]). `updated` is the digest's `max_updated` (what §9.3's
+// shared list name ([D-08]). `updated` is the digest's `max_updated` (what §9.3's
 // "recent activity" order sorts on), NOT the server's `lists.updated`, which only
 // a rename moves. It is absent until the cycle has pulled the list's rows, which
 // makes it the home card's "pulled" signal ([D-185]).
@@ -69,6 +69,11 @@ export interface Membership {
 	list: string; // list id
 	created: string;
 	updated: string;
+	// The member's private override of the list's name, empty when they have
+	// none ([D-360]). Optional: a digest from a server older than the field
+	// carries none, and the shared name stands.
+	local_name?: string;
+	local_name_revision?: number;
 }
 
 // Per-list member cache (§7.4), keyed by rosterKey.

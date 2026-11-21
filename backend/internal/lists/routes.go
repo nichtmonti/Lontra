@@ -1,5 +1,5 @@
-// Package lists implements the §7.4/§7.5 list-management routes and the rule
-// on a list's one member-writable column:
+// Package lists implements the §7.4/§7.5 list-management routes and the
+// guards on shared and private list names:
 //
 //   - POST /api/lists creates a list with the creator's membership and a
 //     per-list copy of the global category_templates seed (create.go);
@@ -12,7 +12,8 @@
 //   - POST /api/lists/{listId}/categories/missing adds the template
 //     categories the list has no row for [D-251] (missingcategories.go);
 //   - GET /api/lists/{listId}/members is the member roster (roster.go);
-//   - a hook bounds a member's rename of the list ([D-08], guard.go);
+//   - POST /api/lists/{listId}/local-name writes the caller's private name ([D-360]);
+//   - a hook bounds a member's shared rename ([D-08], guard.go);
 //   - the §7.3 departure hook revokes the link, and the last member's deletes
 //     the list (cascade.go).
 //
@@ -45,6 +46,8 @@ func RegisterRoutes(router *router.RouterGroup[*core.RequestEvent], caps listcap
 	// of its own on purpose; see internal/security/ratelimit.go.
 	member.GET("/api/lists/{listId}/members", roster)
 	member.POST("/api/lists/{listId}/clone", h.cloneList).BindFunc(security.RateLimit(security.RateListClone))
+	member.POST("/api/lists/{listId}/local-name", renameLocal).
+		BindFunc(security.RateLimit(security.RateLocalName))
 	member.POST("/api/lists/{listId}/clear-history", clearHistory).
 		BindFunc(security.RateLimit(security.RateClearHistory))
 	member.POST("/api/lists/{listId}/categories/missing", addMissingCategories).

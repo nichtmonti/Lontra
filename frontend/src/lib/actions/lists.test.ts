@@ -9,7 +9,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const {
 	membershipsDelete,
-	membershipsUpdate,
 	membershipsGetFullList,
 	listsUpdate,
 	pbSend,
@@ -18,7 +17,6 @@ const {
 	deliverBackup
 } = vi.hoisted(() => ({
 	membershipsDelete: vi.fn().mockResolvedValue(true),
-	membershipsUpdate: vi.fn().mockResolvedValue({}),
 	membershipsGetFullList: vi.fn().mockResolvedValue([]),
 	listsUpdate: vi.fn().mockResolvedValue({}),
 	pbSend: vi.fn().mockResolvedValue({}),
@@ -40,10 +38,9 @@ vi.mock('#lib/pb.js', async () => {
 		collections: {
 			memberships: {
 				delete: membershipsDelete,
-				update: membershipsUpdate,
 				getFullList: membershipsGetFullList
 			},
-			// [D-08] a rename writes the lists row; memberships carry no name.
+			// The shared name lives on the lists row ([D-08]).
 			lists: { update: listsUpdate }
 		},
 		send: pbSend,
@@ -77,7 +74,8 @@ import {
 	joinList,
 	leaveList,
 	ListLimitError,
-	renameList
+	renameList,
+	renameListLocal
 } from './lists';
 import { ClientResponseError } from 'pocketbase';
 import { t } from '#lib/i18n/index.js';
@@ -105,7 +103,6 @@ beforeEach(async () => {
 	await resetDb();
 	vi.clearAllMocks();
 	membershipsDelete.mockResolvedValue(true);
-	membershipsUpdate.mockResolvedValue({});
 	membershipsGetFullList.mockResolvedValue([]);
 	listsUpdate.mockResolvedValue({});
 	buildListBackup.mockResolvedValue(minimalBackup);
@@ -207,8 +204,7 @@ describe('renameList (§6.4 [D-08] — the list’s one name)', () => {
 		await renameList('list-1', 'Neu');
 
 		expect(listsUpdate).toHaveBeenCalledWith('list-1', { name: 'Neu' });
-		// No membership write at all: the name is not the member's any more.
-		expect(membershipsUpdate).not.toHaveBeenCalled();
+		// The shared rename leaves the membership alone.
 		const list = await db.lists.get('list-1');
 		expect(list?.name).toBe('Neu');
 		// `updated` is the digest's max_updated (§9.3 ordering) — a rename must not move it.
@@ -237,6 +233,70 @@ describe('renameList (§6.4 [D-08] — the list’s one name)', () => {
 		await renameList('list-1', 'Neu');
 
 		expect(await db.lists.get('list-1')).toBeUndefined();
+		expect(await db.memberships.get('mem-own')).toBeUndefined();
+	});
+});
+
+describe('renameListLocal (§6.5 [D-360] — the member’s private override)', () => {
+	const url = '/api/lists/list-1/local-name';
+	const result = { id: 'mem-own', local_name: 'Neu', local_name_revision: 1 };
+
+	beforeEach(async () => {
+		await db.lists.put({ id: 'list-1', name: 'Zuhause' });
+		await db.memberships.put(makeMembership({ list: 'list-1', id: 'mem-own' }));
+	});
+
+	it('saves and mirrors the private name through the list route', async () => {
+		pbSend.mockResolvedValueOnce(result);
+		await renameListLocal('list-1', '  Neu  ');
+
+		expect(pbSend).toHaveBeenCalledWith(url, {
+			method: 'POST',
+			body: { local_name: 'Neu' },
+			signal: expect.any(AbortSignal)
+		});
+		expect(listsUpdate).not.toHaveBeenCalled();
+		expect(await db.memberships.get('mem-own')).toMatchObject(result);
+		expect((await db.lists.get('list-1'))?.name).toBe('Zuhause');
+	});
+
+	it('an empty name clears the override', async () => {
+		await db.memberships.update('mem-own', { local_name: 'Alt', local_name_revision: 1 });
+		pbSend.mockResolvedValueOnce({ ...result, local_name: '', local_name_revision: 2 });
+
+		await renameListLocal('list-1', '   ');
+
+		expect(pbSend).toHaveBeenCalledWith(url, expect.objectContaining({ body: { local_name: '' } }));
+		expect((await db.memberships.get('mem-own'))?.local_name).toBe('');
+	});
+
+	it('leaves the mirror alone when the server refuses', async () => {
+		pbSend.mockRejectedValueOnce(new Error('offline'));
+
+		await expect(renameListLocal('list-1', 'Neu')).rejects.toThrow('offline');
+		expect((await db.memberships.get('mem-own'))?.local_name).toBeUndefined();
+	});
+
+	it('keeps a newer revision mirrored while the rename was in flight', async () => {
+		pbSend.mockImplementationOnce(async () => {
+			await db.memberships.update('mem-own', { local_name: 'Latest name', local_name_revision: 2 });
+			return result;
+		});
+
+		await renameListLocal('list-1', 'Neu');
+
+		expect((await db.memberships.get('mem-own'))?.local_name).toBe('Latest name');
+	});
+
+	it('writes nothing back when the session ended during the request', async () => {
+		pbSend.mockImplementationOnce(async () => {
+			endSession();
+			await wipeLocalAccountData();
+			return result;
+		});
+
+		await renameListLocal('list-1', 'Neu');
+
 		expect(await db.memberships.get('mem-own')).toBeUndefined();
 	});
 });

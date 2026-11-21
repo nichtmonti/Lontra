@@ -116,7 +116,7 @@
 					members={roster.length > 1
 						? t('home_card_members', { count: roster.length })
 						: t('list_members_solo')}
-					onmembers={() => listActions.run('share', listId, membership?.name ?? '')}
+					onmembers={() => membership && listActions.run('share', membership)}
 				/>
 			{:else}
 				<div class="mt-px truncate text-meta text-muted-foreground">&nbsp;</div>
@@ -185,9 +185,6 @@
 
 <ListDialogs actions={listActions} />
 
-<ListSettingsSheet
-	{listId}
-	name={membership?.name ?? ''}
-	open={settingsOpen}
-	onclose={() => (settingsOpen = false)}
-/>
+{#if membership}
+	<ListSettingsSheet list={membership} open={settingsOpen} onclose={() => (settingsOpen = false)} />
+{/if}

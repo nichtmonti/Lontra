@@ -13,6 +13,7 @@
 	import ConfirmDialog from '#lib/components/ui/ConfirmDialog.svelte';
 	import ShareSheet from '#lib/components/share/ShareSheet.svelte';
 	import LeaveListDialog from './LeaveListDialog.svelte';
+	import RenameListDialog from './RenameListDialog.svelte';
 	import { Kept } from '#lib/state/kept.svelte.js';
 	import type { ListActions } from './list-actions.svelte';
 
@@ -30,17 +31,14 @@
 
 {#if dialog.last?.kind === 'rename'}
 	{@const d = dialog.last}
-	<!-- [D-08]: one name, every member's. -->
-	<PromptDialog
+	<RenameListDialog
 		open={dialog.current?.kind === 'rename'}
-		title={t('home_action_rename')}
-		description={t('home_rename_prompt')}
-		label={t('common_name')}
-		maxlength={maxBytesFor('lists', 'name')}
-		value={d.current}
+		listId={d.listId}
+		globalName={d.globalName}
+		localName={d.localName}
 		busy={dialog.busy}
 		error={dialog.error}
-		onsubmit={(name) => void actions.submitRename(d.listId, name)}
+		onsubmit={(globalName, localName) => void actions.submitRename(d, globalName, localName)}
 		oncancel={() => dialog.close()}
 	/>
 {/if}

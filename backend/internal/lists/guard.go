@@ -10,9 +10,8 @@ import (
 	"shoppinglist/internal/fieldcontract"
 )
 
-// Register binds the lists update guard and the §7.3 departure cascade
-// (cascade.go). Call it from an OnServe hook, after the migrations created
-// the collections.
+// Register binds the lists update guard and the §7.3 departure cascade.
+// Call it from OnServe, after the migrations created the collections.
 func Register(app core.App) {
 	app.OnRecordUpdate("lists").BindFunc(listUpdateGuard)
 	// Priority 100 runs inside the delete's transaction (PocketBase opens it

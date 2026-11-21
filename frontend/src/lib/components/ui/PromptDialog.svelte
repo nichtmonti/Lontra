@@ -1,6 +1,6 @@
 <!--
-  A single-field prompt as a centered dialog, in place of `window.prompt`,
-  which ignores the design system and is synchronous, leaving nowhere to put
+  A prompt as a centered dialog, in place of `window.prompt`, which ignores
+  the design system and is synchronous, leaving nowhere to put
   "saving…" or an error. Hence `busy` and `error` are props: the caller stays
   open across its own await, renders a rejection next to the input, and
   decides when to close.
@@ -9,7 +9,7 @@
   return, scroll lock and Escape.
 -->
 <script lang="ts">
-	import { untrack } from 'svelte';
+	import { untrack, type Snippet } from 'svelte';
 	import { t } from '#lib/i18n/index.js';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import {
@@ -43,6 +43,9 @@
 		error?: string;
 		onsubmit: (value: string) => void;
 		oncancel: () => void;
+		/** Fields of the caller's own under the prompt's: their values are its
+		 *  state, read in its `onsubmit` (the list's rename, [D-360]). */
+		children?: Snippet;
 	}
 
 	let {
@@ -57,7 +60,8 @@
 		busy = false,
 		error,
 		onsubmit,
-		oncancel
+		oncancel,
+		children
 	}: Props = $props();
 
 	let draft = $state('');
@@ -126,6 +130,7 @@
 					disabled={busy}
 				/>
 			</Field>
+			{@render children?.()}
 			<!-- Stacked, the primary on top: side by side, German labels wrap. -->
 			<div class="flex flex-col-reverse gap-2">
 				<Button type="button" variant="outline" onclick={oncancel} disabled={busy}>

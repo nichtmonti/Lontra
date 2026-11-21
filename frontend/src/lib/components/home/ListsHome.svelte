@@ -205,7 +205,7 @@
 					<ListCard
 						{membership}
 						offline={!$online}
-						onaction={(id) => listActions.run(id, membership.list, membership.name)}
+						onaction={(id) => listActions.run(id, membership)}
 					/>
 				</div>
 			{/each}

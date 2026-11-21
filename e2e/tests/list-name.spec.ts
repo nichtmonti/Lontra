@@ -24,8 +24,9 @@ test('the joiner sees the list by its name, and a rename reaches the other membe
 	await pageB.getByTestId('list-menu').click();
 	await pageB.getByRole('button', { name: 'Umbenennen', exact: true }).click();
 	const dialog = pageB.getByRole('dialog', { name: 'Umbenennen' });
-	// The field opens focused with its name selected, so typing replaces it.
-	const field = dialog.getByLabel('Name');
+	// The shared name's field opens focused with the name selected, so typing
+	// replaces it; a private one ([D-360]) waits under it.
+	const field = dialog.getByLabel('Name für alle');
 	await expect(field).toBeFocused();
 	await expect
 		.poll(() => field.evaluate((el: HTMLInputElement) => [el.selectionStart, el.selectionEnd]))
