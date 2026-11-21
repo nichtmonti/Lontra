@@ -114,7 +114,7 @@
 				<SyncLine
 					{listId}
 					members={roster.length > 1
-						? t('list_members_shared', { count: roster.length })
+						? t('home_card_members', { count: roster.length })
 						: t('list_members_solo')}
 					onmembers={() => listActions.run('share', listId, membership?.name ?? '')}
 				/>

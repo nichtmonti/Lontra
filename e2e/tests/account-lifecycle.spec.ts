@@ -45,7 +45,7 @@ test('leave a shared list: the leaver loses it locally, the other member keeps i
 	// A's roster as the server has it now, B included: the one after B leaves
 	// is then a change, not the cache A held before B joined.
 	await pageA.reload();
-	await expect(pageA.getByTestId('members-line')).toHaveText('geteilt · 2 Mitglieder', {
+	await expect(pageA.getByTestId('members-line')).toHaveText('2 Mitglieder', {
 		timeout: 15_000
 	});
 

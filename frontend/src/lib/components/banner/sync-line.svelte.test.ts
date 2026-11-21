@@ -31,7 +31,7 @@ import SyncLine from './SyncLine.svelte';
 import { isoAgo } from '#lib/test-kit/time.js';
 
 const LIST = 'list-1';
-const MEMBERS = 'geteilt · 2 Mitglieder';
+const MEMBERS = '2 Mitglieder';
 
 async function waiting(count: number, sinceMs: number): Promise<void> {
 	await db.pending_ops.bulkPut(

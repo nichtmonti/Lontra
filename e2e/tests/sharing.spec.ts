@@ -62,7 +62,7 @@ test(
 		await expect(pageB).toHaveURL(/\/list\/[^/]+$/, { timeout: 15_000 });
 		// B's session had its first cycle before the join, with no lists: the
 		// member line must not wait for a reload (§7.4 trigger (a) is per list).
-		await expect(pageB.getByText('geteilt · 2 Mitglieder')).toBeVisible();
+		await expect(pageB.getByTestId('members-line')).toHaveText('2 Mitglieder');
 		await openListView(pageB);
 		await expect(pageB.locator('[data-testid="row"]').filter({ hasText: 'Wasser' })).toBeVisible({
 			timeout: 15_000

@@ -435,16 +435,6 @@
 	"list_switch_all": "My lists",
 	"list_switch_title": "Lists",
 	"list_settings": "List settings",
-	"list_members_shared": [
-		{
-			"declarations": ["input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
-			"match": {
-				"countPlural=one": "shared · {count} member",
-				"countPlural=other": "shared · {count} members"
-			}
-		}
-	],
 	"list_members_solo": "just you",
 	"list_not_found_title": "List not found",
 	"list_not_found": "This list isn't among your lists. It may have been deleted, or you are not a member: then you need an invite link.",

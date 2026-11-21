@@ -410,16 +410,6 @@
 	"list_switch_all": "Meine Listen",
 	"list_switch_title": "Listen",
 	"list_settings": "Listeneinstellungen",
-	"list_members_shared": [
-		{
-			"declarations": ["input count", "local countPlural = count: plural"],
-			"selectors": ["countPlural"],
-			"match": {
-				"countPlural=one": "geteilt · {count} Mitglied",
-				"countPlural=other": "geteilt · {count} Mitglieder"
-			}
-		}
-	],
 	"list_members_solo": "nur du",
 	"list_not_found_title": "Liste nicht gefunden",
 	"list_not_found": "Diese Liste ist nicht in deinen Listen. Vielleicht wurde sie gelöscht, oder du bist kein Mitglied: Dann brauchst du einen Einladungslink.",
