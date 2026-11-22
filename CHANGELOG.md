@@ -6,7 +6,9 @@ Every release tag sits on the commit that adds its entry here (`docs(release): v
 
 Changes land under **Unreleased** in the commit that makes them; the release commit turns that heading into the version's.
 
-## Unreleased
+## v0.19.0: the app is called Lontra, the home's lists get faces, and a shared list a name only you see (2026-11)
+
+**For operators.** Nothing to do before upgrading. The first start adds two columns to the database, after making a backup; going back to v0.18.2 afterwards means restoring that backup.
 
 - **The app is now called Lontra**, Italian and Portuguese for otter, and its icon is an otter holding the list. “Shopping list” was a different name in each language and the name of countless other apps; Lontra is the same in German and English. The sign-in screen says underneath what it is: "The shared shopping list". An icon already on an iPhone's home screen keeps its old name and picture until you remove it and add it again. Nothing changes for operators: the image, the binary and the `SHOPPINGLIST_` settings keep their names ([D-361]).
 - **Give a shared list a name only you see.** On a shared list, "Rename" in the list's ⋮ menu has a second field, "Name just for you", to tell lists with the same name apart on all your devices; left empty, the "Name for everyone" shows again. Under your own name, the list's ⋮ menu still shows the shared one ("Others see “‹name›”"). The database gains two columns on the first start after the update; nothing to do ([D-360]).
