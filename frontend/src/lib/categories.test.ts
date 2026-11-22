@@ -10,6 +10,7 @@ import {
 	categoryName,
 	categoryOf,
 	categoryStyle,
+	faceCategories,
 	isPaletteToken,
 	othersCategory,
 	sortCategories,
@@ -181,5 +182,24 @@ describe('the templates a list lacks [D-251]', () => {
 			'coffee_tea',
 			'car_bike'
 		]);
+	});
+});
+
+// [D-362]: a home card's face names what is open by its categories.
+describe('faceCategories', () => {
+	it('names each category of the items once, in aisle order, the first three', () => {
+		const others = makeCategory({ list: LIST, slug: 'other', name: null, sort_order: 0 });
+		const produce = makeCategory({ list: LIST, slug: 'produce', name: 'Obst', sort_order: 1 });
+		const bakery = makeCategory({ list: LIST, slug: 'bakery', name: 'Brot', sort_order: 2 });
+		const dairy = makeCategory({ list: LIST, slug: 'dairy_eggs', name: 'Milch', sort_order: 3 });
+		const drinks = makeCategory({ list: LIST, slug: 'drinks', name: 'Getränke', sort_order: 4 });
+		const all = [others, produce, bakery, dairy, drinks];
+		const items = [drinks, dairy, produce, dairy, bakery].map((c) => ({ category_key: c.id }));
+
+		expect(faceCategories(items, all, new Map())).toEqual([produce, bakery, dairy]);
+		// An item with no category, or a hidden one, is under Others, last.
+		const loose = [{ category_key: null }, { category_key: drinks.id }];
+		expect(faceCategories(loose, all, new Map())).toEqual([drinks, others]);
+		expect(faceCategories([], all, new Map())).toEqual([]);
 	});
 });

@@ -655,8 +655,9 @@ The app root is the **„Meine Listen“ home**: the user's `memberships` as car
 **Back ([D-230]).** The system back and the in-app ‹ agree everywhere: back closes the top sheet, dialog, menu or arrange mode first, a ‹ never pushes a second copy, and switching lists replaces the current one, so back leads home.
 
 **Per-list card**, computed client-side via `liveQuery`, no new field:
-- the list's `name`;
-- a **remaining count** beside the name ([D-123]): the number of open items (`!checked && !deleted_at`), a grey ✓ when nothing is open, nothing with no items, read out as „‹open› offen“, „alles erledigt ✓“ or „leer“; no purchased totals and no member count;
+- a **face** ([D-362]): up to three plates of the open items' categories in aisle order, clustered, the first in front; 🎉 when everything is done, 🛒 when the list is empty, as the list itself shows ([§9.1]);
+- the list's `name`, and under it **who changed it last and when** ([D-362]): the newest item's `modified_by` by its roster nickname („Du“ for one's own) and its `updated`;
+- a **remaining count** beside the name ([D-123]): the number of open items (`!checked && !deleted_at`), a green ✓ when nothing is open ([D-362]), nothing with no items, read out as „‹open› offen“, „alles erledigt ✓“ or „leer“; no purchased totals and no member count;
 - an **unsynced dot** with the list's pending count from `pending_ops` ([§8.2]).
 
 **Ordering**, device-local in `meta.list_sort`, never synced ([D-115]):
@@ -1114,3 +1115,4 @@ The standing rules it set are in [§14].
 [D-358]: decisions.md#D-358
 [D-359]: decisions.md#D-359
 [D-360]: decisions.md#D-360
+[D-362]: decisions.md#D-362

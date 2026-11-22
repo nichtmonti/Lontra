@@ -315,6 +315,9 @@ export class AppDB extends Dexie {
 		this.version(8).upgrade((tx) =>
 			tx.table('meta').where('key').startsWith('invite_token_').delete()
 		);
+		// v9: a home card names the list's newest change, one row read through
+		// this index ([D-362]). Index-only, no data migration.
+		this.version(9).stores({ items: 'id, list, [list+shelf+shelf_at], [list+updated]' });
 	}
 }
 

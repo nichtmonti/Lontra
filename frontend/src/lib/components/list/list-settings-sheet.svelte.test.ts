@@ -76,6 +76,24 @@ describe('ListSettingsSheet ([D-270])', () => {
 		expect(LIST_ACTIONS.at(-1)).toBe(LEAVE_ACTION);
 	});
 
+	// [D-360]: under a private name, the shared one is the sheet's description.
+	it('names the shared name under a private one, and nothing under the shared one', async () => {
+		const own = { ...list, name: 'Bei Anna', globalName: 'Familie' };
+		const { unmount } = render(WithListActions, {
+			props: { component: ListSettingsSheet, props: { ...props, list: own } }
+		});
+		expect(
+			await screen.findByRole('dialog', {
+				name: 'Bei Anna',
+				description: t('list_shared_name', { name: 'Familie' })
+			})
+		).toBeDefined();
+		unmount();
+
+		render(WithListActions, { props: { component: ListSettingsSheet, props } });
+		expect(await screen.findByRole('dialog', { name: 'Familie', description: '' })).toBeDefined();
+	});
+
 	// The ⚙ means app settings everywhere, and lives on the home alone.
 	it("is titled with the list's name, and has no way to app settings", async () => {
 		render(WithListActions, { props: { component: ListSettingsSheet, props } });

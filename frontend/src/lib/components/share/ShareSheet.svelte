@@ -298,7 +298,7 @@
 							{:else}
 								<div class="flex flex-col items-center gap-1.5">
 									<div
-										class="qr size-33 bg-(--qr-ground) border border-border rounded-card p-2 [&_svg]:block [&_svg]:size-full"
+										class="qr aspect-square w-(--qr-size) max-w-full bg-(--qr-ground) border border-border rounded-card p-2 [&_svg]:block [&_svg]:size-full"
 										data-testid="qr"
 									>
 										<!-- eslint-disable-next-line svelte/no-at-html-tags -- our own qrcode-generator SVG over a URL we minted (crypto-random token, §7.1); never user-supplied HTML. -->

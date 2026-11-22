@@ -1,5 +1,6 @@
 <!--
-  §9.3 per-list card: the list's summary and a ⋮ menu of its actions, those
+  §9.3 per-list card: the list's face, summary and latest change
+  (ListCardBody, [D-362]) and a ⋮ menu of its actions, those
   of the ⋮ inside the list but its categories ([D-270], [D-271]). A card
   opens its list and never drags ([D-90]: arranging is its own mode).
 
@@ -15,7 +16,7 @@
 	import { cn } from '#lib/utils.js';
 	import { Card } from '#lib/components/ui/card/index.js';
 	import * as DropdownMenu from '#lib/components/ui/dropdown-menu/index.js';
-	import ListSummary from '#lib/components/list/ListSummary.svelte';
+	import ListCardBody from './ListCardBody.svelte';
 	import { buttonVariants } from '#lib/components/ui/button/index.js';
 	import EllipsisVertical from '@lucide/svelte/icons/ellipsis-vertical';
 	import { HOME_ACTIONS, type ListActionId } from '#lib/components/list/list-actions.svelte.js';
@@ -29,25 +30,24 @@
 	let { membership, offline, onaction }: Props = $props();
 
 	let menuLabel = $derived(t('common_actions_for', { name: membership.name }));
-	// The summary is hidden from the accessibility tree; its counts and the
-	// unsynced warning still reach a screen reader as the link's description.
+	// The summary is hidden from the accessibility tree; its counts, the
+	// unsynced warning and its latest change still reach a screen reader as
+	// the link's description.
 	const summaryId = $props.id();
 </script>
 
-<Card
-	class="press-card relative isolate grid grid-cols-[minmax(0,1fr)_auto] text-start hover:bg-tint"
->
+<Card class="press-card relative isolate grid grid-cols-[minmax(0,1fr)_auto] text-start">
 	<a
 		class="absolute inset-0 rounded-[inherit]"
 		href={resolve('/list/[id]', { id: membership.list })}
 		aria-label={t('home_open_list', { name: membership.name })}
-		aria-describedby="{summaryId}-counts {summaryId}-pending"
+		aria-describedby="{summaryId}-counts {summaryId}-pending {summaryId}-activity"
 	></a>
 	<span
 		class="pointer-events-none relative z-1 col-start-1 flex min-w-0 flex-col gap-1.5 py-3.5 ps-3.5 pe-1"
 		aria-hidden="true"
 	>
-		<ListSummary {membership} nameLines={2} idBase={summaryId} />
+		<ListCardBody {membership} idBase={summaryId} />
 	</span>
 	<DropdownMenu.Root>
 		<DropdownMenu.Trigger

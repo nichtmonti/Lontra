@@ -88,7 +88,8 @@ it went somewhere it shouldn't, and "Revoke link" ends it without a new one.
 
 On a shared list, "Rename" in the list's **⋮** menu also offers a "Name just
 for you": only you see it, on all your devices, in place of the "Name for
-everyone". Leave it empty to see the name for everyone again.
+everyone", which the list's **⋮** menu still shows under it. Leave it empty
+to see the name for everyone again.
 
 ## Coming from another app
 

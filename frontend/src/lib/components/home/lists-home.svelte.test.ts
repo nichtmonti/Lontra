@@ -41,6 +41,12 @@ vi.mock('#lib/auth/index.js', async () => {
 	return authModuleMock({}, { nickname: 'Anna', isValid: true });
 });
 
+// A card names a change of this account's as "Du" ([D-362]).
+vi.mock('#lib/auth/state.js', async (importOriginal) => ({
+	...(await importOriginal<typeof import('#lib/auth/state.js')>()),
+	currentAccountId: () => 'acct-me'
+}));
+
 // The destructive path below needs the action stubbed — the real leaveList
 // talks to PocketBase and purges Dexie; what this suite is responsible for is
 // that the card menu reaches it with the right list id, and only on a
@@ -61,7 +67,15 @@ vi.mock('#lib/sync/roster.js', () => ({ refreshRoster: vi.fn().mockResolvedValue
 
 import { SHADOW_ITEM_MARKER_PROPERTY_NAME, SHADOW_PLACEHOLDER_ITEM_ID } from 'svelte-dnd-action';
 import { db, type RosterEntry } from '#lib/db.js';
-import { resetDb, makeItem, makeMembership, putMyList, putSynced } from '#lib/test-kit/db.js';
+import {
+	resetDb,
+	makeCategory,
+	makeItem,
+	makeMembership,
+	putMyList,
+	putSynced
+} from '#lib/test-kit/db.js';
+import { categoryColorVar } from '#lib/categories.js';
 import { listOrder, listSort } from '#lib/state/prefs.js';
 import { online as onlineStore } from '#lib/state/online.js';
 import {
@@ -173,8 +187,9 @@ describe('ListsHome card counts', () => {
 		render(ListsHome);
 
 		await waitFor(() => {
-			screen.getByRole('link', { name: 'Wocheneinkauf öffnen', description: '2 offen' });
-			screen.getByRole('link', { name: 'Grillfest öffnen', description: 'alles erledigt ✓' });
+			// Then when the list last changed ([D-362]).
+			screen.getByRole('link', { name: 'Wocheneinkauf öffnen', description: /^2 offen/ });
+			screen.getByRole('link', { name: 'Grillfest öffnen', description: /^alles erledigt ✓/ });
 			screen.getByRole('link', { name: 'Baumarkt öffnen', description: 'leer' });
 		});
 		expect(within(cardByName('Wocheneinkauf')).getByText('2')).toBeDefined();
@@ -198,6 +213,97 @@ describe('ListsHome with two memberships for one list', () => {
 			expect(screen.getAllByRole('link', { name: 'Wocheneinkauf öffnen' })).toHaveLength(1);
 			expect(screen.getByRole('link', { name: 'Baumarkt öffnen' })).toBeDefined();
 		});
+	});
+});
+
+// [D-360]: the card shows a private name alone; the shared one under it
+// would bring back the ambiguity the private name removes.
+describe('ListsHome private name', () => {
+	it('shows a private name alone, without the shared one', async () => {
+		await putMyList('list-a', 'Zuhause', { local_name: 'Bei Anna' });
+
+		render(ListsHome);
+
+		const link = await screen.findByRole('link', { name: 'Bei Anna öffnen' });
+		expect(within(cardByName('Bei Anna')).queryByText(/Zuhause/)).toBeNull();
+		expect(link.getAttribute('aria-label')).not.toMatch(/Zuhause/);
+	});
+});
+
+// [D-362]: a card wears a face of what is still to buy and says who changed
+// the list last and when; a finished list's ✓ is green.
+describe('ListsHome card face and activity', () => {
+	it('clusters the categories of what is open in aisle order; 🎉 when done, 🛒 when empty', async () => {
+		const produce = makeCategory({ list: 'list-a', name: 'Obst', color: 'green', sort_order: 1 });
+		const dairy = makeCategory({ list: 'list-a', name: 'Milch', color: 'blue', sort_order: 2 });
+		await putMyList('list-a', 'Wocheneinkauf');
+		await putMyList('list-b', 'Drogerie');
+		await putMyList('list-c', 'Baumarkt');
+		await putSynced(
+			[
+				makeItem({ list: 'list-a', name: 'Milch', category_key: dairy.id }),
+				makeItem({ list: 'list-a', name: 'Äpfel', category_key: produce.id }),
+				makeItem({ list: 'list-a', name: 'Käse', category_key: dairy.id }),
+				makeItem({
+					list: 'list-b',
+					name: 'Zahnpasta',
+					checked: true,
+					checked_at: '2026-01-01T00:00:00.000Z'
+				})
+			],
+			[produce, dairy]
+		);
+
+		render(ListsHome);
+
+		const face = (name: string) => within(cardByName(name)).getByTestId('list-face');
+		await waitFor(() => expect(face('Wocheneinkauf').dataset.face).toBe('categories'));
+		// Back to front: the first aisle is drawn last, in front.
+		const tints = [...face('Wocheneinkauf').querySelectorAll<HTMLElement>('[style*="--c"]')].map(
+			(plate) => plate.style.getPropertyValue('--c').trim()
+		);
+		expect(tints).toEqual([categoryColorVar('blue'), categoryColorVar('green')]);
+		await waitFor(() => {
+			expect(face('Drogerie').dataset.face).toBe('done');
+			expect(face('Baumarkt').dataset.face).toBe('empty');
+		});
+	});
+
+	it('says who changed the list last and when, and a finished list ticks green', async () => {
+		const fiveMinutesAgo = new Date(Date.now() - 5 * 60_000).toISOString();
+		await putMyList('list-a', 'Wocheneinkauf');
+		await putMyList('list-b', 'Drogerie');
+		await db.roster.bulkPut([roster('list-a', 'account-1', 'Anna')]);
+		await putSynced([
+			makeItem({
+				list: 'list-a',
+				name: 'Milch',
+				modified_by: 'account-1',
+				updated: fiveMinutesAgo
+			}),
+			makeItem({
+				list: 'list-b',
+				name: 'Zahnpasta',
+				checked: true,
+				checked_at: fiveMinutesAgo,
+				modified_by: 'acct-me',
+				updated: fiveMinutesAgo
+			})
+		]);
+
+		render(ListsHome);
+
+		await waitFor(() => {
+			screen.getByRole('link', {
+				name: 'Wocheneinkauf öffnen',
+				description: '1 offen Anna · vor 5 Min.'
+			});
+			screen.getByRole('link', {
+				name: 'Drogerie öffnen',
+				description: 'alles erledigt ✓ Du · vor 5 Min.'
+			});
+		});
+		expect(cardByName('Drogerie').querySelector('svg.text-primary-text')).not.toBeNull();
 	});
 });
 

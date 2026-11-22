@@ -1,5 +1,6 @@
 // The liveQuery-backed views every component reads (§9.3). Components never
 // touch Dexie directly: they subscribe here and mutate through #lib/actions/*.
+import Dexie from 'dexie';
 import {
 	db,
 	getMeta,
@@ -36,6 +37,12 @@ import { suppressedNames } from './suppression';
  *  show — their private override when set, else the list's shared name
  *  ([D-08], [D-360]) — and the shared name itself, for what acts on it. */
 export type MyList = Membership & { name: string; globalName: string };
+
+/** Its screens show a private name in place of the shared one ([D-360]);
+ *  the list's ⋮ sheet names the shared one under it. */
+export function hasPrivateName(list: MyList): boolean {
+	return list.globalName !== '' && list.name !== list.globalName;
+}
 
 /** A membership row joined with its list's row (absent until the cycle names it). */
 function myList(membership: Membership, list: ListRow | undefined): MyList {
@@ -113,6 +120,20 @@ export const membershipsSyncedAt = live<string | null>(
 /** How many rows sit on each shelf: the home card's counts, without reading a row. */
 export function listCounts(listId: string): LiveStore<ShelfCounts> {
 	return live(() => queryShelfCounts(listId), { open: 0, done: 0, kept: 0 }, `counts:${listId}`);
+}
+
+/** The list's newest change the server has stamped, removals included: the
+ *  home card's "who, when" ([D-362]). One row, through `[list+updated]`. */
+export function listLatestChange(listId: string): LiveStore<Item | undefined> {
+	return live(
+		() =>
+			db.items
+				.where('[list+updated]')
+				.between([listId, Dexie.minKey], [listId, Dexie.maxKey])
+				.last(),
+		undefined,
+		`latest:${listId}`
+	);
 }
 
 /** The active list (§9.1): living, unchecked. */

@@ -146,13 +146,21 @@
 }
 
 /* A card that presses (a home list card; a shop tile in shop-tile.css):
- * it gives a little under the finger, one scale for both. */
+ * it gives a little under the finger, one scale for both. Only for its own
+ * link laid over it, as a tile for its check: `:active` and `:hover` reach
+ * every ancestor of what is pressed, so a ⋮ on the card would press it too.
+ * The hover needs a device that can hover ([D-350]). */
 @utility press-card {
 	transition:
 		scale var(--motion-press) ease,
 		background-color var(--motion-press) ease;
-	&:active {
+	&:has(> a:active) {
 		scale: var(--press-card-scale);
+	}
+	@media (hover: hover) {
+		&:has(> a:hover) {
+			background-color: var(--color-tint);
+		}
 	}
 }
 
@@ -552,6 +560,10 @@
 	   any screen that leaves it 16px a side ([D-327]): a sentence and two
 	   stacked buttons, narrower than a sheet's form. */
 	--dialog-max: 24rem;
+	/* The invite's QR code, its frame included: the largest the share sheet
+	   holds without scrolling on a 412px phone (a Pixel 9a) with four
+	   members; a narrower screen gives it the sheet's width. */
+	--qr-size: 200px;
 
 	/* A tab of the list's view switch on a tablet: a phone's tab width (half
 	   a 390px screen's content), so the tabs sit centred instead of

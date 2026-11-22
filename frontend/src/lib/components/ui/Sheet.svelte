@@ -15,6 +15,8 @@
 	interface Props {
 		open: boolean;
 		title: string;
+		/** A line under the title, its dialog's description. */
+		description?: string;
 		onclose: () => void;
 		children: Snippet;
 		headerActions?: Snippet;
@@ -31,6 +33,7 @@
 	let {
 		open,
 		title: titleText,
+		description,
 		onclose,
 		children,
 		headerActions,
@@ -66,7 +69,12 @@
 		>
 			<OverlayHead class="sheet-head mb-2.5" actions={headerActions}>
 				<!-- A title, like a screen's ([D-278]). -->
-				{#snippet title()}<Dialog.Title>{titleText}</Dialog.Title>{/snippet}
+				{#snippet title()}
+					<Dialog.Title>{titleText}</Dialog.Title>
+					{#if description}
+						<Dialog.Description class="mt-px truncate text-meta">{description}</Dialog.Description>
+					{/if}
+				{/snippet}
 				{#snippet close()}
 					<DialogPrimitive.Close>
 						{#snippet child({ props })}<CloseButton {...props} {done} />{/snippet}

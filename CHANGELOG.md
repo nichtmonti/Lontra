@@ -9,11 +9,14 @@ Changes land under **Unreleased** in the commit that makes them; the release com
 ## Unreleased
 
 - **The app is now called Lontra**, Italian and Portuguese for otter, and its icon is an otter holding the list. “Shopping list” was a different name in each language and the name of countless other apps; Lontra is the same in German and English. The sign-in screen says underneath what it is: "The shared shopping list". An icon already on an iPhone's home screen keeps its old name and picture until you remove it and add it again. Nothing changes for operators: the image, the binary and the `SHOPPINGLIST_` settings keep their names ([D-361]).
-- **Give a shared list a name only you see.** On a shared list, "Rename" in the list's ⋮ menu has a second field, "Name just for you", to tell lists with the same name apart on all your devices; left empty, the "Name for everyone" shows again. The database gains two columns on the first start after the update; nothing to do ([D-360]).
+- **Give a shared list a name only you see.** On a shared list, "Rename" in the list's ⋮ menu has a second field, "Name just for you", to tell lists with the same name apart on all your devices; left empty, the "Name for everyone" shows again. Under your own name, the list's ⋮ menu still shows the shared one ("Others see “‹name›”"). The database gains two columns on the first start after the update; nothing to do ([D-360]).
 - **The app now fills an iPad held landscape.** The column used to stop at 820px, an iPad's portrait width, so an iPad held landscape showed the app between wide empty margins, with four tile columns. The column now widens to the widest iPad's landscape width, so every iPad fills its screen, and the shopping grid gains columns with it, fewer as you enlarge the text. Phones are unchanged, and wider screens keep a centred column ([D-358]).
 - **On an iPad, the app takes an iPad app's shapes.** A sheet opens as a card in the upper part of the screen instead of rising full width from the bottom edge, and grows downward without moving what you just pressed; "New list", "Join with invite" and "Import list" sit side by side instead of stretching across the screen, wrapping when the text is large; the "Shopping" and "Editing" tabs keep a phone's width, centred. A phone, held either way, is unchanged ([D-359]).
 - **The line under a list's name says “2 members” instead of “shared · 2 members”.** More than one member already says the list is shared, and on a narrow phone the count no longer risks being cut off ([D-296]).
 - **The barcode scanner keeps one size from opening to closing.** It used to shrink around its middle as it looked a product up and showed it, moving its ✕ each time; the search and the product now show in the camera's place ([D-359]).
+- **The lists on the home screen have faces.** Each card leads with the pictures of what is still to buy, clustered in the order of the aisles, and says under its name who changed it last and when (“Anna · 5 min. ago”); a finished list shows a party popper and an empty one a shopping cart, as they do when opened, a finished list's ✓ is green, and every card is the same height ([D-362]).
+- **Pressing a list's ⋮ on the home screen no longer presses the whole card.** The card gave under the finger as if it were opening, and with a mouse it lit up while pointing at the ⋮; now only the ⋮ reacts.
+- **The invite's QR code is half as large again**, so another phone scans it more easily; on a small phone the "Share & members" sheet still holds it with four members without scrolling.
 - **The lines between rows in a sheet end where its content does**, instead of running a few pixels past it ("Share & members", "Lists", "List settings", "Passkeys", "Hidden suggestions") ([D-327]).
 
 ## v0.18.2: an OIDC account on no list is no longer deleted, and a removed row hands on the keyboard focus (2026-11)
@@ -1091,3 +1094,4 @@ First tagged build: a distroless multi-arch container (amd64 + arm64) with the S
 [D-359]: docs/internals/decisions.md#D-359
 [D-360]: docs/internals/decisions.md#D-360
 [D-361]: docs/internals/decisions.md#D-361
+[D-362]: docs/internals/decisions.md#D-362

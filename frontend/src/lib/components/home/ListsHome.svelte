@@ -18,9 +18,9 @@
 	import { online } from '#lib/state/online.js';
 	import EmptyState from '#lib/components/common/EmptyState.svelte';
 	import ListCard from './ListCard.svelte';
+	import ListCardBody from './ListCardBody.svelte';
 	import ArrangeList from '#lib/components/common/ArrangeList.svelte';
 	import ArrangeDone from '#lib/components/common/ArrangeDone.svelte';
-	import ListSummary from '#lib/components/list/ListSummary.svelte';
 	import ListSort from './ListSort.svelte';
 	import HomeEmpty from './HomeEmpty.svelte';
 	import InstallPrompt from '#lib/components/install/InstallPrompt.svelte';
@@ -186,9 +186,7 @@
 			>
 				<!-- What the card shows, so the lists still look like the lists ([D-238]). -->
 				{#snippet row(m)}
-					<span class="flex min-w-0 flex-col gap-1.5"
-						><ListSummary membership={m} nameLines={2} /></span
-					>
+					<ListCardBody membership={m} />
 				{/snippet}
 			</ArrangeList>
 		</div>

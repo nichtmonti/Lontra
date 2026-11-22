@@ -1,6 +1,7 @@
 <!--
   The in-list ⋮ sheet (§7.1, §9.1): what the list offers ([D-270]), leaving
-  last, as ruled rows like settings' ([D-269]), under the list's own name. App
+  last, as ruled rows like settings' ([D-269]), under the list's own name,
+  and the shared one under a private name ([D-360]). App
   settings is the home's ⚙ alone, and the shop-grid density is the sort
   menu's ([D-271]).
 -->
@@ -11,7 +12,7 @@
 	import SettingsRow from '#lib/components/settings/SettingsRow.svelte';
 	import Sheet from '#lib/components/ui/Sheet.svelte';
 	import { online } from '#lib/state/online.js';
-	import type { MyList } from '#lib/state/data.js';
+	import { hasPrivateName, type MyList } from '#lib/state/data.js';
 	import {
 		LEAVE_ACTION as leave,
 		LIST_ACTIONS,
@@ -35,7 +36,12 @@
 	const listActions = LIST_ACTIONS.filter((a) => a !== leave);
 </script>
 
-<Sheet {open} title={list.name || t('list_settings')} {onclose}>
+<Sheet
+	{open}
+	title={list.name || t('list_settings')}
+	description={hasPrivateName(list) ? t('list_shared_name', { name: list.globalName }) : undefined}
+	{onclose}
+>
 	<!-- The note under the rows it greys, 8px below ([D-327]). -->
 	<div class="flex flex-col gap-2">
 		<RuledRows flush>

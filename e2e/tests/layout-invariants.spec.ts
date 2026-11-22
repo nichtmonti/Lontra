@@ -10,6 +10,7 @@ import {
 	openListView,
 	openShopView,
 	registerAccount,
+	shareListWith,
 	showInviteLink,
 	stubBarcodeLookup
 } from './helpers';
@@ -655,4 +656,104 @@ test('the scanner keeps its size from the camera to the product found', async ({
 	// Shown for 0.9s before the scanner closes itself.
 	await expect(scanner.getByTestId('scan-message')).toHaveText('Testprodukt Sonnencreme');
 	expect(await scanner.boundingBox()).toEqual(camera);
+});
+
+// The home's cards are one height on a phone ([D-362]): a list with its
+// face and its latest change under the name, a long name, and an empty list
+// with neither. A card's count is centred with its ⋮.
+test('home cards are one height, with the count centred', async ({ page }) => {
+	await page.setViewportSize({ width: 390, height: 844 });
+	await registerAccount(page, 'Layoutcards');
+	await createList(page, 'Kurz');
+	await openListView(page);
+	await addItemByTyping(page, 'Milch');
+	const long = 'Wocheneinkauf für das ganze lange Wochenende';
+	await page.goto('/');
+	await createList(page, long);
+	await openListView(page);
+	await addItemByTyping(page, 'Brot');
+	await page.goto('/');
+	await createList(page, 'Leer');
+
+	await page.goto('/');
+	const card = page.getByRole('link', { name: 'Kurz öffnen' }).locator('..');
+	const count = card.locator('.tabular-nums');
+	await expect(count).toHaveText('1');
+	await expect(card.getByTestId('card-activity')).toBeVisible();
+	const height = async (name: string) =>
+		(await page.getByRole('link', { name: `${name} öffnen` }).boundingBox())!.height;
+	expect(await height('Kurz')).toBe(await height(long));
+	expect(await height('Leer')).toBe(await height(long));
+	const middle = (box: { y: number; height: number } | null) => box!.y + box!.height / 2;
+	const menu = middle(await card.getByRole('button', { name: /^Aktionen für/ }).boundingBox());
+	expect(Math.abs(middle(await count.boundingBox()) - menu)).toBeLessThan(1);
+});
+
+// A home card presses and hovers for its own link only, not for the ⋮ on it:
+// `:active` and `:hover` reach every ancestor of what is pressed.
+test('a home card presses for its link, not for its ⋮', async ({ page }) => {
+	await registerAccount(page, 'Layoutpress');
+	await createList(page, 'Probe');
+	await page.goto('/');
+	const card = page.getByRole('link', { name: 'Probe öffnen' }).locator('..');
+	await expect(card).toBeVisible();
+	const menu = card.getByRole('button', { name: /^Aktionen für/ });
+	const look = () =>
+		card.evaluate((el) => {
+			const style = getComputedStyle(el);
+			return { scale: style.scale, background: style.backgroundColor };
+		});
+	// Once a press's transition has run: reading its animations flushes the
+	// style, so one a press started is there to wait for.
+	const settle = () => settled(card);
+	const rest = await look();
+
+	await menu.hover();
+	await settle();
+	expect(await look(), 'the ⋮ hovered').toEqual(rest);
+	await page.mouse.down();
+	await settle();
+	expect(await look(), 'the ⋮ pressed').toEqual(rest);
+	await page.mouse.up();
+	await expect(page.getByRole('menu')).toBeVisible();
+	await page.keyboard.press('Escape');
+	await expect(page.getByRole('menu')).toBeHidden();
+
+	// The premise: the card's own link does press it.
+	const box = (await card.boundingBox())!;
+	await page.mouse.move(box.x + 40, box.y + box.height / 2);
+	await settle();
+	expect((await look()).background, 'the link hovered').not.toBe(rest.background);
+	await page.mouse.down();
+	await settle();
+	expect((await look()).scale, 'the link pressed').toBe('0.97');
+});
+
+// The invite's QR is --qr-size: on a 412px phone (a Pixel 9a) the share
+// sheet holds it with four members without scrolling.
+test('the invite QR fits a small phone’s share sheet with four members', async ({
+	page,
+	browser
+}) => {
+	await page.setViewportSize({ width: 412, height: 839 });
+	await registerAccount(page, 'Layoutqr');
+	await createList(page, 'Probe');
+	for (const n of [2, 3, 4]) {
+		const other = await (await browser.newContext()).newPage();
+		await registerAccount(other, `Layoutqr${n}`);
+		await shareListWith(page, other);
+		await other.context().close();
+	}
+	await page.getByTestId('list-menu').click();
+	await page.getByRole('button', { name: 'Teilen & Mitglieder' }).click();
+	const sheet = page.getByRole('dialog', { name: 'Teilen & Mitglieder' });
+	await expect(sheet.getByText('Layoutqr4')).toBeVisible();
+	await showInviteLink(page);
+	await sheet.getByTestId('share-mode').getByRole('tab', { name: 'QR' }).click();
+	const qr = sheet.getByTestId('qr');
+	await expect(qr.locator('svg')).toBeVisible();
+	await settled(sheet);
+	expect((await qr.boundingBox())!.width).toBe(200);
+	const body = sheet.locator('.sheet-body');
+	expect(await body.evaluate((el) => el.scrollHeight - el.clientHeight), 'no scrolling').toBe(0);
 });

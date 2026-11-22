@@ -87,6 +87,12 @@ test('a private name distinguishes two same-named lists, and stays private', asy
 	await again.getByRole('button', { name: 'Speichern' }).click();
 	await expect(again).toBeHidden();
 	await expect(pageA.getByRole('button', { name: 'Zuhause bei Anna', exact: true })).toBeVisible();
+	// Her ⋮ names the new shared name under her own, so it does not pass her by.
+	await pageA.getByTestId('list-menu').click();
+	await expect(pageA.getByRole('dialog', { name: 'Zuhause bei Anna' })).toHaveAccessibleDescription(
+		/Wohnung/
+	);
+	await pageA.keyboard.press('Escape');
 
 	// Ben's next cycle brings the new shared name, the proof it ran after
 	// Anna's private one, which it does not bring.

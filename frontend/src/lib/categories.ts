@@ -188,6 +188,24 @@ export function categoryOf(
 	return direct ?? index.others;
 }
 
+/**
+ * The categories of `items`, each once, in aisle order, the first `max`: a
+ * home card's face of what is still to buy ([D-362]).
+ */
+export function faceCategories(
+	items: Pick<Item, 'category_key'>[],
+	categories: ListCategory[],
+	templates: Map<string, CategoryTemplate>,
+	max = 3
+): ListCategory[] {
+	const present = new Set<ListCategory>();
+	for (const item of items) {
+		const category = categoryOf(item, categories);
+		if (category) present.add(category);
+	}
+	return sortCategories([...present], templates).slice(0, max);
+}
+
 /** Templates keyed by slug, the shape `categoryName` / `sortCategories` want. */
 export function templateMap(templates: CategoryTemplate[]): Map<string, CategoryTemplate> {
 	return new Map(templates.map((t) => [t.slug, t]));

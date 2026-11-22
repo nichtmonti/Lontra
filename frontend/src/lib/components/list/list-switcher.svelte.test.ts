@@ -106,6 +106,19 @@ describe('ListSwitcher', () => {
 		expect(within(dialog).getByRole('button', { name: 'Meine Listen' })).toBeDefined();
 	});
 
+	// [D-360]: a row shows a private name alone, as the home card does.
+	it('shows a private name alone, without the shared one', async () => {
+		await putMyList('list-a', 'Familie');
+		await putMyList('list-b', 'Zuhause', { local_name: 'Bei Anna' });
+
+		render(ListSwitcher, { props: { currentListId: 'list-a', listName: 'Familie' } });
+		await fireEvent.click(screen.getByRole('button', { name: 'Familie' }));
+		const dialog = await screen.findByRole('dialog');
+
+		expect(await within(dialog).findByRole('button', { name: /^Bei Anna/ })).toBeDefined();
+		expect(within(dialog).queryByText(/Zuhause/)).toBeNull();
+	});
+
 	// The layout draws the trigger before the list's name has been read, so the
 	// bar keeps its height ([D-185]); until then it must still have a name —
 	// axe flagged the nameless button on every sub-route's first frame.
