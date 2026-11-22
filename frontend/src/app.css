@@ -548,15 +548,19 @@
 	/* Where that card's top sits: fixed, so the card grows downward and a
 	   change in its content never moves what is above it ([D-359]). */
 	--sheet-top: 10dvh;
+	/* A dialog (a prompt, a confirmation, the scanner) is a card this wide on
+	   any screen that leaves it 16px a side ([D-327]): a sentence and two
+	   stacked buttons, narrower than a sheet's form. */
+	--dialog-max: 24rem;
 
 	/* A tab of the list's view switch on a tablet: a phone's tab width (half
 	   a 390px screen's content), so the tabs sit centred instead of
 	   stretching across the bar ([D-359]). */
 	--tab-max: 11rem;
 
-	/* Focus surfaces (auth screen, join screen, the scan sheet) are a second,
-	   narrower column. Same rule as --app-max: named widths only, no
-	   hard-coded magic widths in components. */
+	/* Focus surfaces (the auth and join screens, an empty state's actions)
+	   are a second, narrower column. Same rule as --app-max: named widths
+	   only, no hard-coded magic widths in components. */
 	--focus-max: 420px;
 
 	/* The page's layers, bottom to top ([D-317]): an aisle header stuck under

@@ -2,13 +2,16 @@ import { chromium, expect, test, type Locator, type Page } from './fixtures';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import sharp from 'sharp';
+import { aimCamera, installCamera } from './camera';
 import {
 	addItemByTyping,
 	createList,
+	FAKE_BARCODE,
 	openListView,
 	openShopView,
 	registerAccount,
-	showInviteLink
+	showInviteLink,
+	stubBarcodeLookup
 } from './helpers';
 
 // Layout contract regression gate.
@@ -613,4 +616,43 @@ test('an iPad mini held landscape lays out as a tablet, a phone held landscape a
 	const foot = (await sheet.boundingBox())!;
 	expect(foot.width).toBe((await column()).width);
 	expect(Math.abs(foot.y + foot.height - 430)).toBeLessThan(1);
+});
+
+// A dialog is --dialog-max wide wherever the screen leaves it 16px a side
+// ([D-327]), and 16px in from the column's edges where it does not: a window
+// between a phone's and a tablet's width, Safari in an iPad's Split View,
+// gets a tablet's dialog, not a wider one.
+test('a dialog is --dialog-max wide, or 16px in from a narrower column', async ({ page }) => {
+	await registerAccount(page, 'Layoutdialog');
+	const dialog = page.getByRole('dialog', { name: 'Neue Liste' });
+	for (const width of [390, 560, 1133]) {
+		await page.setViewportSize({ width, height: 844 });
+		const column = (await page.locator('.app-shell').boundingBox())!.width;
+		await page.getByRole('button', { name: 'Neue Liste' }).first().click();
+		await expect(dialog).toBeVisible();
+		await settled(dialog);
+		const card = (await dialog.boundingBox())!.width;
+		expect(Math.abs(card - Math.min(column - 32, 384)), `at ${width}px`).toBeLessThan(1);
+		await page.keyboard.press('Escape');
+		await expect(dialog).toBeHidden();
+	}
+});
+
+// The scanner keeps one size from the camera to the product it found: it is
+// centred, so a change in its height would move its ✕ ([D-359]).
+test('the scanner keeps its size from the camera to the product found', async ({ page }) => {
+	await stubBarcodeLookup(page.context());
+	await installCamera(page, FAKE_BARCODE);
+	await registerAccount(page, 'Layoutscan');
+	await createList(page, 'Layoutprobe');
+	await openListView(page);
+	await page.getByTestId('scan-trigger').click();
+	const scanner = page.getByRole('dialog', { name: 'Barcode scannen' });
+	await expect(scanner.locator('video')).toBeVisible();
+	await settled(scanner);
+	const camera = (await scanner.boundingBox())!;
+	await aimCamera(page);
+	// Shown for 0.9s before the scanner closes itself.
+	await expect(scanner.getByTestId('scan-message')).toHaveText('Testprodukt Sonnencreme');
+	expect(await scanner.boundingBox()).toEqual(camera);
 });

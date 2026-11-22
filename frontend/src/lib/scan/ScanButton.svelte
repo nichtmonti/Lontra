@@ -45,8 +45,8 @@
 	let scanLabel = $derived(t('scan_title'));
 
 	let video = $state<HTMLVideoElement | undefined>(undefined);
-	// This overlay is deliberately a Dialog, not a Sheet: full-bleed, a live
-	// <video>, and it closes itself on a successful scan.
+	// This overlay is deliberately a Dialog, not a Sheet: a live <video>, and
+	// it closes itself on a successful scan.
 
 	// Read when a scan resolves, not held: a subscription would re-read the
 	// list on every change while the scanner sits unused ([D-308]).
@@ -123,38 +123,43 @@
 			{#snippet title()}<DialogTitle>{t('scan_title')}</DialogTitle>{/snippet}
 			{#snippet close()}<CloseButton onclick={scan.close} label={t('scan_close')} />{/snippet}
 		</OverlayHead>
-		{#if scan.status === 'looking_up'}
-			<Waiting title={t('scan_looking_up')} data-testid="scan-message" />
-		{:else if scan.status === 'not_found' || scan.status === 'offline_miss'}
-			<!-- A miss is no one's error: the empty state's quiet look ([D-324]). -->
-			<EmptyState title={t(scan.message!)} data-testid="scan-message" />
-		{:else if scan.message}
-			<ErrorText size="sm" class="py-2 text-center" data-testid="scan-message">
-				{t(scan.message)}
-			</ErrorText>
-		{:else if scan.status === 'found' && scan.foundProduct}
-			<div class="flex flex-col items-center gap-1.5">
-				<ProductPhoto
-					url={scan.foundProduct.image_url}
-					name={displayName(scan.foundProduct)}
-					failed={photoFailed}
-					onerror={() => (photoFailed = true)}
-					class="h-40"
-				/>
-				<!-- Named as the product sheet names it: the result is the product. -->
-				<p class="type-heading text-center py-2" dir="auto" data-testid="scan-message">
-					{displayName(scan.foundProduct)}
-				</p>
-			</div>
-		{:else}
-			<video
-				bind:this={video}
-				class="w-full h-65 object-cover rounded-card bg-black"
-				muted
-				playsinline
-				autoplay
-			></video>
-			<Hint class="text-center">{t('scan_hint')}</Hint>
-		{/if}
+		<!-- Every state in one box the camera's size, so the card keeps one size
+		     from opening to closing: centred, it would move its ✕ with each
+		     change ([D-359]). The camera fills what the hint leaves. -->
+		<div class="flex min-h-74 flex-col justify-center gap-4">
+			{#if scan.status === 'looking_up'}
+				<Waiting title={t('scan_looking_up')} data-testid="scan-message" />
+			{:else if scan.status === 'not_found' || scan.status === 'offline_miss'}
+				<!-- A miss is no one's error: the empty state's quiet look ([D-324]). -->
+				<EmptyState title={t(scan.message!)} data-testid="scan-message" />
+			{:else if scan.message}
+				<ErrorText size="sm" class="py-2 text-center" data-testid="scan-message">
+					{t(scan.message)}
+				</ErrorText>
+			{:else if scan.status === 'found' && scan.foundProduct}
+				<div class="flex flex-col items-center gap-1.5">
+					<ProductPhoto
+						url={scan.foundProduct.image_url}
+						name={displayName(scan.foundProduct)}
+						failed={photoFailed}
+						onerror={() => (photoFailed = true)}
+						class="h-40"
+					/>
+					<!-- Named as the product sheet names it: the result is the product. -->
+					<p class="type-heading text-center py-2" dir="auto" data-testid="scan-message">
+						{displayName(scan.foundProduct)}
+					</p>
+				</div>
+			{:else}
+				<video
+					bind:this={video}
+					class="w-full min-h-0 grow basis-0 object-cover rounded-card bg-black"
+					muted
+					playsinline
+					autoplay
+				></video>
+				<Hint class="text-center">{t('scan_hint')}</Hint>
+			{/if}
+		</div>
 	</DialogContent>
 </Dialog>
