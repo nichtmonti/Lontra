@@ -6,7 +6,9 @@ Every release tag sits on the commit that adds its entry here (`docs(release): v
 
 Changes land under **Unreleased** in the commit that makes them; the release commit turns that heading into the version's.
 
-## Unreleased
+## v0.19.1: the icon is the list with the otter peeking over it (2026-11)
+
+**For operators.** Nothing to do before upgrading.
 
 - **The app's icon is the list with its tick again, with the otter looking over it**, so the list has the larger share; v0.19.0 shipped the otter holding the list. An icon already on a home screen keeps the old picture until it is added again ([D-361]).
 - **The sign-in screen shows the app's icon** beside "Lontra" and the line under it, as the demo's start screen does ([D-361]).
