@@ -655,7 +655,7 @@ The app root is the **„Meine Listen“ home**: the user's `memberships` as car
 **Back ([D-230]).** The system back and the in-app ‹ agree everywhere: back closes the top sheet, dialog, menu or arrange mode first, a ‹ never pushes a second copy, and switching lists replaces the current one, so back leads home.
 
 **Per-list card**, computed client-side via `liveQuery`, no new field:
-- a **face** ([D-362]): up to three plates of the open items' categories in aisle order, clustered, the first in front; 🎉 when everything is done, 🛒 when the list is empty, as the list itself shows ([§9.1]);
+- a **face** ([D-362]): up to five plates of the open items' categories in aisle order, scattered, the first in front; 🎉 when everything is done, 🛒 when the list is empty, as the list itself shows ([§9.1]);
 - the list's `name`, and under it **who changed it last and when** ([D-362]): the newest item's `modified_by` by its roster nickname („Du“ for one's own) and its `updated`;
 - a **remaining count** beside the name ([D-123]): the number of open items (`!checked && !deleted_at`), a green ✓ when nothing is open ([D-362]), nothing with no items, read out as „‹open› offen“, „alles erledigt ✓“ or „leer“; no purchased totals and no member count;
 - an **unsynced dot** with the list's pending count from `pending_ops` ([§8.2]).

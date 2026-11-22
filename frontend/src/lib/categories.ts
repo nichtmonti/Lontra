@@ -196,7 +196,7 @@ export function faceCategories(
 	items: Pick<Item, 'category_key'>[],
 	categories: ListCategory[],
 	templates: Map<string, CategoryTemplate>,
-	max = 3
+	max = 5
 ): ListCategory[] {
 	const present = new Set<ListCategory>();
 	for (const item of items) {

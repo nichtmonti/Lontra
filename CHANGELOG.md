@@ -6,6 +6,10 @@ Every release tag sits on the commit that adds its entry here (`docs(release): v
 
 Changes land under **Unreleased** in the commit that makes them; the release commit turns that heading into the version's.
 
+## Unreleased
+
+- **A list's face on the home screen shows up to five of its aisles**, scattered like the first three, instead of three at most ([D-362]).
+
 ## v0.19.1: the icon is the list with the otter peeking over it (2026-11)
 
 **For operators.** Nothing to do before upgrading.
