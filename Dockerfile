@@ -24,7 +24,7 @@
 #
 # Pinned by index digest so a rebuild of an old tag produces the same image;
 # the digest covers linux/amd64, linux/arm64 and linux/arm/v7 (Raspberry Pi, §14).
-FROM gcr.io/distroless/static-debian13:nonroot@sha256:25ac8f0c3b2334a9eb05452266bd4697864a8c8ef0ef71e5e6480d7f92868329
+FROM gcr.io/distroless/static-debian13:nonroot@sha256:8ce6dd87e9823c5b48dcfb2c8604714ccb351ce59607327bcc4957448da279b5
 ARG TARGETPLATFORM
 
 # Deliberately NOT --chown'd: the app runs as 65532 and has no business
