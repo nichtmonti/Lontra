@@ -1,8 +1,8 @@
 # Woodpecker CI — frontend workflow (docs/internals/design.md §14).
 # The repo's rules, then format + typecheck + lint (fast-fail), then the
 # unit/component test suite, as the gate's tasks in the CI image ([D-203]).
-# Runs in parallel with go.yaml on every push/PR; e2e.yaml waits for both via
-# depends_on. The advisory scanners live in security.yaml (weekly, and on a
+# Runs in parallel with go.yaml on every push/PR but a release commit's push
+# (its tag runs it, [D-66]); e2e.yaml waits for both via depends_on. The advisory scanners live in security.yaml (weekly, and on a
 # dependency change, [D-203]): they can go red without a repo change. Steps share one workspace, so frontend-test reuses the
 # node_modules frontend-check installed.
 #
@@ -18,13 +18,15 @@ variables:
   - &ci_image localhost/shoppinglist-ci:go1.27.4-node26.13.0-pw1.64.1-4c2b7784
   - &pnpm_cache /var/lib/woodpecker-cache/pnpm:/root/.local/share/pnpm
   - &go_build_cache /var/lib/woodpecker-cache/go-build:/root/.cache/go-build
-  # go-task, the gate's runner (tools/task, [D-177]): the steps run the same
-  # tasks the local gate does. Built from its module, with the shared build
-  # cache; the module cache stays per pipeline ([D-60], go.yaml).
-  - &install_task export GOMODCACHE="$PWD/.gomod" GOCACHE=/root/.cache/go-build && go -C tools/task install tool
+  # go-task, the gate's runner (tools/task, [D-177]): installed once in the
+  # first step into the workspace's .gomod/bin and reused by later steps. The
+  # module cache stays per pipeline ([D-60], go.yaml).
+  - &task_env export GOMODCACHE="$PWD/.gomod" GOBIN="$PWD/.gomod/bin" GOCACHE=/root/.cache/go-build PATH="$PWD/.gomod/bin:$PATH"
 
 when:
-  - event: [push, pull_request, manual]
+  - event: push
+    evaluate: 'not (CI_COMMIT_MESSAGE matches "^docs[(]release[)]: v[0-9]+[.][0-9]+[.][0-9]+ change history")'
+  - event: [pull_request, manual]
   - event: tag
     ref: refs/tags/v*
 
@@ -41,7 +43,8 @@ steps:
     volumes:
       - *go_build_cache
     commands:
-      - *install_task
+      - *task_env
+      - go -C tools/task install tool
       - task repo-rules
 
   # The gate's static layers at full scope (Taskfile.yml): prettier over the
@@ -53,7 +56,7 @@ steps:
       - *pnpm_cache
       - *go_build_cache
     commands:
-      - *install_task
+      - *task_env
       - task format check check:e2e lint:all
 
   frontend-test:
@@ -62,7 +65,7 @@ steps:
       - *pnpm_cache
       - *go_build_cache
     commands:
-      - *install_task
+      - *task_env
       # The task runs vitest with --silent=passed-only (Taskfile.yml), so the
       # expected stderr of passing tests (loop retries, Svelte dev warnings)
       # stays out of the log and its summary names the failures ([D-203]).
@@ -79,5 +82,5 @@ steps:
     volumes:
       - *go_build_cache
     commands:
-      - *install_task
+      - *task_env
       - task coverage:frontend

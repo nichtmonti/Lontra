@@ -28,14 +28,18 @@ variables:
   # built once per tag rather than on every push. Its git metadata is the
   # pipeline's own and goes with it; the suite run from the tree needs none.
   - &prev_release_cache /var/lib/woodpecker-cache/shoppinglist-prev:/root/.cache/shoppinglist-prev
-  # go-task and Go's state: the module cache per pipeline in the workspace
-  # ([D-60], go.yaml), the build cache shared; the official proxy and sumdb.
+  # go-task and Go's state: the module cache and installed tools live per
+  # pipeline in the workspace (.gomod, [D-60], go.yaml), the build cache is
+  # shared; the official proxy and sumdb. `build` installs `task` once into
+  # .gomod/bin and every later step runs it from PATH.
   # GOCOVERDIR: every binary the steps build is built with -cover and writes
   # what it reached there on exit, for the coverage step ([D-203]).
-  - &install_task export GOMODCACHE="$PWD/.gomod" GOCOVERDIR="$PWD/.cover" GOCACHE=/root/.cache/go-build GOPROXY=https://proxy.golang.org,direct GOSUMDB=sum.golang.org GOFLAGS= && mkdir -p "$GOCOVERDIR" && go -C tools/task install tool
+  - &task_env export GOMODCACHE="$PWD/.gomod" GOBIN="$PWD/.gomod/bin" GOCOVERDIR="$PWD/.cover" GOCACHE=/root/.cache/go-build GOPROXY=https://proxy.golang.org,direct GOSUMDB=sum.golang.org GOFLAGS= PATH="$PWD/.gomod/bin:$PATH" && mkdir -p "$GOCOVERDIR"
 
 when:
-  - event: [push, pull_request, manual]
+  - event: push
+    evaluate: 'not (CI_COMMIT_MESSAGE matches "^docs[(]release[)]: v[0-9]+[.][0-9]+[.][0-9]+ change history")'
+  - event: [pull_request, manual]
   - event: tag
     ref: refs/tags/v*
 
@@ -58,7 +62,8 @@ steps:
       - *pnpm_cache
       - *go_build_cache
     commands:
-      - *install_task
+      - *task_env
+      - go -C tools/task install tool
       - task build-app
       # The boot path's weight, against its 220 KiB gz budget ([D-203]): what
       # a first paint waits on, so a heavy dependency fails here instead of
@@ -72,7 +77,7 @@ steps:
       - *pnpm_cache
       - *go_build_cache
     commands:
-      - *install_task
+      - *task_env
       - task integration
 
   # docs/THIRD_PARTY_LICENSES.md must list exactly what ships, under licences
@@ -84,27 +89,75 @@ steps:
     volumes:
       - *go_build_cache
     commands:
-      - *install_task
+      - *task_env
       - task licenses -- --check
 
-  # Every harness, one after the other, each on its own port and server.
-  # The arch walk ([D-124]) is single-worker on its own server; the OIDC
-  # journeys ([D-154]) start Dex from tools/dex; the tile audit ([D-166])
-  # runs the Vite dev server; the demo harness ([D-234]) builds its own
-  # binary first, and the upgrade harness ([D-343]) the previous release's.
-  e2e:
+  # Every browser harness, one after the other as separate steps so each
+  # harness's own duration and failure are visible in Woodpecker's UI. No step
+  # sets depends_on, so they stay serial in definition order on one workspace.
+  e2e-functional:
+    image: *ci_image
+    volumes:
+      - *pnpm_cache
+      - *go_build_cache
+    commands:
+      - *task_env
+      - task e2e:functional
+
+  # The arch walk ([D-124]): single-worker on its own server.
+  e2e-arch:
+    image: *ci_image
+    volumes:
+      - *pnpm_cache
+      - *go_build_cache
+    commands:
+      - *task_env
+      - task e2e:arch
+
+  # The OIDC journeys ([D-154]): starts Dex from tools/dex.
+  e2e-oidc:
+    image: *ci_image
+    volumes:
+      - *pnpm_cache
+      - *go_build_cache
+    commands:
+      - *task_env
+      - task e2e:oidc
+
+  # The tile and state audits ([D-166], [D-228]) on the Vite dev server.
+  e2e-tiles:
+    image: *ci_image
+    volumes:
+      - *pnpm_cache
+    commands:
+      - *task_env
+      - task e2e:tiles
+
+  # The demo harness ([D-234]): builds its own binary first.
+  e2e-demo:
+    image: *ci_image
+    volumes:
+      - *pnpm_cache
+      - *go_build_cache
+    commands:
+      - *task_env
+      - task e2e:demo
+
+  # The upgrade harness ([D-343]): builds the previous release's binary once
+  # per tag into the cache volume.
+  e2e-upgrade:
     image: *ci_image
     volumes:
       - *pnpm_cache
       - *go_build_cache
       - *prev_release_cache
     commands:
-      - *install_task
+      - *task_env
       # The previous release's tag, and the history that finds it, for the
       # upgrade harness ([D-343]): a push's clone has neither.
       - if [ "$(git rev-parse --is-shallow-repository)" = true ]; then git fetch -q --unshallow origin; fi
       - git fetch -q --tags origin
-      - task e2e:functional e2e:arch e2e:oidc e2e:tiles e2e:demo e2e:upgrade
+      - task e2e:upgrade
 
   # Go coverage ([D-203]): the backend suite (go.yaml's run, mostly from the
   # test cache) with what the integration and browser suites' servers
@@ -117,7 +170,7 @@ steps:
     volumes:
       - *go_build_cache
     commands:
-      - *install_task
+      - *task_env
       - task coverage:go
 
   # The server keeps no artifacts, so Playwright's per-failure "Error Context:

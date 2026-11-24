@@ -20,7 +20,8 @@
 # `localhost/` in the name means a missing image is never pulled from a
 # registry where someone else could publish that name.
 #
-# It runs on every event, so a workflow that depends on it never waits on a
+# It runs on every event, release commits included, so a workflow that
+# depends on it (security.yaml on a dependency change) is never dropped with a
 # skipped one.
 
 when:

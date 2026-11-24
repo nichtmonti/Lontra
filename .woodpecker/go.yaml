@@ -1,7 +1,8 @@
 # Woodpecker CI — Go workflow (docs/internals/design.md §14).
 # gofmt, vet, staticcheck, gosec, golangci-lint and deadcode (fast-fail), then the backend test suite,
 # in the CI image ([D-203]). Runs in
-# parallel with frontend.yaml on every push/PR; e2e.yaml waits on both. The
+# parallel with frontend.yaml on every push/PR but a release commit's push
+# (its tag runs it, [D-66]); e2e.yaml waits on both. The
 # advisory scanners (govulncheck, osv-scan) live in security.yaml.
 #
 # RESOURCE BOUND: the agent is a small box, so the COMPILE caches are host
@@ -46,11 +47,13 @@ variables:
     GONOPROXY: ""
     GOFLAGS: ""
   - &go_build_cache /var/lib/woodpecker-cache/go-build:/root/.cache/go-build
-  - &go_mod_cache export GOMODCACHE="$PWD/.gomod"
+  - &go_mod_cache export GOMODCACHE="$PWD/.gomod" GOBIN="$PWD/.gomod/bin" PATH="$PWD/.gomod/bin:$PATH"
   - &ci_image localhost/shoppinglist-ci:go1.27.4-node26.13.0-pw1.64.1-4c2b7784
 
 when:
-  - event: [push, pull_request, manual]
+  - event: push
+    evaluate: 'not (CI_COMMIT_MESSAGE matches "^docs[(]release[)]: v[0-9]+[.][0-9]+[.][0-9]+ change history")'
+  - event: [pull_request, manual]
   - event: tag
     ref: refs/tags/v*
 
@@ -115,7 +118,6 @@ steps:
       - *go_build_cache
     commands:
       - *go_mod_cache
-      - go -C tools/task install tool
       # The gate's go-test task ([D-177]): the suite with -tags no_ui ([D-64]),
       # then package main as the demo build ([D-234]).
       # -coverpkg=./...: a package is credited with what any package's tests
