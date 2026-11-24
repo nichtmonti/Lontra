@@ -199,7 +199,7 @@ export const AXIS_IDS = Object.keys(AXES) as (keyof GalleryState)[];
 
 /** The state a query string describes. Unknown values fall back to the
  *  axis default, so a stale link still opens. */
-export function parseState(params: URLSearchParams): GalleryState {
+export function parseState(params: Pick<URLSearchParams, 'get'>): GalleryState {
 	const state: Record<string, unknown> = {};
 	for (const id of AXIS_IDS) {
 		const axis: Axis = AXES[id];

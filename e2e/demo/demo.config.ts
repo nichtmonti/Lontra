@@ -9,7 +9,7 @@ import { appServer, basePort, LOCALE } from '../server';
 //
 // Its own run because it is its own binary: a demo instance has passkeys and
 // OIDC off and a different auth screen, which no other harness expects. A
-// fresh database each run, one worker.
+// fresh database each run; each test gets its own IP and demo account.
 //
 // Run it as `scripts/gate.sh e2e:demo`, which builds the demo binary first;
 // by hand, from e2e/ after `task build-demo`:
@@ -23,7 +23,7 @@ export default defineConfig({
 	testDir: './',
 	// Its own, beside this config: lanes run harnesses side by side (Taskfile e2e:lanes).
 	outputDir: 'test-results',
-	workers: 1,
+	workers: 2,
 	// Same ceilings as the functional suite (playwright.config.ts).
 	expect: { timeout: 30_000 },
 	timeout: 120_000,

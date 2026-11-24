@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 // Opens /dev/gallery in one configuration, by URL. The gallery's settings are
 // its query parameters (frontend/src/routes/dev/gallery/axes.ts), so a
@@ -39,11 +39,30 @@ export function galleryUrl(query: GalleryQuery = {}): string {
 	return `/dev/gallery${search ? `?${search}` : ''}`;
 }
 
-/** Opens the gallery and returns its current-app row. The first visit waits
- *  long: the dev server transforms the gallery's graph on demand. */
+/** Opens the gallery and returns its current-app row. The first visit loads
+ *  the page, and waits long: the dev server transforms the gallery's graph on
+ *  demand. Later visits on the same page move by a link, so SvelteKit
+ *  navigates in place and the dev server serves the module graph once per
+ *  page instead of once per state. */
 export async function openGallery(page: Page, query: GalleryQuery = {}): Promise<Locator> {
-	await page.goto(galleryUrl(query));
-	await page.locator('[data-gallery-ready]').waitFor({ timeout: 120_000 });
+	const url = galleryUrl(query);
+	const gallery = page.locator('[data-gallery-ready]');
+	if ((await gallery.count()) > 0) {
+		// A link, because SvelteKit has no way to navigate a page from outside
+		// it: a click on one is its client-side navigation, as a user's would be.
+		// Inside the gallery, where SvelteKit's router sees the click.
+		await page.evaluate((href) => {
+			const a = Object.assign(document.createElement('a'), { href });
+			a.dataset.sveltekitReplacestate = '';
+			document.querySelector('[data-gallery-ready]')?.append(a);
+			a.click();
+			a.remove();
+		}, url);
+		await expect(gallery).toHaveAttribute('data-gallery-query', new URL(url, 'http://x').search);
+	} else {
+		await page.goto(url);
+		await gallery.waitFor({ timeout: 120_000 });
+	}
 	const current = page.locator('[data-variant="current"]').first();
 	await current.waitFor();
 	return current;

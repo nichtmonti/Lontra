@@ -114,17 +114,30 @@ function undrawnPictures(page: Page) {
 	});
 }
 
-test.use({ reducedMotion: 'reduce' });
+// One page per browser file: openGallery navigates client-side after the first
+// load so Vite does not serve the unbundled module graph 20 times per browser.
+let sharedPage: Page;
+
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext({
+		reducedMotion: 'reduce',
+		viewport: { width: 1400, height: 1000 }
+	});
+	sharedPage = await context.newPage();
+});
+
+test.afterAll(async () => {
+	await sharedPage.context().close();
+});
 
 for (const { name, query } of PAGES)
-	test(`${name}: no axe violation, no target under 44px, every picture drawn`, async ({ page }) => {
-		await page.setViewportSize({ width: 1400, height: 1000 });
+	test(`${name}: no axe violation, no target under 44px, every picture drawn`, async () => {
 		const findings: string[] = [];
 		for (const scale of SCALES)
 			for (const width of WIDTHS) {
-				await openGallery(page, { ...ALL, ...query, scale, width });
-				await settle(page);
-				const results = await new AxeBuilder({ page })
+				await openGallery(sharedPage, { ...ALL, ...query, scale, width });
+				await settle(sharedPage);
+				const results = await new AxeBuilder({ page: sharedPage })
 					.include('[data-variant="current"] .frame')
 					.withTags(WCAG_TAGS)
 					// axe sizes a target by its box and cannot see the ::after
@@ -134,8 +147,9 @@ for (const { name, query } of PAGES)
 				for (const v of results.violations)
 					for (const n of v.nodes)
 						findings.push(`${scale}% ${width}px axe ${v.id}: ${n.target.join(' ')}`);
-				for (const f of await smallTargets(page)) findings.push(`${scale}% ${width}px target ${f}`);
-				for (const f of await undrawnPictures(page))
+				for (const f of await smallTargets(sharedPage))
+					findings.push(`${scale}% ${width}px target ${f}`);
+				for (const f of await undrawnPictures(sharedPage))
 					findings.push(`${scale}% ${width}px picture ${f}`);
 			}
 		expect(findings, findings.join('\n')).toEqual([]);

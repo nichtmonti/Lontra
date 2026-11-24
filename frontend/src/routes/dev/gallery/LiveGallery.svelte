@@ -1,7 +1,8 @@
 <!-- Development-only controls around the production components. No app stores are written. -->
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
-	import { replaceOwnUrl } from '#lib/history-layers.svelte.js';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import type { Item } from '#lib/db.js';
 	import { getLocale, setLocale } from '#lib/i18n/index.js';
@@ -17,24 +18,29 @@
 	import { COMPARISONS, CURRENT } from './comparisons';
 	import './comparisons/layout.css';
 
-	// Every setting is an axis (axes.ts) and lives in the URL.
-	const s = $state<GalleryState>(parseState(new URLSearchParams(location.search)));
+	// Every setting is an axis (axes.ts) and lives in the URL, the one source:
+	// a control navigates to the URL with its new value, in place, and so
+	// does a link (the audits move between states by one, e2e/tiles/gallery.ts).
+	const s = $derived(parseState(page.url.searchParams));
 	let ready = $state(false);
 	let revision = $state(0);
 	let selected = $state<{ item: Item; remove?: () => void } | null>(null);
 
 	onMount(() => (ready = true));
-	$effect(() => {
-		const query = toSearch(s);
-		if (!ready) return;
-		void replaceOwnUrl(`${resolve('/dev/gallery')}${query ? `?${query}` : ''}`);
-	});
+
+	function set<K extends keyof GalleryState>(id: K, value: GalleryState[K]) {
+		const query = toSearch({ ...s, [id]: value });
+		void goto(resolve(query ? `/dev/gallery?${query}` : '/dev/gallery'), {
+			replace: true,
+			reset: false
+		});
+	}
 
 	const bootLocale = getLocale();
 	const bootFont = document.documentElement.style.fontSize;
 	const baseSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
-	// Before the first render, and before every re-render the locale keys.
-	setLocale(s.locale);
+	// A pre effect runs as it is created, so before the first render too, and
+	// before every re-render the locale keys.
 	$effect.pre(() => setLocale(s.locale));
 	$effect.pre(() => {
 		document.documentElement.style.fontSize = `${(baseSize * Number(s.scale)) / 100}px`;
@@ -48,7 +54,7 @@
 		const list = s[id] as string[];
 		const next = on ? [...list, value] : list.filter((v) => v !== value);
 		// A matrix axis never goes empty: the last box stays ticked.
-		if (next.length) (s[id] as string[]) = next;
+		if (next.length) set(id, next as GalleryState[typeof id]);
 	}
 	const groups = { main: [], more: [] } as Record<Axis['group'], (keyof GalleryState)[]>;
 	for (const id of AXIS_IDS) groups[AXES[id].group].push(id);
@@ -71,12 +77,23 @@
 	{@const disabled = axis.disabled?.(s) ?? false}
 	{#if axis.type === 'flag'}
 		<label class="check">
-			<input type="checkbox" {id} bind:checked={s[id] as boolean} {disabled} />
+			<input
+				type="checkbox"
+				{id}
+				checked={s[id] as boolean}
+				onchange={(e) => set(id, e.currentTarget.checked as GalleryState[typeof id])}
+				{disabled}
+			/>
 			{axis.label}
 		</label>
 	{:else if axis.type === 'one'}
 		<div>
-			<label for={id}>{axis.label}</label><select {id} bind:value={s[id] as string} {disabled}>
+			<label for={id}>{axis.label}</label><select
+				{id}
+				value={s[id] as string}
+				onchange={(e) => set(id, e.currentTarget.value as GalleryState[typeof id])}
+				{disabled}
+			>
 				{#each axis.choices as [value, label] (value)}<option {value}>{label}</option>{/each}
 			</select>
 		</div>
@@ -98,7 +115,12 @@
 	{/if}
 {/snippet}
 
-<div class="gallery" class:outlines={s.outlines} data-gallery-ready={ready || undefined}>
+<div
+	class="gallery"
+	class:outlines={s.outlines}
+	data-gallery-ready={ready || undefined}
+	data-gallery-query={page.url.search}
+>
 	<header class="toolbar">
 		<h1>Design-Galerie</h1>
 		<p>

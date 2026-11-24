@@ -38,11 +38,20 @@ async function settle(page: Page) {
 			.getAnimations()
 			.filter((a) => a.effect?.getComputedTiming().iterations !== Infinity);
 		await Promise.all(finite.map((a) => a.finished.catch(() => null)));
-		// Bounded: a lazy image outside the viewport never loads, so its decode
-		// never settles.
+		// Visible or eager images only: ShopTile uses loading="lazy", so an
+		// off-screen image below the 620px frame fold never starts loading and
+		// would otherwise wait out the 1s cap on every photo/failed run.
+		const inView = (img: HTMLImageElement) => {
+			if (img.loading !== 'lazy') return true;
+			const frame = img.closest('.frame');
+			if (!frame) return true;
+			const f = frame.getBoundingClientRect();
+			const r = img.getBoundingClientRect();
+			return r.bottom > f.top && r.top < f.bottom && r.right > f.left && r.left < f.right;
+		};
 		const decoded = Promise.all(
 			[...document.images]
-				.filter((img) => !img.complete)
+				.filter((img) => !img.complete && inView(img))
 				.map((img) => img.decode().catch(() => null))
 		);
 		await Promise.race([decoded, new Promise((r) => setTimeout(r, 1000))]);
@@ -135,14 +144,26 @@ function audit(page: Page) {
 	});
 }
 
+// One page per browser file: openGallery navigates client-side after the first
+// load so Vite does not serve the unbundled module graph 108 times per browser.
+let sharedPage: Page;
+
+test.beforeAll(async ({ browser }) => {
+	const context = await browser.newContext({ viewport: { width: 1400, height: 1000 } });
+	sharedPage = await context.newPage();
+});
+
+test.afterAll(async () => {
+	await sharedPage.context().close();
+});
+
 for (const kind of KINDS)
 	for (const density of DENSITIES)
-		test(`${kind} tiles, ${density}: nothing overlaps or leaves the tile`, async ({ page }) => {
-			await page.setViewportSize({ width: 1400, height: 1000 });
+		test(`${kind} tiles, ${density}: nothing overlaps or leaves the tile`, async () => {
 			const findings: string[] = [];
 			for (const scale of SCALES)
 				for (const width of WIDTHS) {
-					const current = await openGallery(page, {
+					const current = await openGallery(sharedPage, {
 						content: 'stress',
 						view: 'shop',
 						kind,
@@ -157,8 +178,8 @@ for (const kind of KINDS)
 						'data-kind',
 						kind === 'plain' ? 'typed' : 'product'
 					);
-					await settle(page);
-					for (const f of await audit(page)) findings.push(`${scale}% ${width}px  ${f}`);
+					await settle(sharedPage);
+					for (const f of await audit(sharedPage)) findings.push(`${scale}% ${width}px  ${f}`);
 				}
 			expect(findings, findings.join('\n')).toEqual([]);
 		});

@@ -141,11 +141,7 @@ async function registerOnPasskeyDevice(
 	await registerAccount(signup, nickname);
 	const blob = await readAuthBlob(signup);
 	await context.close();
-	await page.goto('/');
-	// Booted first: a reload mid-boot aborts its imports, which Firefox reports.
-	await expect(nicknameField(page)).toBeVisible();
-	await writeAuthBlob(page, blob);
-	await page.reload();
+	await seedAuthAndOpenHome(page, blob);
 	await expect(page.getByText('Willkommen!')).toBeVisible({ timeout: 15_000 });
 	return {
 		setUserVerified: () => {
@@ -308,12 +304,34 @@ export async function writeAuthBlob(page: Page, blob: string): Promise<void> {
 			req.onsuccess = () => resolve(req.result);
 			req.onerror = () => reject(req.error);
 		});
-		await new Promise<void>((resolve) => {
-			const tx = db.transaction('kv', 'readwrite');
-			tx.objectStore('kv').put(value, 'pb_auth');
-			tx.oncomplete = () => resolve();
-		});
+		try {
+			await new Promise<void>((resolve, reject) => {
+				const tx = db.transaction('kv', 'readwrite');
+				tx.objectStore('kv').put(value, 'pb_auth');
+				tx.oncomplete = () => resolve();
+				tx.onerror = () => reject(tx.error);
+			});
+		} finally {
+			db.close();
+		}
 	}, blob);
+}
+
+/**
+ * Seeds `pb_auth` on the app's origin via `/robots.txt` (63 bytes, no SPA boot,
+ * no `page.route` that would disable Firefox's service worker [D-347]), then
+ * replaces that entry with `/` so the caller's history behind `/` stays intact.
+ */
+async function seedAuthAndOpenHome(page: Page, blob: string): Promise<void> {
+	await page.goto('/robots.txt');
+	await writeAuthBlob(page, blob);
+	await Promise.all([
+		page.waitForURL(/\/$/),
+		page.evaluate(() => {
+			setTimeout(() => location.replace('/'), 0);
+		})
+	]);
+	await page.waitForLoadState('load');
 }
 
 /**
@@ -327,9 +345,7 @@ export async function openSameAccountDevice(
 	const blob = await readAuthBlob(from);
 	const context = await browser.newContext();
 	const page = await context.newPage();
-	await page.goto('/');
-	await writeAuthBlob(page, blob);
-	await page.reload();
+	await seedAuthAndOpenHome(page, blob);
 	return { context, page };
 }
 

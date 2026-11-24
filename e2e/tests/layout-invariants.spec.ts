@@ -69,157 +69,168 @@ async function measure(
 	}));
 }
 
-test('the app column width is invariant across locales, pages and viewport heights', async () => {
-	// Headless Chromium hides scrollbars by default (Playwright adds
-	// --hide-scrollbars), which erases the exact mechanism this spec exists to
-	// catch: the classic scrollbar stealing layout width when it appears. Force
-	// them back on. (The second test in this file keeps the normal fixture —
-	// overflow counting does not care whether scrollbars are painted.)
-	const browser = await chromium.launch({ ignoreDefaultArgs: ['--hide-scrollbars'] });
-	try {
-		// 36 full app boots (3 heights × 3 pages × 2 locales × 2 densities) — the
-		// same budget visual-gate.spec.ts needs for its screen walk, doubled by
-		// the compact-density pass.
-		test.setTimeout(240_000);
-		if (DIAG) mkdirSync(SHOT_DIR, { recursive: true });
+// Chromium only: it launches its own Chromium to show scrollbars, so in the
+// Firefox project it would run the same check again.
+test(
+	'the app column width is invariant across locales, pages and viewport heights',
+	{
+		tag: '@chromium'
+	},
+	async () => {
+		// Headless Chromium hides scrollbars by default (Playwright adds
+		// --hide-scrollbars), which erases the exact mechanism this spec exists to
+		// catch: the classic scrollbar stealing layout width when it appears. Force
+		// them back on. (The second test in this file keeps the normal fixture —
+		// overflow counting does not care whether scrollbars are painted.)
+		const browser = await chromium.launch({ ignoreDefaultArgs: ['--hide-scrollbars'] });
+		try {
+			// 36 full app boots (3 heights × 3 pages × 2 locales × 2 densities) — the
+			// same budget visual-gate.spec.ts needs for its screen walk, doubled by
+			// the compact-density pass.
+			test.setTimeout(240_000);
+			if (DIAG) mkdirSync(SHOT_DIR, { recursive: true });
 
-		const context = await browser.newContext({
-			locale: 'de-DE',
-			viewport: { width: 800, height: 640 }
-		});
-		const page = await context.newPage();
+			const context = await browser.newContext({
+				locale: 'de-DE',
+				viewport: { width: 800, height: 640 }
+			});
+			const page = await context.newPage();
 
-		await registerAccount(page, 'Layoutde');
-		const listUrl = await createList(page, 'Layoutprobe');
+			await registerAccount(page, 'Layoutde');
+			const listUrl = await createList(page, 'Layoutprobe');
 
-		const samples: Sample[] = [];
-		// Viewport width 800: BELOW --app-max (1376px) + a classic scrollbar (~15px),
-		// so the shell is not width-capped and the scrollbar's appearance actually
-		// changes the column size (800 vs ~785px). At desktop widths the shell is
-		// capped either way and only shifts — which is the same defect's visible
-		// symptom, but not measurable as width.
-		const heights = [640, 900, 1200];
-		const routes = [listUrl, '/', '/settings'];
+			const samples: Sample[] = [];
+			// Viewport width 800: BELOW --app-max (1376px) + a classic scrollbar (~15px),
+			// so the shell is not width-capped and the scrollbar's appearance actually
+			// changes the column size (800 vs ~785px). At desktop widths the shell is
+			// capped either way and only shifts — which is the same defect's visible
+			// symptom, but not measurable as width.
+			const heights = [640, 900, 1200];
+			const routes = [listUrl, '/', '/settings'];
 
-		async function collect(locale: 'de' | 'en', density: 'comfortable' | 'compact'): Promise<void> {
-			for (const height of heights) {
-				await page.setViewportSize({ width: 800, height });
-				for (const route of routes) {
-					await page.goto(route);
-					// The shell pads the body bottom and uses min-block-size: 100dvh;
-					// measure only once the route itself has rendered: the shell is
-					// there before it, and a loading placeholder is no layout.
-					if (route === listUrl) {
-						await expect(
-							page.getByRole('button', { name: 'Layoutprobe', exact: true })
-						).toBeVisible();
-					} else if (route === '/') {
-						await expect(page.getByRole('link', { name: /Layoutprobe/ })).toBeVisible();
+			async function collect(
+				locale: 'de' | 'en',
+				density: 'comfortable' | 'compact'
+			): Promise<void> {
+				for (const height of heights) {
+					await page.setViewportSize({ width: 800, height });
+					for (const route of routes) {
+						await page.goto(route);
+						// The shell pads the body bottom and uses min-block-size: 100dvh;
+						// measure only once the route itself has rendered: the shell is
+						// there before it, and a loading placeholder is no layout.
+						if (route === listUrl) {
+							await expect(
+								page.getByRole('button', { name: 'Layoutprobe', exact: true })
+							).toBeVisible();
+						} else if (route === '/') {
+							await expect(page.getByRole('link', { name: /Layoutprobe/ })).toBeVisible();
+						}
+						await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
+						// Settings is this sweep's page that scrolls, at 640px; since
+						// [D-269] it is short enough that it does so only once its last
+						// group and foot have rendered.
+						if (route === '/settings') await expect(page.getByTestId('app-version')).toBeVisible();
+						// The layout's $effect re-writes dataset.density from the Dexie
+						// pref on every full page load, so the attribute must be set after
+						// the navigation — the [D-83] tokens are CSS and apply instantly;
+						// the preference persistence is not what this spec asserts.
+						await page.evaluate((d) => {
+							document.documentElement.dataset.density = d;
+						}, density);
+						samples.push({ locale, density, route, height, ...(await measure(page)) });
 					}
-					await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
-					// Settings is this sweep's page that scrolls, at 640px; since
-					// [D-269] it is short enough that it does so only once its last
-					// group and foot have rendered.
-					if (route === '/settings') await expect(page.getByTestId('app-version')).toBeVisible();
-					// The layout's $effect re-writes dataset.density from the Dexie
-					// pref on every full page load, so the attribute must be set after
-					// the navigation — the [D-83] tokens are CSS and apply instantly;
-					// the preference persistence is not what this spec asserts.
-					await page.evaluate((d) => {
-						document.documentElement.dataset.density = d;
-					}, density);
-					samples.push({ locale, density, route, height, ...(await measure(page)) });
 				}
 			}
-		}
 
-		// German first: the context above is created with locale 'de-DE'.
-		await collect('de', 'comfortable');
+			// German first: the context above is created with locale 'de-DE'.
+			await collect('de', 'comfortable');
 
-		// Flip to English from settings and wait for the remount: the app re-keys
-		// the whole subtree on a locale switch ({#key $localePref} in
-		// +layout.svelte), so the English settings heading is the remount-complete
-		// signal.
-		await page.goto('/settings');
-		await page.getByTestId('settings-locale').getByRole('radio', { name: 'English' }).click();
-		await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
-		await collect('en', 'comfortable');
-
-		// Compact-density pass: [D-83] retunes only the shop-grid spacing tokens
-		// (--tile-h, --grid-gap, --tile-p, --aisle-py) — never --app-max or the
-		// gutter — but the layout contract must hold under
-		// [data-density='compact'] too, so re-run the full de/en sweep and
-		// let the same invariants below cover both densities. Flip back to German
-		// first: each collect() samples whatever locale the app is currently in.
-		await page.getByTestId('settings-locale').getByRole('radio', { name: 'Deutsch' }).click();
-		await expect(page.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeVisible();
-		await collect('de', 'compact');
-		await page.getByTestId('settings-locale').getByRole('radio', { name: 'English' }).click();
-		await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
-		await collect('en', 'compact');
-
-		if (DIAG) {
-			console.table(samples);
-			await test.info().attach('width-samples.json', {
-				body: JSON.stringify(samples, null, 2),
-				contentType: 'application/json'
-			});
-			// The settings screen in both locales at height 900 — a scrollbar-width
-			// delta shows in the column edge.
-			await page.setViewportSize({ width: 800, height: 900 });
+			// Flip to English from settings and wait for the remount: the app re-keys
+			// the whole subtree on a locale switch ({#key $localePref} in
+			// +layout.svelte), so the English settings heading is the remount-complete
+			// signal.
 			await page.goto('/settings');
-			await expect(page.locator('.app-shell')).toBeVisible();
-			await page.screenshot({ path: path.join(SHOT_DIR, 'settings-en.png'), fullPage: true });
+			await page.getByTestId('settings-locale').getByRole('radio', { name: 'English' }).click();
+			await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
+			await collect('en', 'comfortable');
+
+			// Compact-density pass: [D-83] retunes only the shop-grid spacing tokens
+			// (--tile-h, --grid-gap, --tile-p, --aisle-py) — never --app-max or the
+			// gutter — but the layout contract must hold under
+			// [data-density='compact'] too, so re-run the full de/en sweep and
+			// let the same invariants below cover both densities. Flip back to German
+			// first: each collect() samples whatever locale the app is currently in.
 			await page.getByTestId('settings-locale').getByRole('radio', { name: 'Deutsch' }).click();
 			await expect(page.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeVisible();
-			await expect(page.locator('.app-shell')).toBeVisible();
-			await page.screenshot({ path: path.join(SHOT_DIR, 'settings-de.png'), fullPage: true });
-		}
+			await collect('de', 'compact');
+			await page.getByTestId('settings-locale').getByRole('radio', { name: 'English' }).click();
+			await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
+			await collect('en', 'compact');
 
-		// WHY the width-invariance contract is asserted this way: headless
-		// Chromium's shell does not reserve the root gutter consistently across
-		// navigations — with `scrollbar-gutter: stable` computed on every page,
-		// documentElement.clientWidth can flip between 800 and 785 between loads
-		// while the shell keeps the width it laid out with. A cross-sample width
-		// equality over non-scrolling pages therefore flaps in this environment
-		// even with the rule in place. The computed rule plus scrolling-state
-		// consistency is the non-flaky form of the gate here.
+			if (DIAG) {
+				console.table(samples);
+				await test.info().attach('width-samples.json', {
+					body: JSON.stringify(samples, null, 2),
+					contentType: 'application/json'
+				});
+				// The settings screen in both locales at height 900 — a scrollbar-width
+				// delta shows in the column edge.
+				await page.setViewportSize({ width: 800, height: 900 });
+				await page.goto('/settings');
+				await expect(page.locator('.app-shell')).toBeVisible();
+				await page.screenshot({ path: path.join(SHOT_DIR, 'settings-en.png'), fullPage: true });
+				await page.getByTestId('settings-locale').getByRole('radio', { name: 'Deutsch' }).click();
+				await expect(page.getByRole('heading', { level: 1, name: 'Einstellungen' })).toBeVisible();
+				await expect(page.locator('.app-shell')).toBeVisible();
+				await page.screenshot({ path: path.join(SHOT_DIR, 'settings-de.png'), fullPage: true });
+			}
 
-		// CONTRACT 1: the fix is installed. Computed style is the one thing this
-		// headless environment reports consistently (see the comment above for why
-		// the LAYOUT-level reservation is not asserted here).
-		for (const s of samples) {
+			// WHY the width-invariance contract is asserted this way: headless
+			// Chromium's shell does not reserve the root gutter consistently across
+			// navigations — with `scrollbar-gutter: stable` computed on every page,
+			// documentElement.clientWidth can flip between 800 and 785 between loads
+			// while the shell keeps the width it laid out with. A cross-sample width
+			// equality over non-scrolling pages therefore flaps in this environment
+			// even with the rule in place. The computed rule plus scrolling-state
+			// consistency is the non-flaky form of the gate here.
+
+			// CONTRACT 1: the fix is installed. Computed style is the one thing this
+			// headless environment reports consistently (see the comment above for why
+			// the LAYOUT-level reservation is not asserted here).
+			for (const s of samples) {
+				expect(
+					s.gutter,
+					`scrollbar-gutter: stable must be in effect (${s.route}, ${s.locale}, h=${s.height})`
+				).toBe('stable');
+			}
+
+			// CONTRACT 2: no horizontal overflow — scrollWidth may be SMALLER than
+			// clientWidth (a centered column narrower than the viewport is fine), it
+			// must never be larger.
+			for (const s of samples) {
+				expect(
+					s.scrollWidth,
+					`no horizontal overflow on ${s.route} (${s.locale}, h=${s.height})`
+				).toBeLessThanOrEqual(s.clientWidth);
+			}
+
+			// CONTRACT 3: every sample where a classic scrollbar is actually present
+			// (scrollbarPx > 0 → the content scrolled) must lay the column out at the
+			// SAME width. This pins the scrollbar-state consistency without depending
+			// on the flaky reservation.
+			const scrolling = samples.filter((s) => s.scrollbarPx > 0);
+			expect(scrolling.length, 'the sweep must include scrolling samples').toBeGreaterThan(0);
+			const scrollWidths = new Set(scrolling.map((s) => Math.round(s.shellWidth)));
 			expect(
-				s.gutter,
-				`scrollbar-gutter: stable must be in effect (${s.route}, ${s.locale}, h=${s.height})`
-			).toBe('stable');
+				scrollWidths.size,
+				`scrolling pages must share one column width — got ${[...scrollWidths].join(', ')}px`
+			).toBe(1);
+		} finally {
+			await browser.close();
 		}
-
-		// CONTRACT 2: no horizontal overflow — scrollWidth may be SMALLER than
-		// clientWidth (a centered column narrower than the viewport is fine), it
-		// must never be larger.
-		for (const s of samples) {
-			expect(
-				s.scrollWidth,
-				`no horizontal overflow on ${s.route} (${s.locale}, h=${s.height})`
-			).toBeLessThanOrEqual(s.clientWidth);
-		}
-
-		// CONTRACT 3: every sample where a classic scrollbar is actually present
-		// (scrollbarPx > 0 → the content scrolled) must lay the column out at the
-		// SAME width. This pins the scrollbar-state consistency without depending
-		// on the flaky reservation.
-		const scrolling = samples.filter((s) => s.scrollbarPx > 0);
-		expect(scrolling.length, 'the sweep must include scrolling samples').toBeGreaterThan(0);
-		const scrollWidths = new Set(scrolling.map((s) => Math.round(s.shellWidth)));
-		expect(
-			scrollWidths.size,
-			`scrolling pages must share one column width — got ${[...scrollWidths].join(', ')}px`
-		).toBe(1);
-	} finally {
-		await browser.close();
 	}
-});
+);
 
 test('the item detail sheet fits a phone without scrolling', async ({ page }) => {
 	// An iPhone 17 in portrait. The sheet is compact on purpose: name and

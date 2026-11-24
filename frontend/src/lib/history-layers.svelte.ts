@@ -82,7 +82,7 @@ function shallow(url: string | URL, opts: { replace: boolean; state?: App.PageSt
 }
 
 /** Replaces the current entry's URL, shallow: a query the screen strips or
- *  rewrites (the import's shared text, the setup token, the gallery's axes). */
+ *  rewrites (the import's shared text, the setup token). */
 export function replaceOwnUrl(url: string | URL, state?: App.PageState): Promise<void> {
 	return shallow(url, { replace: true, ...(state && { state }) });
 }
