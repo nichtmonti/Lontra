@@ -10,7 +10,7 @@
 // via IndexedDB (§8), and caching auth-bearing API responses here would be a
 // second, competing (and unscoped-per-account) source of truth.
 import { self } from '$app/service-worker';
-import { version } from '$app/env';
+import { dev, version } from '$app/env';
 import { assets, immutable } from '$app/manifest';
 import { PHOTO_CACHE } from '#lib/photo-cache.js';
 import { routeOf, shellCache, staleCaches, type Route } from '#lib/shell-caches.js';
@@ -83,6 +83,10 @@ self.addEventListener('activate', (event) => {
  *  thus never reaches a request log. The network answers only before the
  *  precache exists. */
 async function navigation(request: Request): Promise<Response> {
+	// The dev server renders each page for its own URL, with paths relative to
+	// it: the page cached for `/` cannot boot at another path. The built shell
+	// is one document with absolute paths, so it can.
+	if (dev) return fetch(request);
 	return (await (await caches.open(CACHE)).match(SHELL)) ?? fetch(request);
 }
 
