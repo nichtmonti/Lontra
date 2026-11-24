@@ -41,6 +41,11 @@ function accountOf(serialized: string): string {
 // `/list/<id>/api/...` and get the SPA fallback's index.html with a 200.
 export const pb = new PocketBase('/', authStore);
 
+// §5.8: an expired session pauses the sync and keeps the device's account,
+// its lists and the chip's re-auth; only logout() signs out. The SDK would
+// clear the store on any 401, signing the device out instead.
+pb.autoClearAuthStore(false);
+
 // The SDK answers a 200 whose body it could not read, short of an abort (a
 // navigation or a dropped connection cutting it off), with `{}`: a cut
 // response passed for an empty success, and a caller kept it (settings once

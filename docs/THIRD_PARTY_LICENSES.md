@@ -103,7 +103,7 @@ Components: 40 Go, 36 npm, 1 embedded in a listed package.
 | mode-watcher | 1.1.0 | MIT | Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte><br>Copyright (c) 2024 Svecosystem <https://github.com/svecosystem> |
 | openmoji | 17.0.0 | CC-BY-SA-4.0 | All emojis designed by OpenMoji – the open-source emoji and icon project (https://openmoji.org). License: CC BY-SA 4.0 |
 | photoswipe | 5.4.4 | MIT | Copyright (c) 2014-2022 Dmitry Semenov, https://dimsemenov.com |
-| pocketbase | 0.28.2 | MIT | Copyright (c) 2022 - present, Gani Georgiev |
+| pocketbase | 0.29.0 | MIT | Copyright (c) 2022 - present, Gani Georgiev |
 | qrcode-generator | 2.0.4 | MIT | Copyright (c) 2009 Kazuhiko Arase |
 | runed | 0.23.4 | MIT | Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte><br>Copyright (c) 2024 Thomas G. Lopes <https://github.com/tglide> |
 | runed | 0.25.0 | MIT | Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte><br>Copyright (c) 2024 Thomas G. Lopes <https://github.com/tglide> |
@@ -3379,7 +3379,7 @@ Applies to:
 - github.com/pocketbase/pocketbase v0.40.6 (LICENSE.md): Copyright (c) 2022 - present, Gani Georgiev
 - github.com/spf13/cast v1.10.0 (LICENSE): Copyright (c) 2014 Steve Francia
 - photoswipe 5.4.4 (LICENSE): Copyright (c) 2014-2022 Dmitry Semenov, https://dimsemenov.com
-- pocketbase 0.28.2 (LICENSE.md): Copyright (c) 2022 - present, Gani Georgiev
+- pocketbase 0.29.0 (LICENSE.md): Copyright (c) 2022 - present, Gani Georgiev
 - style-to-object 1.0.14 (LICENSE): Copyright (c) 2017 Menglin "Mark" Xu <mark@remarkablemark.org>
 - tabbable 6.5.2 (LICENSE): Copyright (c) 2015 David Clark
 

@@ -725,10 +725,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/pocketbase@0.28.2",
+			"bom-ref": "pkg:npm/pocketbase@0.29.0",
 			"name": "pocketbase",
-			"version": "0.28.2",
-			"purl": "pkg:npm/pocketbase@0.28.2",
+			"version": "0.29.0",
+			"purl": "pkg:npm/pocketbase@0.29.0",
 			"licenses": [
 				{
 					"expression": "MIT"
