@@ -76,8 +76,18 @@ async function setSyncedAt(iso: string | null): Promise<void> {
 	}
 }
 
+/** The server answered an exchange since this start ([D-296]). */
+async function answered(): Promise<void> {
+	const now = new Date().toISOString();
+	await db.meta.put({
+		key: 'sync_health',
+		value: { ok_at: now, started_at: now, ended_at: now, failures: 0, reason: null }
+	});
+}
+
 beforeEach(async () => {
 	await resetDb();
+	await answered();
 	authState.set({ nickname: null, isValid: false });
 	online.set(true);
 	vi.clearAllMocks();
@@ -99,6 +109,28 @@ describe('SyncBanner', () => {
 			expect(screen.getByText('Alle Änderungen synchronisiert')).toBeDefined();
 		});
 		expect(document.querySelector('.when')).toBeNull();
+	});
+
+	// [D-296] Green only once the server has answered since this start: an
+	// answer from before it says nothing of what changed meanwhile.
+	it('shows a grey cloud until an exchange answered since this start', async () => {
+		const before = new Date(performance.timeOrigin - 60_000).toISOString();
+		await db.meta.put({
+			key: 'sync_health',
+			value: { ok_at: before, started_at: before, ended_at: before, failures: 0, reason: null }
+		});
+		const { container } = render(SyncBanner, { listId: LIST_A });
+
+		await waitFor(() => {
+			expect(screen.getByText('Wird abgeglichen …')).toBeDefined();
+		});
+		expect(container.querySelector('.banner')?.classList.contains('checking')).toBe(true);
+		expect(container.querySelector('.banner svg')).not.toBeNull();
+
+		await answered();
+		await waitFor(() => {
+			expect(screen.getByText('Alle Änderungen synchronisiert')).toBeDefined();
+		});
 	});
 
 	// [D-296] Green only while true: tries that keep failing for 5 minutes

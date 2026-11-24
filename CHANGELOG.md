@@ -11,6 +11,7 @@ Changes land under **Unreleased** in the commit that makes them; the release com
 **For operators.** Nothing to do before upgrading.
 
 - **The app opens without waiting for the server.** It used to ask the server for its page first and wait up to 3 seconds before opening the copy on the device, so on a weak connection the first screen took several seconds. It now always opens the copy on the device; your lists were already there. After an update, the first start still runs the previous version, and the app switches to the new one the next time you leave it ([D-363]).
+- **The sync cloud is grey until the server has answered.** When the app opens, the cloud showed green ("All changes synced") before the app had asked the server whether anything had changed. It now stays grey ("Syncing…") until the first exchange with the server has answered, then turns green ([D-296]).
 
 ## v0.19.2: a list's face shows up to five of its aisles (2026-11)
 

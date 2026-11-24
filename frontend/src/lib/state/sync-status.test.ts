@@ -167,6 +167,19 @@ describe('syncStatusOf', () => {
 		});
 	});
 
+	// [D-296] Green says what is true: until an exchange has answered since
+	// this start, nobody knows what the server has.
+	it('is checking until an exchange answered since this start, then synced', () => {
+		const started = { since: NOW - 30_000 };
+		expect(chip(started, { ok_at: null })).toBe('checking');
+		expect(chip(started, { ok_at: ago(60_000) })).toBe('checking');
+		expect(chip(started, { ok_at: ago(10_000) })).toBe('synced');
+		// What waits, and what is wrong, still say so first.
+		expect(chip({ ...started, pending: 1 }, { ok_at: null })).toBe('pending');
+		expect(chip(started, { ok_at: ago(60_000), failures: 3 })).toBe('stale');
+		expect(chip({ ...started, online: false }, { ok_at: null })).toBe('offline');
+	});
+
 	it('says offline over an expired session: re-auth needs the network', () => {
 		expect(chip({ online: false, expired: true, pending: 2 })).toBe('offline');
 		expect(chip({ expired: true, pending: 2 })).toBe('expired');

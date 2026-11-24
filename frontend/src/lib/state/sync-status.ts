@@ -44,7 +44,8 @@ export interface SyncInput {
 	health: SyncHealth;
 	lastSyncedAt: string | null;
 	now: number;
-	/** When this page loaded: a sender gets its first 20 s to start. */
+	/** When this page loaded: a sender gets its first 20 s to start, and
+	 *  only an exchange answered since says „synchronisiert“. */
 	since: number;
 }
 
@@ -88,7 +89,7 @@ export function syncLine(input: SyncInput): SyncLine {
 }
 
 /** The §12.1 chip's state ([D-102]): one glyph, the line says the rest. */
-export type ChipState = 'synced' | 'pending' | 'stale' | 'offline' | 'expired';
+export type ChipState = 'synced' | 'checking' | 'pending' | 'stale' | 'offline' | 'expired';
 
 export interface SyncStatus {
 	line: SyncLine;
@@ -100,8 +101,10 @@ export interface SyncStatus {
 /**
  * The line and the chip from one input. Offline wins over expired, since
  * re-auth needs connectivity (§5.8); the count over stale, which needs none
- * pending. `loaded` false (the outbox or the health not read yet) keeps the
- * line normal: the stored state answers first.
+ * pending. Synced needs an exchange answered since this start ([D-296]):
+ * before it, nobody knows yet what the server has, so the chip is checking.
+ * `loaded` false (the outbox or the health not read yet) keeps the line
+ * normal: the stored state answers first.
  */
 export function syncStatusOf(input: SyncInput, loaded = true): SyncStatus {
 	const line: SyncLine = loaded ? syncLine(input) : { kind: 'normal' };
@@ -113,8 +116,14 @@ export function syncStatusOf(input: SyncInput, loaded = true): SyncStatus {
 				? 'pending'
 				: line.kind === 'stale' || line.kind === 'broken'
 					? 'stale'
-					: 'synced';
+					: answeredSince(input.health, input.since)
+						? 'synced'
+						: 'checking';
 	return { line, chip, pending: input.pending };
+}
+
+function answeredSince(health: SyncHealth, since: number): boolean {
+	return health.ok_at !== null && Date.parse(health.ok_at) >= since;
 }
 
 const health = live<SyncHealth>(() => querySyncHealth(), NO_HEALTH, 'meta:sync_health');
@@ -125,8 +134,10 @@ const clock = readable(Date.now(), (set) => {
 	return () => clearInterval(timer);
 });
 
-// A page just loaded gives its sender the time to start before calling it stuck.
-const pageLoadedAt = Date.now();
+// When this start began: the document's, not this module's, so an exchange
+// answered before the module loaded still counts. A page just loaded gives
+// its sender the time to start before calling it stuck.
+const pageLoadedAt = performance.timeOrigin;
 
 function oldest(ops: PendingOp[]): number | null {
 	let at: number | null = null;

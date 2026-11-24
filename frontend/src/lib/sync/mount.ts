@@ -39,6 +39,10 @@ export function mountSync(appNotices: SyncNotices): void {
 			if (activeListId) void setActiveList(activeListId);
 		}
 	});
+	// The chip says „synchronisiert" only once an exchange answered since this
+	// start ([D-296]): a tab that does not lead asks the leader for one rather
+	// than wait for its tick. A tab that will lead runs one when it does.
+	syncNow();
 }
 
 export function unmountSync(): void {

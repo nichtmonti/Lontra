@@ -96,6 +96,7 @@
 	"demo_signout_confirm_action": "Löschen",
 
 	"banner_synced": "Alle Änderungen synchronisiert",
+	"banner_checking": "Wird abgeglichen …",
 	"banner_synced_when": "zuletzt {when}",
 	"banner_pending": [
 		{

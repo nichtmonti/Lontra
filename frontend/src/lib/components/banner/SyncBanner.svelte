@@ -2,7 +2,9 @@
   §12.1 sync-status chip. Its state is `syncStatus`'s chip (sync-status.ts),
   the same answer the line under the list's name reads:
 
-    synced   (N=0, online, valid session)  → "All synced"
+    synced   (N=0, online, valid session, an exchange answered since this
+              start)                       → "All synced"
+    checking (as synced, before that answer) → "Syncing…" ([D-296])
     pending  (N>0, online, valid session)  → "N not synced yet…"
     stale    (N=0, tries failing, no answer for 5 min) → "No answer since <time>" ([D-296])
     offline                                → "Offline · N pending · last synced <time>"
@@ -47,13 +49,17 @@
 
 	const bannerBase =
 		'size-6.5 shrink-0 grid place-items-center rounded-chip border transition-colors duration-(--motion-state)';
-	// [D-102]: no two states share a glyph, and the one actionable
-	// state is the only filled chip.
+	// [D-102]: no two states share a glyph but synced and checking, which
+	// ask nothing of the user, and the one actionable state is the only
+	// filled chip.
 	const bannerTone: Record<ChipState, string> = {
 		synced: 'border-primary-line bg-primary-soft text-primary-text',
 		pending: 'border-amber-line bg-amber-soft text-amber',
 		expired: 'border-transparent bg-danger text-danger-foreground',
 		offline: 'border-line-strong bg-surface-2 text-muted-foreground',
+		// Synced's cloud in offline's grey: nothing waits, and whether this
+		// device has everything is not known until the server has answered.
+		checking: 'border-line-strong bg-surface-2 text-muted-foreground',
 		// Offline's grey, a clock instead of its struck cloud: nothing of the
 		// user's is at risk, what is shown may be old.
 		stale: 'border-line-strong bg-surface-2 text-muted-foreground'
@@ -78,7 +84,9 @@
 										? relativeTime(status.line.since)
 										: t('sync_line_never')
 							})
-						: t('banner_synced')
+						: bannerState === 'checking'
+							? t('banner_checking')
+							: t('banner_synced')
 	);
 
 	// The chip has nowhere to render an error; Reauth toasts its failures

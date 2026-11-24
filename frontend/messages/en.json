@@ -94,6 +94,7 @@
 	"demo_signout_confirm_action": "Delete",
 
 	"banner_synced": "All changes synced",
+	"banner_checking": "Syncing…",
 	"banner_synced_when": "last synced {when}",
 	"banner_pending": [
 		{
