@@ -115,9 +115,9 @@
 							{/each}
 							{#each iconSizes as size (size)}
 								<figure>
-									<Button {variant} {size} aria-label={t('common_actions_for', { name: 'Banane' })}
-										><Pencil class="block shrink-0" /></Button
-									>
+									<Button {variant} {size} aria-label={t('common_actions_for', { name: 'Banane' })}>
+										<Pencil class="block shrink-0" />
+									</Button>
 									<figcaption>{size}</figcaption>
 								</figure>
 							{/each}
@@ -168,9 +168,9 @@
 					<figcaption>Wörter auf den Spalten darüber: neu neutral, zurückziehen rot</figcaption>
 					<div class="grid grid-cols-2 gap-2">
 						<Button variant="ghost" size="sm" class="w-full">{t('share_reset_link')}</Button>
-						<Button variant="ghost-destructive" size="sm" class="w-full"
-							>{t('share_revoke_link')}</Button
-						>
+						<Button variant="ghost-destructive" size="sm" class="w-full">
+							{t('share_revoke_link')}
+						</Button>
 					</div>
 				</figure>
 				<figure class="pattern">
@@ -179,18 +179,24 @@
 						<Button
 							variant="ghost"
 							size="icon"
-							aria-label={t('common_actions_for', { name: 'Banane' })}><EllipsisVertical /></Button
+							aria-label={t('common_actions_for', { name: 'Banane' })}
 						>
+							<EllipsisVertical />
+						</Button>
 						<Button
 							variant="quiet"
 							size="icon-sm"
-							aria-label={t('common_actions_for', { name: 'Banane' })}><Pencil /></Button
+							aria-label={t('common_actions_for', { name: 'Banane' })}
 						>
+							<Pencil />
+						</Button>
 						<Button
 							variant="quiet"
 							size="icon-sm"
-							aria-label={t('common_actions_for', { name: 'Banane' })}><EyeOff /></Button
+							aria-label={t('common_actions_for', { name: 'Banane' })}
 						>
+							<EyeOff />
+						</Button>
 						<RemoveItemButton name="Banane" onremove={() => {}} />
 					</div>
 				</figure>
@@ -205,8 +211,9 @@
 			<Button variant="outline" onclick={() => (dialog = 'prompt')}>Eingabe (Duplizieren)</Button>
 			<Button variant="outline" onclick={() => (dialog = 'confirm')}>Bestätigen, zartes Rot</Button>
 			<Button variant="outline" onclick={() => (dialog = 'strong')}>Bestätigen, volles Rot</Button>
-			<Button variant="outline" onclick={() => (dialog = 'sheet')}>Blatt mit ✕ und Entfernen</Button
-			>
+			<Button variant="outline" onclick={() => (dialog = 'sheet')}>
+				Blatt mit ✕ und Entfernen
+			</Button>
 		</div>
 	</section>
 </div>

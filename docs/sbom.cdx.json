@@ -401,10 +401,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:golang/golang.org/x/oauth2@v0.37.0",
+			"bom-ref": "pkg:golang/golang.org/x/oauth2@v0.38.0",
 			"name": "golang.org/x/oauth2",
-			"version": "v0.37.0",
-			"purl": "pkg:golang/golang.org/x/oauth2@v0.37.0",
+			"version": "v0.38.0",
+			"purl": "pkg:golang/golang.org/x/oauth2@v0.38.0",
 			"licenses": [
 				{
 					"expression": "BSD-3-Clause"
@@ -545,10 +545,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/%40inlang/paraglide-js@3.1.0",
+			"bom-ref": "pkg:npm/%40inlang/paraglide-js@3.2.2",
 			"name": "@inlang/paraglide-js",
-			"version": "3.1.0",
-			"purl": "pkg:npm/%40inlang/paraglide-js@3.1.0",
+			"version": "3.2.2",
+			"purl": "pkg:npm/%40inlang/paraglide-js@3.2.2",
 			"licenses": [
 				{
 					"expression": "MIT"
@@ -557,10 +557,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/%40lucide/svelte@1.68.0",
+			"bom-ref": "pkg:npm/%40lucide/svelte@1.77.0",
 			"name": "@lucide/svelte",
-			"version": "1.68.0",
-			"purl": "pkg:npm/%40lucide/svelte@1.68.0",
+			"version": "1.77.0",
+			"purl": "pkg:npm/%40lucide/svelte@1.77.0",
 			"licenses": [
 				{
 					"expression": "ISC AND MIT"
@@ -581,10 +581,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/%40sveltejs/kit@3.1.1",
+			"bom-ref": "pkg:npm/%40sveltejs/kit@3.4.0",
 			"name": "@sveltejs/kit",
-			"version": "3.1.1",
-			"purl": "pkg:npm/%40sveltejs/kit@3.1.1",
+			"version": "3.4.0",
+			"purl": "pkg:npm/%40sveltejs/kit@3.4.0",
 			"licenses": [
 				{
 					"expression": "MIT"
@@ -617,10 +617,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/barcode-detector@3.2.3",
+			"bom-ref": "pkg:npm/barcode-detector@3.2.4",
 			"name": "barcode-detector",
-			"version": "3.2.3",
-			"purl": "pkg:npm/barcode-detector@3.2.3",
+			"version": "3.2.4",
+			"purl": "pkg:npm/barcode-detector@3.2.4",
 			"licenses": [
 				{
 					"expression": "MIT"
@@ -629,10 +629,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/bits-ui@2.20.4",
+			"bom-ref": "pkg:npm/bits-ui@2.22.0",
 			"name": "bits-ui",
-			"version": "2.20.4",
-			"purl": "pkg:npm/bits-ui@2.20.4",
+			"version": "2.22.0",
+			"purl": "pkg:npm/bits-ui@2.22.0",
 			"licenses": [
 				{
 					"expression": "MIT"
@@ -797,10 +797,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/svelte@5.57.3",
+			"bom-ref": "pkg:npm/svelte@5.59.1",
 			"name": "svelte",
-			"version": "5.57.3",
-			"purl": "pkg:npm/svelte@5.57.3",
+			"version": "5.59.1",
+			"purl": "pkg:npm/svelte@5.59.1",
 			"licenses": [
 				{
 					"expression": "MIT"
@@ -845,10 +845,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/svelte-toolbelt@0.10.6",
+			"bom-ref": "pkg:npm/svelte-toolbelt@0.10.7",
 			"name": "svelte-toolbelt",
-			"version": "0.10.6",
-			"purl": "pkg:npm/svelte-toolbelt@0.10.6",
+			"version": "0.10.7",
+			"purl": "pkg:npm/svelte-toolbelt@0.10.7",
 			"licenses": [
 				{
 					"expression": "MIT"
@@ -857,10 +857,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/tabbable@6.5.1",
+			"bom-ref": "pkg:npm/tabbable@6.5.2",
 			"name": "tabbable",
-			"version": "6.5.1",
-			"purl": "pkg:npm/tabbable@6.5.1",
+			"version": "6.5.2",
+			"purl": "pkg:npm/tabbable@6.5.2",
 			"licenses": [
 				{
 					"expression": "MIT"
@@ -869,10 +869,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/tailwind-merge@3.7.0",
+			"bom-ref": "pkg:npm/tailwind-merge@3.7.1",
 			"name": "tailwind-merge",
-			"version": "3.7.0",
-			"purl": "pkg:npm/tailwind-merge@3.7.0",
+			"version": "3.7.1",
+			"purl": "pkg:npm/tailwind-merge@3.7.1",
 			"licenses": [
 				{
 					"expression": "MIT"
@@ -881,10 +881,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/tailwind-variants@4.0.1",
+			"bom-ref": "pkg:npm/tailwind-variants@4.0.2",
 			"name": "tailwind-variants",
-			"version": "4.0.1",
-			"purl": "pkg:npm/tailwind-variants@4.0.1",
+			"version": "4.0.2",
+			"purl": "pkg:npm/tailwind-variants@4.0.2",
 			"licenses": [
 				{
 					"expression": "MIT"
@@ -893,10 +893,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/tailwindcss@4.3.4",
+			"bom-ref": "pkg:npm/tailwindcss@4.3.5",
 			"name": "tailwindcss",
-			"version": "4.3.4",
-			"purl": "pkg:npm/tailwindcss@4.3.4",
+			"version": "4.3.5",
+			"purl": "pkg:npm/tailwindcss@4.3.5",
 			"licenses": [
 				{
 					"expression": "MIT"
@@ -917,10 +917,10 @@
 		},
 		{
 			"type": "library",
-			"bom-ref": "pkg:npm/zxing-wasm@3.1.6",
+			"bom-ref": "pkg:npm/zxing-wasm@3.1.7",
 			"name": "zxing-wasm",
-			"version": "3.1.6",
-			"purl": "pkg:npm/zxing-wasm@3.1.6",
+			"version": "3.1.7",
+			"purl": "pkg:npm/zxing-wasm@3.1.7",
 			"licenses": [
 				{
 					"expression": "MIT"

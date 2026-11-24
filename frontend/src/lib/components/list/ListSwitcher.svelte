@@ -52,9 +52,9 @@
 	aria-label={listName ? undefined : t('list_switch_title')}
 >
 	<span class="truncate">{listName}</span>
-	<span class="inline-flex shrink-0 text-faint" aria-hidden="true"
-		><ChevronDown class="size-4 shrink-0" /></span
-	>
+	<span class="inline-flex shrink-0 text-faint" aria-hidden="true">
+		<ChevronDown class="size-4 shrink-0" />
+	</span>
 </button>
 
 <Sheet {open} title={t('list_switch_title')} onclose={() => (open = false)}>

@@ -125,8 +125,10 @@
 	<a
 		class={buttonVariants({ variant: 'ghost', size: 'icon' })}
 		href={resolve('/settings')}
-		aria-label={t('common_settings')}><Settings class="bar-icon size-5.5" /></a
+		aria-label={t('common_settings')}
 	>
+		<Settings class="bar-icon size-5.5" />
+	</a>
 {/snippet}
 
 <!-- The stores seed with `[]`: without the loaded checks the empty state

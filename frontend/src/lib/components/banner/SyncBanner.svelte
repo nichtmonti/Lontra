@@ -123,9 +123,9 @@
 				<!-- [D-102]: the count is the glyph, visible on touch where a title
 				     never shows. aria-hidden: the sentence already announces it.
 				     Capped at 99+ so three digits cannot crowd the box. -->
-				<span class="text-micro font-bold leading-none" aria-hidden="true"
-					>{pending > 99 ? '99+' : pending}</span
-				>
+				<span class="text-micro font-bold leading-none" aria-hidden="true">
+					{pending > 99 ? '99+' : pending}
+				</span>
 			{:else if bannerState === 'offline'}
 				<CloudOff class="size-4 shrink-0" />
 			{:else if bannerState === 'stale'}

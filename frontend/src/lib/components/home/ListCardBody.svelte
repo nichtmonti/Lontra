@@ -51,8 +51,10 @@
 					<span
 						id={idBase && `${idBase}-activity`}
 						class="truncate text-meta text-muted-foreground"
-						data-testid="card-activity">{activity}</span
+						data-testid="card-activity"
 					>
+						{activity}
+					</span>
 				{/if}
 			{/snippet}
 		</ListSummary>

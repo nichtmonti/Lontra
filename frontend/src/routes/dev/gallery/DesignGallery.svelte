@@ -121,9 +121,9 @@
 				Schwebende darüber ([D-316]).
 			</li>
 			<li>
-				Die Seite hat drei benannte Ebenen (unten). Ein Teil mit eigenen Ebenen versiegelt sie (<code
-					>isolate</code
-				>) und zählt innen 1–3; eine nackte Zahl darüber verweigert der Lint ([D-317]).
+				Die Seite hat drei benannte Ebenen (unten). Ein Teil mit eigenen Ebenen versiegelt sie (<code>
+					isolate
+				</code>) und zählt innen 1–3; eine nackte Zahl darüber verweigert der Lint ([D-317]).
 			</li>
 			<li>
 				Die Teile in <code>components/ui</code> tragen das Aussehen der App selbst; ein Aufrufer
@@ -132,9 +132,9 @@
 			</li>
 			<li>
 				Fokus ist eine Linie: 2px in <code>--primary-text</code>, 2px vom Rand, auf jedem
-				Bedienelement, jeder Zeile und Kachel. Eine Zeile über die ganze Spalte zeichnet sie innen (<code
-					>focus-visible:-outline-offset-2</code
-				>); eigene Ringe verweigert der Lint ([D-315]).
+				Bedienelement, jeder Zeile und Kachel. Eine Zeile über die ganze Spalte zeichnet sie innen (<code>
+					focus-visible:-outline-offset-2
+				</code>); eigene Ringe verweigert der Lint ([D-315]).
 			</li>
 			<li>
 				Abstände liegen auf einem 2px-Raster: ganze oder halbe Tailwind-Stufen, <code>px</code> nur für

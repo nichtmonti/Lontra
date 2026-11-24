@@ -11,5 +11,12 @@
 	"ignoreBinaries": ["go"],
 	// shadcn-svelte's barrels export each part under two names on purpose, so a
 	// re-pulled component keeps working.
-	"ignoreIssues": { "src/lib/components/ui/**/index.ts": ["exports", "types"] }
+	"ignoreIssues": {
+		"src/lib/components/ui/**/index.ts": ["exports", "types"],
+		// Both extend `$app/tsconfig…`, which SvelteKit generates into
+		// node_modules: no package to list, and knip passes over a name with a
+		// `$` before it reads ignoreDependencies.
+		"tsconfig.json": ["unlisted"],
+		"src/service-worker/tsconfig.json": ["unlisted"]
+	}
 }

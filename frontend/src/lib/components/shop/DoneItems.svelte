@@ -78,8 +78,10 @@
 							<!-- Two lines: a done row has no door to read a cut name in full. -->
 							<span
 								class="min-w-0 flex-1 text-sm font-book line-clamp-2 wrap-anywhere hyphens-auto text-start"
-								dir="auto">{displayName(item)}</span
+								dir="auto"
 							>
+								{displayName(item)}
+							</span>
 							<QuantityBadge quantity={item.quantity} variant="plain" />
 							<Check
 								class="dc size-5 shrink-0 text-primary-text"

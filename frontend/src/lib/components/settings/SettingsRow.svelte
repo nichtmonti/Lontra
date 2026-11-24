@@ -75,8 +75,10 @@
 				'flex shrink-0 [&_svg]:size-5',
 				tone === 'danger' ? 'text-danger' : 'text-muted-foreground'
 			)}
-			aria-hidden={hidden || undefined}>{@render icon()}</span
-		>{/if}
+			aria-hidden={hidden || undefined}
+		>
+			{@render icon()}
+		</span>{/if}
 	<!-- Beside a control the name takes its own width, so the control wraps
 	     under it only when the two do not fit; beside a value it keeps 9rem. -->
 	<span
@@ -89,8 +91,10 @@
 			class={cn(
 				'text-sm font-book wrap-break-word hyphens-auto',
 				tone === 'danger' && 'text-danger'
-			)}>{label}</span
+			)}
 		>
+			{label}
+		</span>
 		{#if hint}<span id="{id}-hint" class="text-micro text-muted-foreground">{hint}</span>{/if}
 	</span>
 	{#if value !== undefined}
@@ -99,8 +103,10 @@
 			class="ms-auto min-w-0 max-w-1/2 text-end text-sm text-muted-foreground wrap-break-word"
 			dir="auto"
 			aria-hidden={hidden || undefined}
-			data-testid={valueTestid}>{value}</span
+			data-testid={valueTestid}
 		>
+			{value}
+		</span>
 	{/if}
 {/snippet}
 

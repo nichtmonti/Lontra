@@ -23,5 +23,6 @@
 	class="emoji inline-grid size-[1em] place-content-center place-items-center text-(length:--emoji) leading-none"
 	style="--emoji: {size.toFixed(4)}rem"
 	aria-hidden="true"
-	>{#if src}<img class="size-[1em]" {src} alt="" draggable="false" />{:else}{emoji}{/if}</span
 >
+	{#if src}<img class="size-[1em]" {src} alt="" draggable="false" />{:else}{emoji}{/if}
+</span>

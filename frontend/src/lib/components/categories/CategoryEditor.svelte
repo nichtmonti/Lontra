@@ -140,9 +140,9 @@
 			{#snippet row(c)}
 				<span class="flex items-center gap-3" style={categoryStyle(c.color)}>
 					<CategoryPlate icon={c.icon} />
-					<span class="min-w-0 flex-1 text-sm font-book wrap-break-word"
-						>{categoryName(c, templatesMap)}</span
-					>
+					<span class="min-w-0 flex-1 text-sm font-book wrap-break-word">
+						{categoryName(c, templatesMap)}
+					</span>
 				</span>
 			{/snippet}
 		</ArrangeList>
@@ -189,14 +189,17 @@
 					class="ce-edit"
 					onclick={() => (formTarget = { kind: 'edit', id: category.id })}
 					aria-label={t('categories_edit_named', { name: label })}
-					><Pencil class="shrink-0" /></Button
 				>
+					<Pencil class="shrink-0" />
+				</Button>
 				{#if isOthers}
 					<span
 						class="ce-locked size-7.5 flex-none grid place-items-center text-faint"
 						aria-hidden="true"
-						title={t('categories_others_locked')}><Lock class="size-4 shrink-0" /></span
+						title={t('categories_others_locked')}
 					>
+						<Lock class="size-4 shrink-0" />
+					</span>
 				{:else}
 					<Button
 						variant="quiet"
@@ -204,8 +207,9 @@
 						class="ce-hide"
 						onclick={() => void hideCategory(category, label)}
 						aria-label={t('categories_hide_named', { name: label })}
-						><EyeOff class="shrink-0" /></Button
 					>
+						<EyeOff class="shrink-0" />
+					</Button>
 				{/if}
 			</div>
 		{/each}
@@ -217,9 +221,9 @@
 			opens
 			onclick={() => (formTarget = { kind: 'add' })}
 		>
-			{#snippet icon()}<span class="grid size-8.5 place-items-center"
-					><Plus class="text-primary-text" aria-hidden="true" /></span
-				>{/snippet}
+			{#snippet icon()}<span class="grid size-8.5 place-items-center">
+					<Plus class="text-primary-text" aria-hidden="true" />
+				</span>{/snippet}
 		</SettingsRow>
 	</RuledRows>
 
@@ -239,9 +243,9 @@
 								style={categoryStyle(category.color)}
 							>
 								<CategoryPlate icon={category.icon} />
-								<span class="h-name flex-1 text-sm font-book text-muted-foreground"
-									>{categoryName(category, templatesMap)}</span
-								>
+								<span class="h-name flex-1 text-sm font-book text-muted-foreground">
+									{categoryName(category, templatesMap)}
+								</span>
 								<Button variant="outline" size="sm" onclick={() => void restoreCategory(category)}>
 									{t('categories_restore')}
 								</Button>

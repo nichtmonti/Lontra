@@ -49,6 +49,8 @@
 		)}
 		dir="auto"
 		bind:this={ref}
-		aria-hidden={ariaHidden}>{quantity}</span
+		aria-hidden={ariaHidden}
 	>
+		{quantity}
+	</span>
 {/if}

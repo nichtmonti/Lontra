@@ -157,8 +157,9 @@
 		})}
 	></button>
 	<span class="tile-text" aria-hidden="true" bind:this={textEl}>
-		<span class="tile-name" class:clamped={nameCut} bind:this={nameEl} dir="auto">{model.name}</span
-		>
+		<span class="tile-name" class:clamped={nameCut} bind:this={nameEl} dir="auto">
+			{model.name}
+		</span>
 		{#if model.note}
 			<span class="tile-meta">
 				<span class="tile-note" bind:this={noteEl} dir="auto">{model.note}</span>
@@ -203,8 +204,8 @@
 			{/if}
 		</button>
 	{:else if mark}
-		<span class="tile-lead" aria-hidden="true"
-			><span class="tile-cat">{@render leadFace()}</span></span
-		>
+		<span class="tile-lead" aria-hidden="true">
+			<span class="tile-cat">{@render leadFace()}</span>
+		</span>
 	{/if}
 </div>

@@ -70,10 +70,10 @@
 	{@const axis: Axis = AXES[id]}
 	{@const disabled = axis.disabled?.(s) ?? false}
 	{#if axis.type === 'flag'}
-		<label class="check"
-			><input type="checkbox" {id} bind:checked={s[id] as boolean} {disabled} />
-			{axis.label}</label
-		>
+		<label class="check">
+			<input type="checkbox" {id} bind:checked={s[id] as boolean} {disabled} />
+			{axis.label}
+		</label>
 	{:else if axis.type === 'one'}
 		<div>
 			<label for={id}>{axis.label}</label><select {id} bind:value={s[id] as string} {disabled}>
@@ -84,15 +84,15 @@
 		<fieldset {id} {disabled}>
 			<legend>{axis.label}</legend>
 			{#each axis.choices as [value, label] (value)}
-				<label class="check"
-					><input
+				<label class="check">
+					<input
 						type="checkbox"
 						{value}
 						checked={(s[id] as string[]).includes(value)}
 						onchange={(e) => toggle(id, value, e.currentTarget.checked)}
 					/>
-					{label}</label
-				>
+					{label}
+				</label>
 			{/each}
 		</fieldset>
 	{/if}

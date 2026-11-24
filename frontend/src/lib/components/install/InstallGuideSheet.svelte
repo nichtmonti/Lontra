@@ -57,8 +57,10 @@
 			<li class="flex items-start gap-3">
 				<span
 					class="flex size-7 shrink-0 items-center justify-center rounded-full bg-tint-strong text-sm font-bold"
-					aria-hidden="true">{i + 1}</span
+					aria-hidden="true"
 				>
+					{i + 1}
+				</span>
 				<span class="min-w-0 flex-1 pt-0.5 wrap-break-word hyphens-auto">{step.text}</span>
 				{#if step.icon}
 					<step.icon class="mt-0.5 size-6 shrink-0 text-primary-text" aria-hidden="true" />

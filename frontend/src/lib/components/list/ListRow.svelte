@@ -131,15 +131,16 @@
 					category: categoryName(cat, templates),
 					name: displayName(item)
 				})}
-				><span class="relative grid size-full place-items-center overflow-hidden rounded-chip"
-					><CategoryIcon icon={cat.icon} chip={2.375} />{#if scanned}<span
+			>
+				<span class="relative grid size-full place-items-center overflow-hidden rounded-chip">
+					<CategoryIcon icon={cat.icon} chip={2.375} />{#if scanned}<span
 							class="cat-chip-scan corner-mark absolute top-0 inset-e-0 size-3.5 bg-primary text-primary-foreground"
 							aria-hidden="true"
 						>
-							<Camera class="size-2" /></span
-						>{/if}</span
-				></button
-			>
+							<Camera class="size-2" />
+						</span>{/if}
+				</span>
+			</button>
 		{/if}
 		<button
 			type="button"
@@ -154,18 +155,22 @@
 				class="row-name-main text-base/tight font-book {item.note || hint
 					? 'truncate'
 					: 'line-clamp-2 hyphens-auto wrap-anywhere'}"
-				dir="auto">{displayName(item)}</span
+				dir="auto"
 			>
+				{displayName(item)}
+			</span>
 			{#if item.note}
-				<span class="text-note/flush font-book text-muted-foreground truncate" dir="auto"
-					>{item.note}</span
-				>
+				<span class="text-note/flush font-book text-muted-foreground truncate" dir="auto">
+					{item.note}
+				</span>
 			{/if}
 			{#if hint}
 				<span
 					id={nameId ? `${nameId}-hint` : undefined}
-					class="text-micro/flush text-muted-foreground italic truncate">{hint}</span
+					class="text-micro/flush text-muted-foreground italic truncate"
 				>
+					{hint}
+				</span>
 			{/if}
 		</button>
 		<QuantityControl {item} oncommit={onquantity} />

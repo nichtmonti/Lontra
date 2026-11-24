@@ -33,9 +33,9 @@
 
 <div class={cn(EMPTY_STATE_CLASS, className)} {...rest}>
 	{#if emoji}
-		<span class="icon-plate mb-3 grid size-12 place-items-center rounded-chip border border-border"
-			><Emoji {emoji} size={2.25} /></span
-		>
+		<span class="icon-plate mb-3 grid size-12 place-items-center rounded-chip border border-border">
+			<Emoji {emoji} size={2.25} />
+		</span>
 	{/if}
 	{#if title}<h2 class="type-heading text-foreground">{title}</h2>{/if}
 	{#if body}<p class="mt-1">{body}</p>{/if}

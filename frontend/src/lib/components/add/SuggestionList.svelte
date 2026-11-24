@@ -60,11 +60,11 @@
 		>
 			<CategoryPlate icon={c.icon} class="mt-0.5" />
 			<span class="flex min-w-0 flex-1 flex-col gap-0.5">
-				<span class="ta-name text-sm font-book wrap-break-word whitespace-normal" dir="auto"
-					><span class="match font-bold">{c.name.slice(0, c.matchLength)}</span>{c.name.slice(
+				<span class="ta-name text-sm font-book wrap-break-word whitespace-normal" dir="auto">
+					<span class="match font-bold">{c.name.slice(0, c.matchLength)}</span>{c.name.slice(
 						c.matchLength
-					)}</span
-				>
+					)}
+				</span>
 				{#if meta}
 					<span class="ta-cat text-micro text-muted-foreground">{meta}</span>
 				{/if}

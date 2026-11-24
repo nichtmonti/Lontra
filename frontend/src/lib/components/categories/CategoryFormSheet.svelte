@@ -186,8 +186,9 @@
 					value={emoji}
 					aria-label={emoji}
 					class="icon-plate grid aspect-square place-items-center rounded-control border border-border hover:border-line-strong"
-					><CategoryIcon icon={emoji} chip={2.25} /></PickerTile
 				>
+					<CategoryIcon icon={emoji} chip={2.25} />
+				</PickerTile>
 			{/each}
 		</RadioGroup.Root>
 	</Field>

@@ -40,5 +40,7 @@
 		className
 	)}
 	{style}
-	aria-hidden="true"><CategoryIcon {icon} chip={SIZES[size].chip} /></span
+	aria-hidden="true"
 >
+	<CategoryIcon {icon} chip={SIZES[size].chip} />
+</span>

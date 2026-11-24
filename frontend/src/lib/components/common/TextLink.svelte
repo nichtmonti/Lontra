@@ -13,6 +13,8 @@
 	class="inline-block py-2.5 underline decoration-dotted underline-offset-2 hover:text-foreground"
 	{href}
 	target="_blank"
-	rel="noopener noreferrer">{@render children()}</a
+	rel="noopener noreferrer"
 >
+	{@render children()}
+</a>
 <!-- eslint-enable svelte/no-navigation-without-resolve -->

@@ -31,8 +31,10 @@
 		{#if checked}
 			<span
 				class="corner-mark absolute -inset-e-1.5 -top-1.5 size-5 bg-primary text-primary-foreground"
-				aria-hidden="true"><Check class="size-3.5" strokeWidth={3} /></span
+				aria-hidden="true"
 			>
+				<Check class="size-3.5" strokeWidth={3} />
+			</span>
 		{/if}
 	{/snippet}
 </RadioGroup.Item>

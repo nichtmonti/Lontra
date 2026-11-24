@@ -20,16 +20,14 @@
 	class="about flex flex-col items-center px-4 pt-0.5 pb-4 text-center text-micro text-muted-foreground"
 >
 	<p>
-		<span data-testid="app-version"
-			>{appVersion
-				? t('settings_about_version', { version: appVersion })
-				: t('settings_about_dev')}</span
-		>
+		<span data-testid="app-version">
+			{appVersion ? t('settings_about_version', { version: appVersion }) : t('settings_about_dev')}
+		</span>
 		·
 		{#if accountId}
-			<span class="whitespace-nowrap" data-testid="account-code"
-				>{t('settings_about_account', { code: accountCode(accountId) })}</span
-			>
+			<span class="whitespace-nowrap" data-testid="account-code">
+				{t('settings_about_account', { code: accountCode(accountId) })}
+			</span>
 			·
 		{/if}
 		<TextLink href={sourceUrl}>{t('settings_about_source')}</TextLink>
@@ -42,8 +40,8 @@
 	<p>
 		<TextLink href="https://openmoji.org">{t('settings_about_emoji')}</TextLink>
 		·
-		<TextLink href="https://creativecommons.org/licenses/by-sa/4.0/"
-			>{t('settings_about_emoji_license')}</TextLink
-		>
+		<TextLink href="https://creativecommons.org/licenses/by-sa/4.0/">
+			{t('settings_about_emoji_license')}
+		</TextLink>
 	</p>
 </footer>

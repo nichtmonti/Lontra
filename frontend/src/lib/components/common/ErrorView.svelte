@@ -34,8 +34,10 @@
 		{#if detail}
 			<code
 				class="block max-w-full wrap-break-word rounded-chip bg-tint px-3 py-2 text-meta"
-				data-testid="error-detail">{detail}</code
+				data-testid="error-detail"
 			>
+				{detail}
+			</code>
 		{/if}
 	{/if}
 	<!-- Stacked, as every pair of actions is ([D-311]). -->
@@ -45,8 +47,11 @@
 		{/if}
 		<!-- A full navigation, not goto(): the client state that just threw is
 		     not reused on the way out. -->
-		<Button variant={notFound ? 'default' : 'outline'} onclick={() => location.assign(resolve('/'))}
-			>{t('common_to_lists')}</Button
+		<Button
+			variant={notFound ? 'default' : 'outline'}
+			onclick={() => location.assign(resolve('/'))}
 		>
+			{t('common_to_lists')}
+		</Button>
 	</div>
 </FocusScreen>

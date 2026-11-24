@@ -66,7 +66,7 @@ services:
   - name: dind
     # By digest, as every step image here is ([D-339]): the publish token is
     # handed to this daemon.
-    image: docker:29-dind@sha256:08a98015fce594af7c382883bea080ea206de74402a95da9dc52b6428c8cd121
+    image: docker:29-dind@sha256:4bbc7223f81db790097c6dea42fb93e05b8fead4f0431fbe6ccaba6e8473201c
     privileged: true
     failure: ignore
     # vfs storage = the Woodpecker-documented safe default for DinD on the
@@ -123,7 +123,7 @@ steps:
   # from `release` because the frontend build needs Node and goreleaser's own
   # image has none; it runs in the CI image, as the suites do ([D-203]).
   release-frontend:
-    image: localhost/shoppinglist-ci:go1.27.4-node26.13.0-pw1.64.1-4c2b7784
+    image: localhost/shoppinglist-ci:go1.27.4-node26.13.1-pw1.64.1-5ea59ee7
     commands:
       # go-task as frontend.yaml installs it; .gomod and .task are gitignored,
       # and frontend/.gitignore ignores the Paraglide 3 compile cache the
@@ -141,7 +141,7 @@ steps:
   release:
     # By digest: this step holds both publish tokens, and a tag can be
     # re-pushed. Renovate moves the digest with the version.
-    image: goreleaser/goreleaser:v2.20.0@sha256:19ca96ff782e521af4002ca42dd42021d360a04a8d2a06bb79f720a284c3fee1
+    image: goreleaser/goreleaser:v2.20.3@sha256:3019e0e61c99808e42ce60c9cf77f7882685ffd2bd09d18ef6da8f9c9810e71c
     # Serial definition order puts the pb_public-producing step ahead of this
     # one; there is deliberately NO step-level depends_on anywhere in this
     # file (see the publish comment above). And NOT dind: services are not
@@ -201,7 +201,7 @@ steps:
       # BuildKit pushes with the registry token, so its image is pinned too
       # rather than buildx's floating default (buildx-stable-1); Renovate moves
       # it (renovate.json5, [D-339]).
-      - docker buildx create --name goreleaser-release --driver-opt image=moby/buildkit:v0.34.2@sha256:c5f8862f52499773af85bc07695b2379ef08e8002352b0df2c4864c91d78dabe --use
+      - docker buildx create --name goreleaser-release --driver-opt image=moby/buildkit:v0.35.1@sha256:baf6138eb8c37644800c7c913fba051e840ebb9ba13eaf92d92ef9a1712d0b4c --use
       # REGISTRY_TOKEN, not GITEA_TOKEN: see the environment block above.
       # The image lives under the repository owner's namespace (.goreleaser.yaml).
       - echo "$REGISTRY_TOKEN" | docker login codeberg.org -u "$CI_REPO_OWNER" --password-stdin

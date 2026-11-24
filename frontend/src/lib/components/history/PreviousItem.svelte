@@ -44,15 +44,17 @@
 		/>
 	{/if}
 	<span class="flex min-w-0 flex-1 flex-col">
-		<span class="pi-name min-w-0 text-sm font-book text-muted-foreground truncate" dir="auto"
-			>{displayName(item)}</span
-		>
+		<span class="pi-name min-w-0 text-sm font-book text-muted-foreground truncate" dir="auto">
+			{displayName(item)}
+		</span>
 		{#if note}
 			<span
 				id={noteId}
 				class="pi-note min-w-0 text-note font-book text-muted-foreground truncate"
-				dir="auto">{note}</span
+				dir="auto"
 			>
+				{note}
+			</span>
 		{/if}
 	</span>
 	{#if when}
@@ -60,6 +62,8 @@
 	{/if}
 	<span
 		class="grid size-7 shrink-0 place-items-center rounded-chip text-primary-text"
-		aria-hidden="true"><Plus class="size-5" strokeWidth={2.5} /></span
+		aria-hidden="true"
 	>
+		<Plus class="size-5" strokeWidth={2.5} />
+	</span>
 </button>

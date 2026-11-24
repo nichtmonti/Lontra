@@ -35,9 +35,9 @@
 			onclick={() => void goForward(resolve('/list/[id]/previous', { id: listId }))}
 		>
 			<!-- In the plates' column, so the label stands on the items' line. -->
-			{#snippet icon()}<span class="grid size-9.5 place-items-center"
-					><Emoji emoji="🕘" size={1.25} /></span
-				>{/snippet}
+			{#snippet icon()}<span class="grid size-9.5 place-items-center">
+					<Emoji emoji="🕘" size={1.25} />
+				</span>{/snippet}
 		</SettingsRow>
 	</SettingsGroup>
 {/if}

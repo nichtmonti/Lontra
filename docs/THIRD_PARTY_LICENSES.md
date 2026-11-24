@@ -71,7 +71,7 @@ Components: 40 Go, 36 npm, 1 embedded in a listed package.
 | golang.org/x/crypto | v0.59.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
 | golang.org/x/image | v0.47.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
 | golang.org/x/net | v0.62.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
-| golang.org/x/oauth2 | v0.37.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
+| golang.org/x/oauth2 | v0.38.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
 | golang.org/x/sync | v0.25.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
 | golang.org/x/sys | v0.50.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
 | golang.org/x/text | v0.44.0 | BSD-3-Clause | Copyright 2009 The Go Authors. |
@@ -88,14 +88,14 @@ Components: 40 Go, 36 npm, 1 embedded in a listed package.
 | @floating-ui/dom | 1.8.0 | MIT | Copyright (c) 2021-present Floating UI contributors |
 | @floating-ui/utils | 0.2.12 | MIT | Copyright (c) 2021-present Floating UI contributors |
 | @fontsource-variable/readex-pro | 5.3.0 | OFL-1.1 | Copyright 2019 The Readex Pro Project Authors (https://github.com/ThomasJockin/readexpro) |
-| @inlang/paraglide-js | 3.1.0 | MIT | Copyright (c) 2025 Opral US Inc. |
-| @lucide/svelte | 1.68.0 | ISC AND MIT | Copyright (c) 2026 Lucide Icons and Contributors<br>Copyright (c) 2013-present Cole Bemis |
+| @inlang/paraglide-js | 3.2.2 | MIT | Copyright (c) 2025 Opral US Inc. |
+| @lucide/svelte | 1.77.0 | ISC AND MIT | Copyright (c) 2026 Lucide Icons and Contributors<br>Copyright (c) 2013-present Cole Bemis |
 | @simplewebauthn/browser | 14.0.0 | MIT | Copyright (c) 2020 Matthew Miller |
-| @sveltejs/kit | 3.1.1 | MIT | Copyright (c) 2020 [these people](https://github.com/sveltejs/kit/graphs/contributors) |
+| @sveltejs/kit | 3.4.0 | MIT | Copyright (c) 2020 [these people](https://github.com/sveltejs/kit/graphs/contributors) |
 | @use-gesture/core | 10.3.1 | MIT | Copyright (c) 2018-present Paul Henschel <drcmda@gmail.com> |
 | @use-gesture/vanilla | 10.3.1 | MIT | Copyright (c) 2018-present Paul Henschel <drcmda@gmail.com> |
-| barcode-detector | 3.2.3 | MIT | Copyright (c) 2023 Ze-Zheng Wu |
-| bits-ui | 2.20.4 | MIT | Copyright (c) 2023 Hunter Johnston |
+| barcode-detector | 3.2.4 | MIT | Copyright (c) 2023 Ze-Zheng Wu |
+| bits-ui | 2.22.0 | MIT | Copyright (c) 2023 Hunter Johnston |
 | clsx | 2.1.1 | MIT | Copyright (c) Luke Edwards <luke.edwards05@gmail.com> (lukeed.com) |
 | devalue | 5.9.4 | MIT | Copyright (c) 2018-19 [these people](https://github.com/rich-harris/devalue/graphs/contributors) |
 | dexie | 4.4.7 | Apache-2.0 | Copyright (c) 2014-2017 David Fahlander |
@@ -109,23 +109,23 @@ Components: 40 Go, 36 npm, 1 embedded in a listed package.
 | runed | 0.25.0 | MIT | Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte><br>Copyright (c) 2024 Thomas G. Lopes <https://github.com/tglide> |
 | runed | 0.35.1 | MIT | Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte><br>Copyright (c) 2024 Thomas G. Lopes <https://github.com/tglide> |
 | style-to-object | 1.0.14 | MIT | Copyright (c) 2017 Menglin "Mark" Xu <mark@remarkablemark.org> |
-| svelte | 5.57.3 | MIT | Copyright (c) 2016-2025 [Svelte Contributors](https://github.com/sveltejs/svelte/graphs/contributors) |
+| svelte | 5.59.1 | MIT | Copyright (c) 2016-2025 [Svelte Contributors](https://github.com/sveltejs/svelte/graphs/contributors) |
 | svelte-dnd-action | 0.9.80 | MIT | Copyright (c) 2020 Isaac Hagoel |
 | svelte-sonner | 1.2.3 | MIT | Copyright (c) 2024 Robert Soriano |
 | svelte-toolbelt | 0.7.1 | MIT | Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte><br>Copyright (c) 2024 Thomas G. Lopes <https://github.com/tglide> |
-| svelte-toolbelt | 0.10.6 | MIT | Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte><br>Copyright (c) 2024 Thomas G. Lopes <https://github.com/tglide> |
-| tabbable | 6.5.1 | MIT | Copyright (c) 2015 David Clark |
-| tailwind-merge | 3.7.0 | MIT | Copyright (c) 2021 Dany Castillo |
-| tailwind-variants | 4.0.1 | MIT | Copyright (c) 2020 Tailwind Variants |
-| tailwindcss | 4.3.4 | MIT | Copyright (c) Tailwind Labs, Inc. |
+| svelte-toolbelt | 0.10.7 | MIT | Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte><br>Copyright (c) 2024 Thomas G. Lopes <https://github.com/tglide> |
+| tabbable | 6.5.2 | MIT | Copyright (c) 2015 David Clark |
+| tailwind-merge | 3.7.1 | MIT | Copyright (c) 2021 Dany Castillo |
+| tailwind-variants | 4.0.2 | MIT | Copyright (c) 2020 Tailwind Variants |
+| tailwindcss | 4.3.5 | MIT | Copyright (c) Tailwind Labs, Inc. |
 | tw-animate-css | 1.4.0 | MIT | Copyright (c) 2025 Wombosvideo |
-| zxing-wasm | 3.1.6 | MIT | Copyright (c) 2023 Ze-Zheng Wu |
+| zxing-wasm | 3.1.7 | MIT | Copyright (c) 2023 Ze-Zheng Wu |
 
 ## Embedded in a listed package
 
 | Component | Version | License | Copyright |
 | --- | --- | --- | --- |
-| zxing-cpp (compiled into zxing-wasm/reader/zxing_reader.wasm) | via zxing-wasm 3.1.6 | Apache-2.0 | Copyright 2016 Nu-book Inc.<br>Copyright 2016 ZXing authors<br>and the zxing-cpp contributors (per its source file headers) |
+| zxing-cpp (compiled into zxing-wasm/reader/zxing_reader.wasm) | via zxing-wasm 3.1.7 | Apache-2.0 | Copyright 2016 Nu-book Inc.<br>Copyright 2016 ZXing authors<br>and the zxing-cpp contributors (per its source file headers) |
 
 - zxing-cpp (compiled into zxing-wasm/reader/zxing_reader.wasm): zxing-wasm README, "Licenses": zxing-cpp and src/cpp/ZXingWasm.cpp are Apache-2.0. The reader build used here does not contain zint (the writer's BSD-3-Clause encoder).
 
@@ -349,7 +349,7 @@ Apache License
 Applies to:
 
 - github.com/google/go-tpm v0.9.8 (LICENSE)
-- zxing-cpp (compiled into zxing-wasm/reader/zxing_reader.wasm) via zxing-wasm 3.1.6 (LICENSE): Copyright 2016 Nu-book Inc.; Copyright 2016 ZXing authors; and the zxing-cpp contributors (per its source file headers)
+- zxing-cpp (compiled into zxing-wasm/reader/zxing_reader.wasm) via zxing-wasm 3.1.7 (LICENSE): Copyright 2016 Nu-book Inc.; Copyright 2016 ZXing authors; and the zxing-cpp contributors (per its source file headers)
 
 ```text
 Apache License
@@ -853,7 +853,7 @@ Applies to:
 - golang.org/x/crypto v0.59.0 (LICENSE): Copyright 2009 The Go Authors.
 - golang.org/x/image v0.47.0 (LICENSE): Copyright 2009 The Go Authors.
 - golang.org/x/net v0.62.0 (LICENSE): Copyright 2009 The Go Authors.
-- golang.org/x/oauth2 v0.37.0 (LICENSE): Copyright 2009 The Go Authors.
+- golang.org/x/oauth2 v0.38.0 (LICENSE): Copyright 2009 The Go Authors.
 - golang.org/x/sync v0.25.0 (LICENSE): Copyright 2009 The Go Authors.
 - golang.org/x/sys v0.50.0 (LICENSE): Copyright 2009 The Go Authors.
 - golang.org/x/text v0.44.0 (LICENSE): Copyright 2009 The Go Authors.
@@ -3319,7 +3319,7 @@ uncontaminated with licensed code from other projects.
 
 Applies to:
 
-- @lucide/svelte 1.68.0 (LICENSE): Copyright (c) 2026 Lucide Icons and Contributors; Copyright (c) 2013-present Cole Bemis
+- @lucide/svelte 1.77.0 (LICENSE): Copyright (c) 2026 Lucide Icons and Contributors; Copyright (c) 2013-present Cole Bemis
 
 ```text
 ISC License
@@ -3381,7 +3381,7 @@ Applies to:
 - photoswipe 5.4.4 (LICENSE): Copyright (c) 2014-2022 Dmitry Semenov, https://dimsemenov.com
 - pocketbase 0.28.2 (LICENSE.md): Copyright (c) 2022 - present, Gani Georgiev
 - style-to-object 1.0.14 (LICENSE): Copyright (c) 2017 Menglin "Mark" Xu <mark@remarkablemark.org>
-- tabbable 6.5.1 (LICENSE): Copyright (c) 2015 David Clark
+- tabbable 6.5.2 (LICENSE): Copyright (c) 2015 David Clark
 
 ```text
 The MIT License (MIT)
@@ -3444,10 +3444,10 @@ Applies to:
 - @floating-ui/core 1.8.0 (LICENSE): Copyright (c) 2021-present Floating UI contributors
 - @floating-ui/dom 1.8.0 (LICENSE): Copyright (c) 2021-present Floating UI contributors
 - @floating-ui/utils 0.2.12 (LICENSE): Copyright (c) 2021-present Floating UI contributors
-- @inlang/paraglide-js 3.1.0 (LICENSE): Copyright (c) 2025 Opral US Inc.
+- @inlang/paraglide-js 3.2.2 (LICENSE): Copyright (c) 2025 Opral US Inc.
 - @simplewebauthn/browser 14.0.0 (LICENSE.md): Copyright (c) 2020 Matthew Miller
-- barcode-detector 3.2.3 (LICENSE): Copyright (c) 2023 Ze-Zheng Wu
-- bits-ui 2.20.4 (LICENSE): Copyright (c) 2023 Hunter Johnston
+- barcode-detector 3.2.4 (LICENSE): Copyright (c) 2023 Ze-Zheng Wu
+- bits-ui 2.22.0 (LICENSE): Copyright (c) 2023 Hunter Johnston
 - clsx 2.1.1 (license): Copyright (c) Luke Edwards <luke.edwards05@gmail.com> (lukeed.com)
 - mode-watcher 1.1.0 (LICENSE): Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte>; Copyright (c) 2024 Svecosystem <https://github.com/svecosystem>
 - runed 0.23.4 (LICENSE): Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte>; Copyright (c) 2024 Thomas G. Lopes <https://github.com/tglide>
@@ -3456,12 +3456,12 @@ Applies to:
 - svelte-dnd-action 0.9.80 (LICENSE): Copyright (c) 2020 Isaac Hagoel
 - svelte-sonner 1.2.3 (LICENSE): Copyright (c) 2024 Robert Soriano
 - svelte-toolbelt 0.7.1 (LICENSE): Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte>; Copyright (c) 2024 Thomas G. Lopes <https://github.com/tglide>
-- svelte-toolbelt 0.10.6 (LICENSE): Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte>; Copyright (c) 2024 Thomas G. Lopes <https://github.com/tglide>
-- tailwind-merge 3.7.0 (LICENSE.md): Copyright (c) 2021 Dany Castillo
-- tailwind-variants 4.0.1 (LICENSE): Copyright (c) 2020 Tailwind Variants
-- tailwindcss 4.3.4 (LICENSE): Copyright (c) Tailwind Labs, Inc.
+- svelte-toolbelt 0.10.7 (LICENSE): Copyright (c) 2024 Hunter Johnston <https://github.com/huntabyte>; Copyright (c) 2024 Thomas G. Lopes <https://github.com/tglide>
+- tailwind-merge 3.7.1 (LICENSE.md): Copyright (c) 2021 Dany Castillo
+- tailwind-variants 4.0.2 (LICENSE): Copyright (c) 2020 Tailwind Variants
+- tailwindcss 4.3.5 (LICENSE): Copyright (c) Tailwind Labs, Inc.
 - tw-animate-css 1.4.0 (LICENSE): Copyright (c) 2025 Wombosvideo
-- zxing-wasm 3.1.6 (LICENSE): Copyright (c) 2023 Ze-Zheng Wu
+- zxing-wasm 3.1.7 (LICENSE): Copyright (c) 2023 Ze-Zheng Wu
 
 ```text
 MIT License
@@ -3491,12 +3491,12 @@ Applies to:
 
 - github.com/golang-jwt/jwt/v5 v5.3.1 (LICENSE): Copyright (c) 2012 Dave Grijalva; Copyright (c) 2021 golang-jwt maintainers
 - github.com/philhofer/fwd v1.2.0 (LICENSE.md): Copyright (c) 2014-2015, Philip Hofer
-- @sveltejs/kit 3.1.1 (LICENSE): Copyright (c) 2020 [these people](https://github.com/sveltejs/kit/graphs/contributors)
+- @sveltejs/kit 3.4.0 (LICENSE): Copyright (c) 2020 [these people](https://github.com/sveltejs/kit/graphs/contributors)
 - @use-gesture/core 10.3.1 (LICENSE): Copyright (c) 2018-present Paul Henschel <drcmda@gmail.com>
 - @use-gesture/vanilla 10.3.1 (LICENSE): Copyright (c) 2018-present Paul Henschel <drcmda@gmail.com>
 - devalue 5.9.4 (LICENSE): Copyright (c) 2018-19 [these people](https://github.com/rich-harris/devalue/graphs/contributors)
 - qrcode-generator 2.0.4 (MIT terms): Copyright (c) 2009 Kazuhiko Arase
-- svelte 5.57.3 (LICENSE.md): Copyright (c) 2016-2025 [Svelte Contributors](https://github.com/sveltejs/svelte/graphs/contributors)
+- svelte 5.59.1 (LICENSE.md): Copyright (c) 2016-2025 [Svelte Contributors](https://github.com/sveltejs/svelte/graphs/contributors)
 
 ```text
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
