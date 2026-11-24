@@ -6,6 +6,12 @@ Every release tag sits on the commit that adds its entry here (`docs(release): v
 
 Changes land under **Unreleased** in the commit that makes them; the release commit turns that heading into the version's.
 
+## Unreleased
+
+**For operators.** Nothing to do before upgrading.
+
+- **The app opens without waiting for the server.** It used to ask the server for its page first and wait up to 3 seconds before opening the copy on the device, so on a weak connection the first screen took several seconds. It now always opens the copy on the device; your lists were already there. After an update, the first start still runs the previous version, and the app switches to the new one the next time you leave it ([D-363]).
+
 ## v0.19.2: a list's face shows up to five of its aisles (2026-11)
 
 **For operators.** Nothing to do before upgrading.
@@ -1110,3 +1116,4 @@ First tagged build: a distroless multi-arch container (amd64 + arm64) with the S
 [D-360]: docs/internals/decisions.md#D-360
 [D-361]: docs/internals/decisions.md#D-361
 [D-362]: docs/internals/decisions.md#D-362
+[D-363]: docs/internals/decisions.md#D-363

@@ -32,9 +32,6 @@ const ASSETS = new Set([...[...immutable, ...assets].map(({ path }) => pathname(
 // the first scan session has fetched it — offline decode keeps working from
 // then on ([D-21]'s promise is "offline-capable", not "pre-installed").
 const PRECACHE = [...ASSETS].filter((p) => !p.endsWith('.wasm'));
-// How long a navigation waits on the network before the cached shell answers
-// ([D-293]): a connection that hangs must not leave a white screen.
-const NAVIGATION_WAIT_MS = 3000;
 
 // The browser answers the build's chunks from the cache itself: a worker
 // stopped mid-load aborts what it answers ([D-298]). Not the .wasm (below).
@@ -78,36 +75,15 @@ self.addEventListener('activate', (event) => {
 	);
 });
 
-const cachedShell = async (): Promise<Response | undefined> =>
-	(await caches.open(CACHE)).match(SHELL);
-
-/** A shared list arrives in the share target's query ([D-254]): from the
- *  cache it never reaches the server, whose request log and a proxy's access
- *  log would otherwise keep the whole list. */
-async function shareTarget(request: Request): Promise<Response> {
-	return (await cachedShell()) ?? navigation(request);
-}
-
-/** Navigations (cold start, deep link, reload) must resolve even fully
- *  offline — the client router then renders the right route from the single
- *  cached shell document. Also when the server is down behind a proxy (its
- *  502 page) or the network hangs: the lists are on the device ([D-293]). */
+/** A navigation to one of the app's screens (cold start, deep link, reload)
+ *  is answered from this build's cached shell without asking the network
+ *  ([D-363]): its chunks are in the same cache, and the client router renders
+ *  the route. A newer build arrives as a new worker, and `hooks.client.ts`
+ *  reloads into it. A list shared into the share target's query ([D-254])
+ *  thus never reaches a request log. The network answers only before the
+ *  precache exists. */
 async function navigation(request: Request): Promise<Response> {
-	const network = fetch(request);
-	const shell = await cachedShell();
-	if (!shell) return network;
-	// Lost to the timeout or the shell, it may still reject.
-	network.catch(() => {});
-	const waited = new Promise<null>((resolve) =>
-		setTimeout(() => resolve(null), NAVIGATION_WAIT_MS)
-	);
-	try {
-		const response = await Promise.race([network, waited]);
-		if (response && response.status < 500) return response;
-	} catch {
-		// offline: the shell below
-	}
-	return shell;
+	return (await (await caches.open(CACHE)).match(SHELL)) ?? fetch(request);
 }
 
 // Product photos, so a scanned item's picture survives offline (§9.2,
@@ -159,7 +135,6 @@ async function shell(request: Request, url: URL): Promise<Response> {
 }
 
 const STRATEGIES: Record<NonNullable<Route>, (request: Request, url: URL) => Promise<Response>> = {
-	'share-target': shareTarget,
 	navigation,
 	photo,
 	'previous-build': previousBuild,

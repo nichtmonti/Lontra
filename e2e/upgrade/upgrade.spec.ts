@@ -167,7 +167,17 @@ test('an update loses nothing a device or the server was holding', async ({
 	await expect(brot.getByRole('button', { name: said('list_edit_quantity') })).toContainText('2');
 	await expect.poll(() => storeCount(page, 'pending_ops')).toBe(2);
 
-	// This build, from here on.
+	// This build, from here on: a start opens the build its worker cached
+	// ([D-363]), so the page reloads once this build's worker serves it, as
+	// a phone's does when it updates in the background.
+	await page.evaluate(async () => {
+		const registration = await navigator.serviceWorker.ready;
+		const replaced = new Promise((resolve) =>
+			navigator.serviceWorker.addEventListener('controllerchange', resolve, { once: true })
+		);
+		await registration.update();
+		await replaced;
+	});
 	await page.reload();
 	await expect(itemRow(page, 'Butter')).toBeVisible();
 	expect(await buildOf(page), 'the reload loaded this build').not.toBe(previousBuild);

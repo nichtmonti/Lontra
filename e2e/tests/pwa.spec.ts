@@ -38,40 +38,31 @@ test(
 	}
 );
 
-// [D-293] A server that is down behind a proxy answers navigations with its
-// own error page, and a dead connection with nothing: either way the cached
-// shell opens the app, whose lists are on the device.
-for (const [what, answer] of [
-	['answers 502', 'error'],
-	['never answers', 'hang']
-] as const) {
-	test(
-		`the app opens from its cached shell when the server ${what}`,
-		{ tag: '@chromium' },
-		async ({ page, context }) => {
-			await page.goto('/');
-			await page.evaluate(() => navigator.serviceWorker.ready);
+// [D-363] A start opens the cached shell without asking the server, so a
+// slow or hanging connection, or a server down behind a proxy, never holds
+// up the first screen: the lists are on the device.
+test(
+	'the app opens from its cached shell without asking the server',
+	{ tag: '@chromium' },
+	async ({ page, context }) => {
+		await page.goto('/');
+		await page.evaluate(() => navigator.serviceWorker.ready);
 
-			let routed = 0;
-			await context.route(
-				(url) => url.pathname === '/',
-				async (route) => {
-					routed++;
-					if (answer === 'error') {
-						await route.fulfill({ status: 502, contentType: 'text/html', body: 'Bad Gateway' });
-					}
-					// 'hang': never settled, as a connection that stalls.
-				}
-			);
-			await reloadInPage(page);
+		let asked = 0;
+		await context.route(
+			(url) => url.pathname === '/',
+			async (route) => {
+				asked++;
+				await route.fulfill({ status: 502, contentType: 'text/html', body: 'Bad Gateway' });
+			}
+		);
+		await reloadInPage(page);
 
-			await expect(page.locator('[data-testid="app-shell"]')).toBeVisible({ timeout: 15_000 });
-			await expect(page.getByText('Bad Gateway')).toHaveCount(0);
-			// The worker's own request met the route: the shell is what answered.
-			expect(routed).toBeGreaterThan(0);
-		}
-	);
-}
+		await expect(page.locator('[data-testid="app-shell"]')).toBeVisible();
+		await expect(page.getByText('Bad Gateway')).toHaveCount(0);
+		expect(asked, 'the shell answered, not the server').toBe(0);
+	}
+);
 
 // [D-298] The build's chunks come from the cache through the browser's static
 // route, never through the worker: a worker stopped while a page loads aborts

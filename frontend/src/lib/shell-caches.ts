@@ -27,9 +27,21 @@ export function staleCaches(keys: string[], current: string, keep: string[]): st
 	return keys.filter((key) => key !== current && key !== previous && !keep.includes(key));
 }
 
+// The server's own pages: PocketBase's API (the OIDC callback, a file
+// download) and its dashboard, at the origin's root whatever the app's base.
+const SERVER_PAGES = ['/api/', '/_/'];
+
+/** Whether a navigation is to one of the app's screens, which the shell
+ *  renders, rather than to a page or file the server answers itself. */
+function appPage(url: URL, scope: URL, assets: ReadonlySet<string>): boolean {
+	if (SERVER_PAGES.some((prefix) => url.pathname.startsWith(prefix))) return false;
+	// The shell itself is in `assets`, under the scope's root.
+	return url.pathname === scope.pathname || !assets.has(url.pathname);
+}
+
 /** How the service worker answers a request; null passes it to the network
  *  untouched. */
-export type Route = 'share-target' | 'navigation' | 'photo' | 'previous-build' | 'shell' | null;
+export type Route = 'navigation' | 'photo' | 'previous-build' | 'shell' | null;
 
 /**
  * The strategy for a GET request. `scope` is the worker's scope, which the
@@ -44,12 +56,8 @@ export function routeOf(
 	scope: URL,
 	assets: ReadonlySet<string>
 ): Route {
-	if (mode === 'navigate') {
-		// The manifest's share_target action, with a list in its query ([D-254]).
-		const shareTarget = new URL('import', scope).pathname;
-		return url.pathname === shareTarget && url.search ? 'share-target' : 'navigation';
-	}
 	if (url.origin !== scope.origin) return null;
+	if (mode === 'navigate') return appPage(url, scope, assets) ? 'navigation' : null;
 	if (url.pathname.startsWith(PHOTO_PATH)) return 'photo';
 	if (assets.has(url.pathname)) return 'shell';
 	// Another build's chunk ([D-293]).

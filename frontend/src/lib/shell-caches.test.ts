@@ -29,10 +29,16 @@ describe('routeOf', () => {
 	const route = (href: string, mode: RequestMode = 'no-cors') =>
 		routeOf(new URL(href, scope), mode, scope, assets);
 
-	it('answers a navigation from the network or the shell, a shared list from the shell', () => {
+	it('answers every navigation from the shell, a shared list included', () => {
 		expect(route('/list/abc', 'navigate')).toBe('navigation');
-		expect(route('/import', 'navigate')).toBe('navigation');
-		expect(route('/import?text=Milch', 'navigate')).toBe('share-target');
+		expect(route('/import?text=Milch', 'navigate')).toBe('navigation');
+		expect(route('/', 'navigate')).toBe('navigation');
+	});
+
+	it("leaves the server's own pages and files to the server", () => {
+		expect(route('/api/oauth2-redirect?code=x', 'navigate')).toBeNull();
+		expect(route('/_/', 'navigate')).toBeNull();
+		expect(route('/manifest.webmanifest', 'navigate')).toBeNull();
 	});
 
 	it("serves this build's files from its shell, another build's from that one's", () => {
@@ -56,8 +62,7 @@ describe('routeOf', () => {
 		const sub = new URL('https://shop.example/app/');
 		const at = (href: string, mode: RequestMode = 'no-cors') =>
 			routeOf(new URL(href, sub), mode, sub, new Set(['/app/']));
-		expect(at('/app/import?text=Milch', 'navigate')).toBe('share-target');
-		expect(at('/import?text=Milch', 'navigate')).toBe('navigation');
+		expect(at('/app/list/abc', 'navigate')).toBe('navigation');
 		expect(at('/app/_app/immutable/chunks/x.js')).toBe('previous-build');
 		expect(at('/api/barcode/photo/x')).toBe('photo');
 	});

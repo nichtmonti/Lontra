@@ -22,6 +22,9 @@ reloadOnUpgrade(db, () => location.reload());
 // showing started if that has not answered yet; a window shown again by then
 // stays as it is.
 if (typeof document !== 'undefined') {
+	// A start opens the cached build without asking the server ([D-363]), and
+	// a start is no showing: so it asks itself.
+	void updated.check();
 	document.addEventListener('visibilitychange', () => {
 		if (document.visibilityState !== 'hidden') return;
 		void updated.check().then((newer) => {
