@@ -30,7 +30,7 @@ func TestDocsSettingsTables(t *testing.T) {
 }
 
 // The values the defaults column quotes from elsewhere: what .env.example
-// sets, and what the :demo image sets (an ENV line may continue over several).
+// sets, and what the demo image sets (an ENV line may continue over several).
 var (
 	exampleSets = assignments(t0(os.ReadFile("../../../.env.example")), `(?m)^([A-Z_][A-Z0-9_]*)=(\S*)`)
 	imageSets   = assignments(strings.ReplaceAll(t0(os.ReadFile("../../../Dockerfile.demo")), "\\\n", " "),

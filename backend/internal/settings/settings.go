@@ -125,7 +125,7 @@ type Demo struct {
 	// public demo.
 	//
 	// Default: `1000` in the image, `3` without it
-	StartsPerIP Positive `env:"SHOPPINGLIST_DEMO_STARTS_PER_IP" envDefault:"3" unit:"demo starts per address per 10 minutes"` // [D-235]: the :demo image raises it, every start on a visitor's own machine coming from one address
+	StartsPerIP Positive `env:"SHOPPINGLIST_DEMO_STARTS_PER_IP" envDefault:"3" unit:"demo starts per address per 10 minutes"` // [D-235]: the demo image raises it, every start on a visitor's own machine coming from one address
 	// How many demo accounts may exist at once; a start beyond it is refused
 	// until old ones expire.
 	MaxAccounts Positive `env:"SHOPPINGLIST_DEMO_MAX_ACCOUNTS" envDefault:"200" unit:"demo accounts"` // far above a day of real visitors, far below what fills a small disk

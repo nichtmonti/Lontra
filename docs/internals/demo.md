@@ -9,11 +9,11 @@ is for whoever runs it; the design is in `design.md` [§14] and the reasoning in
 ## The image
 
 Every release publishes the demo as an image beside the real one ([D-235]):
-`codeberg.org/<owner>/shoppinglist:demo`, and `:X.Y.Z-demo` for a fixed
+`codeberg.org/<owner>/shoppinglist-demo`, and `:X.Y.Z` for a fixed
 release, amd64, arm64 and armv7. On your own machine it needs nothing else:
 
 ```sh
-docker run --rm -p 127.0.0.1:8090:8090 codeberg.org/<owner>/shoppinglist:demo
+docker run --rm -p 127.0.0.1:8090:8090 codeberg.org/<owner>/shoppinglist-demo
 ```
 
 then http://localhost:8090. `Dockerfile.demo` sets what a local run needs

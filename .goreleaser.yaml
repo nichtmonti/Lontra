@@ -1,7 +1,7 @@
 # GoReleaser config (docs/internals/design.md §14, [D-36]).
 # Ships both §14 artifacts from one pipeline: a multi-arch Docker image (incl.
 # arm64 and armv7 for a Raspberry Pi) and a plain binary + dist zip (no Docker required).
-# A second build and image carry the demo ([D-234], [D-235]): the :demo tag.
+# A second build and image carry the demo ([D-234], [D-235]): its own package, shoppinglist-demo.
 #
 # Before running `goreleaser release` (or `--snapshot`), the SPA must already
 # be built into backend/pb_public — a COMPILE requirement ([D-64]):
@@ -52,7 +52,7 @@ builds:
     # Note: backend/cmd/appendseed is dev-time seed-editing tooling and is NOT shipped here.
     # The main binary also embeds the `dictionary-suggestions` curate CLI per §6.13.
 
-  # The demo build ([D-234]), shipped only as the :demo image below — no
+  # The demo build ([D-234]), shipped only as the demo image below — no
   # archive. -tags demo embeds backend/pb_public_demo instead of pb_public,
   # which the release workflow's release-frontend step builds as well.
   - id: shoppinglist-demo
@@ -139,17 +139,16 @@ dockers_v2:
       # The repository's LICENSE: the GNU AGPL v3, without "or later".
       "org.opencontainers.image.licenses": "AGPL-3.0-only"
 
-  # The demo image ([D-234]): `docker run -p 8090:8090 …:demo` is the README's
-  # way to try the app. Same repository, its own tags, so `latest` stays the
-  # real app.
+  # The demo image ([D-234], [D-235]): its own package, so the app's package
+  # page, which shows the newest tag first, only ever shows the app.
   - id: shoppinglist-demo
     ids: [shoppinglist-demo]
     dockerfile: Dockerfile.demo
     images:
-      - 'codeberg.org/{{ tolower (envOrDefault "CI_REPO" "local/shoppinglist") }}'
+      - 'codeberg.org/{{ tolower (envOrDefault "CI_REPO" "local/shoppinglist") }}-demo'
     tags:
-      - "{{ .Version }}-demo"
-      - "{{ if not .IsNightly }}demo{{ end }}"
+      - "{{ .Version }}"
+      - "{{ if not .IsNightly }}latest{{ end }}"
     platforms:
       - linux/amd64
       - linux/arm64

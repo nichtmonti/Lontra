@@ -1,6 +1,6 @@
 # The demo image ([D-234]): the demo build, ready to try on your own machine.
 #
-#   docker run --rm -p 127.0.0.1:8090:8090 codeberg.org/<owner>/shoppinglist:demo
+#   docker run --rm -p 127.0.0.1:8090:8090 codeberg.org/<owner>/shoppinglist-demo
 #
 # then open http://localhost:8090. Packaged exactly like Dockerfile (read its
 # comments for the base image, the user and the health check); GoReleaser

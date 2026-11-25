@@ -42,7 +42,7 @@ func TestDocsQuoteTheCode(t *testing.T) {
 		{"docs/deploy-reference.md", fmt.Sprintf("Sessions are %d-day tokens", days(accounts.AuthToken.DurationTime()))},
 		{"docs/deploy-reference.md", fmt.Sprintf("link lasts %d days", days(invites.Lifetime))},
 		{"docs/deploy-reference.md", fmt.Sprintf("(%d × %s items by default)", serve.MaxListsPerAccount, thousands(int(serve.MaxItemsPerList)))},
-		// The :demo image's own starts per address.
+		// The demo image's own starts per address.
 		{"docs/deploy-reference.md", fmt.Sprintf("every account deleted after %d hours", int(demo.Lifetime.Hours()))},
 		{"docs/deploy-reference.md", fmt.Sprintf("start %s demos per %d minutes", thousands(demoStarts), int(demo.StartWindow.Minutes()))},
 		{"docs/operating.md", fmt.Sprintf("names seen on at least %d lists (`--min-lists N`)", curate.DefaultMinLists)},

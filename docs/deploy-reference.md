@@ -391,7 +391,7 @@ converts back.
 
 ### A public demo
 
-The `:demo` image is the one-command demo from the README: guest accounts
+The `shoppinglist-demo` image is the one-command demo from the README: guest accounts
 with example lists, no passkeys, no OIDC and no admin dashboard, every
 account deleted after 24 hours. It is made for one person on their own
 machine, so it lets one address start 1,000 demos per 10 minutes. To offer it

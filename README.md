@@ -107,7 +107,7 @@ Or run it on your own machine with Docker, with no HTTPS and no passkey; it
 keeps nothing once the container stops:
 
 ```sh
-docker run --rm -p 127.0.0.1:8090:8090 codeberg.org/sclermont/shoppinglist:demo
+docker run --rm -p 127.0.0.1:8090:8090 codeberg.org/sclermont/shoppinglist-demo
 ```
 
 then open **http://localhost:8090**.
