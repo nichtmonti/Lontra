@@ -6,7 +6,7 @@ Every release tag sits on the commit that adds its entry here (`docs(release): v
 
 Changes land under **Unreleased** in the commit that makes them; the release commit turns that heading into the version's.
 
-## Unreleased
+## v0.19.4: times no longer run ahead, and the demo gets its own image and a red notice (2026-11)
 
 **For operators.** Nothing to do before upgrading the app. A demo you run changes its image to `codeberg.org/sclermont/shoppinglist-demo`.
 
