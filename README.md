@@ -97,16 +97,20 @@ can bring a breaking change; the [changelog](CHANGELOG.md) spells out each one.
 
 ## Try it
 
-The demo runs on any machine with Docker, with no HTTPS and no passkey, and
-keeps nothing once the container stops.
+Open **[lontra-demo.onrender.com](https://lontra-demo.onrender.com/)** and press
+"Try it": you get a guest account with three example lists, deleted after a
+day. To see sync, share a list from its ⋮ menu and open the link in a private
+window. The demo sleeps while nobody uses it, so the first visit can take a
+minute, and a restart clears every guest account.
+
+Or run it on your own machine with Docker, with no HTTPS and no passkey; it
+keeps nothing once the container stops:
 
 ```sh
 docker run --rm -p 127.0.0.1:8090:8090 codeberg.org/sclermont/shoppinglist:demo
 ```
 
-Open **http://localhost:8090** and press "Try it": you get a guest account with
-three example lists. To see sync, share a list from its ⋮ menu and open the link
-in a private window.
+then open **http://localhost:8090**.
 
 ## Run your own instance
 

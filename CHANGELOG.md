@@ -6,6 +6,13 @@ Every release tag sits on the commit that adds its entry here (`docs(release): v
 
 Changes land under **Unreleased** in the commit that makes them; the release commit turns that heading into the version's.
 
+## Unreleased
+
+**For operators.** Nothing to do before upgrading.
+
+- **Try the demo without installing anything:** the README's "Try it" now links a hosted demo, [lontra-demo.onrender.com](https://lontra-demo.onrender.com/). The `docker run` tryout stays as the second way ([D-364]).
+- **Times no longer run ahead when the server's clock does.** A list card could say a change was made by you “in 1 second”, and the demo's notice that it is deleted in 25 hours, when the server's clock was a moment ahead of the phone's. A time the server stamped later than the phone's clock now reads as “now”, and the demo's day counts from no later than now.
+
 ## v0.19.3: the app opens without waiting for the server, and the sync cloud is grey until it has answered (2026-11)
 
 **For operators.** Nothing to do before upgrading.
@@ -1119,3 +1126,4 @@ First tagged build: a distroless multi-arch container (amd64 + arm64) with the S
 [D-361]: docs/internals/decisions.md#D-361
 [D-362]: docs/internals/decisions.md#D-362
 [D-363]: docs/internals/decisions.md#D-363
+[D-364]: docs/internals/decisions.md#D-364

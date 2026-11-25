@@ -39,7 +39,9 @@ export async function startDemo(): Promise<void> {
 /** When the signed-in demo account is deleted, or null when unknown. */
 export function demoEndsAt(): number | null {
 	const at = stampMs((pb.authStore.record as { created?: string } | null)?.created);
-	return at === null ? null : at + DEMO_LIFETIME_MS;
+	// The server's creation stamp, which a server clock ahead of this one puts
+	// in the future: counted from no later than now, the day never reads longer.
+	return at === null ? null : Math.min(at, Date.now()) + DEMO_LIFETIME_MS;
 }
 
 /** Text in each of the app's languages. */

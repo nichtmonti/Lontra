@@ -28,4 +28,12 @@ describe('relativeTime', () => {
 		expect(relativeTime(iso(at(7, 1)), now)).toBe('yesterday');
 		expect(relativeTime(iso(now - 25 * 60_000), now, 'short')).toBe('25 min. ago');
 	});
+
+	it('reads a stamp ahead of this clock as now: the clocks disagree, nothing is ahead', () => {
+		const now = at(8);
+		setLocale('de');
+		expect(relativeTime(iso(now + 1_000), now)).toBe('jetzt');
+		setLocale('en');
+		expect(relativeTime(iso(now + 1_000), now, 'short')).toBe('now');
+	});
 });

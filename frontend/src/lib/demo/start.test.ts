@@ -65,6 +65,16 @@ describe('demoEndsAt', () => {
 		expect(demoEndsAt()).toBe(Date.parse('2026-10-07T12:00:00.000Z'));
 	});
 
+	it('counts the day from now when the server stamped the account ahead of this clock', () => {
+		vi.useFakeTimers({ now: Date.parse('2026-10-06T12:00:00.000Z') });
+		try {
+			authStore.record = { id: 'a1', created: '2026-10-06 12:00:01.000Z' };
+			expect(demoEndsAt()).toBe(Date.parse('2026-10-07T12:00:00.000Z'));
+		} finally {
+			vi.useRealTimers();
+		}
+	});
+
 	it('is unknown without a record or a creation time', () => {
 		expect(demoEndsAt()).toBeNull();
 		authStore.record = { id: 'a1' };

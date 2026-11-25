@@ -156,7 +156,7 @@ An entry says what holds now: the rule, why, and what was chosen against. A deci
 | [D-230] | The system back and the ‹ buttons agree on every screen |  |
 | [D-231] | Installing is a settings card, offered after sign-up; there is no native app |  |
 | [D-234] | A public demo is a separate build: one button signs a visitor in to an account deleted a day later, and nothing about them is stored |  |
-| [D-235] | The demo ships as an image visitors run themselves, and the README offers it as the way to try the app |  |
+| [D-235] | The demo also ships as an image visitors run themselves | partly superseded by [D-364] |
 | [D-236] | The Share & members sheet re-reads the roster while it is open, and [§7.4]'s first trigger is per list |  |
 | [D-237] | In arrange mode, a tap on a row's grip brings out its arrows; the other rows show only their grip |  |
 | [D-238] | Arranging the lists keeps them looking like the lists |  |
@@ -269,6 +269,7 @@ An entry says what holds now: the rule, why, and what was chosen against. A deci
 | [D-361] | The app is called Lontra; what operators type keeps the name shoppinglist |  |
 | [D-362] | A home card wears a face of what is still to buy, and says who changed the list last |  |
 | [D-363] | The app opens from its cached shell without asking the server |  |
+| [D-364] | The README offers a hosted demo first |  |
 
 <!-- decisions-index:end -->
 
@@ -680,7 +681,9 @@ The `HEALTHCHECK` is `/shoppinglist healthcheck`, since the image has no shell o
 
 <a id="D-236"></a>**[D-236] The Share & members sheet re-reads the roster while it is open, and [§7.4]'s first trigger is per list (2026-10).** A member showing the QR code waits for the newcomer to appear, so the open sheet reads the roster again every few seconds and once as it closes, which also updates the list header's member line; otherwise a session reads each list's roster once, and a join reads the joined list's at once. The triggers are [§7.4]'s. That stays far below PocketBase's catch-all rate limit. *Rejected: pushing roster changes over SSE.* `memberships` reads are own-rows-only ([§11]), which is why [§7.4] accepts lag. *Rejected: refreshing every list's roster each cycle.* A request per list per minute for a line that matters only where someone waits for a join. ([§7.1], [§7.4])
 
-<a id="D-235"></a>**[D-235] The demo ships as an image visitors run themselves, and the README offers it as the way to try the app (2026-10).** A demo without a domain, imprint or GDPR duties for the author: a hosted demo, even on a provider's subdomain, makes whoever runs it the operator of a public service with strangers' data passing through ([D-234] keeps that small, not absent). Every release also publishes the [D-234] build as `…/shoppinglist:demo` (and `:X.Y.Z-demo`), from `Dockerfile.demo` preset for a local tryout (passkeys off, `SHOPPINGLIST_APP_URL=http://localhost:8090`, the dashboard off), so `docker run --rm -p 127.0.0.1:8090:8090 …:demo` needs no flags. The command binds the host's port to loopback: a tryout owes the LAN nothing, and a box with a public address would otherwise offer the demo to the internet. No volume: the data goes with the container. `localhost` is a secure context, so the service worker and a second window joining by invite work over plain HTTP. Every local start comes from one address, and people are not limited on their own hardware: the start budget is `SHOPPINGLIST_DEMO_STARTS_PER_IP` (default 3), which the image sets to 1000. `latest` stays the real app. The example list shows notes, a long name, an item with no aisle and a second list. *Rejected: a hosted demo.* The paperwork above. *Rejected: the demo binary as a release archive.* The image is the one-command path, and a demo binary beside the real one invites running the wrong one. ([§14], [D-36], [D-234])
+<a id="D-235"></a>**[D-235] The demo also ships as an image visitors run themselves (2026-10).** So anyone can try the app on their own machine, with no account anywhere and nothing leaving it. Every release also publishes the [D-234] build as `…/shoppinglist:demo` (and `:X.Y.Z-demo`), from `Dockerfile.demo` preset for a local tryout (passkeys off, `SHOPPINGLIST_APP_URL=http://localhost:8090`, the dashboard off), so `docker run --rm -p 127.0.0.1:8090:8090 …:demo` needs no flags. The command binds the host's port to loopback: a tryout owes the LAN nothing, and a box with a public address would otherwise offer the demo to the internet. No volume: the data goes with the container. `localhost` is a secure context, so the service worker and a second window joining by invite work over plain HTTP. Every local start comes from one address, and people are not limited on their own hardware: the start budget is `SHOPPINGLIST_DEMO_STARTS_PER_IP` (default 3), which the image sets to 1000. `latest` stays the real app. The example list shows notes, a long name, an item with no aisle and a second list. Its rejection of a hosted demo was replaced by [D-364]: the README offers the author's hosted demo first, this image second. *Rejected: the demo binary as a release archive.* The image is the one-command path, and a demo binary beside the real one invites running the wrong one. ([§14], [D-36], [D-234])
+
+<a id="D-364"></a>**[D-364] The README offers a hosted demo first (2026-11).** "Try it" links the author's instance of the [D-234] build, so a visitor sees the app in one tap, on a phone too, where the image needs Docker on a computer. It runs the `:demo` image with a public demo's settings (`docs/internals/demo.md`) on a free host that sleeps while idle: the first visit can take a minute, and a restart clears every guest account, which the demo's 24-hour accounts make harmless. The image stays as the second way, for trying the app with nothing leaving the machine ([D-235]). *Rejected:* the image as the only way (most people who want a look have no Docker at hand); a paid always-on host (a demo needs no uptime). ([§14], [D-234], [D-235])
 
 <a id="D-234"></a>**[D-234] A public demo is a separate build: one button signs a visitor in to an account deleted a day later, and nothing about them is stored (2026-10).** The obstacle is getting in: a passkey for the demo's domain leaves a dead entry in a visitor's password manager, and OIDC is no better for a stranger.
 
@@ -1412,3 +1415,4 @@ The list route writes `local_name` on the caller's own membership, under the sha
 [D-361]: #D-361
 [D-362]: #D-362
 [D-363]: #D-363
+[D-364]: #D-364

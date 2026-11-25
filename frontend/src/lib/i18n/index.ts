@@ -145,7 +145,10 @@ export function relativeTime(
 ): string {
 	const then = stampMs(iso);
 	if (then === null) return '';
-	const deltaMs = then - now;
+	// Every caller shows something that already happened, stamped by the
+	// server or another device: a stamp ahead of this clock is their clocks
+	// disagreeing, and reads "now", never "in 1 second".
+	const deltaMs = Math.min(then - now, 0);
 	const fmt = relativeFormat(style);
 	for (const [unit, ms] of RELATIVE_UNITS) {
 		if (Math.abs(deltaMs) < ms) continue;
