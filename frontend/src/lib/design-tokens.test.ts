@@ -155,6 +155,8 @@ describe('design tokens meet WCAG AA where they are used as text', () => {
 			['selected control', '--primary-foreground', '--primary'],
 			['primary button hover', '--primary-foreground', '--primary-press'],
 			['danger button press', '--danger-foreground', '--danger-press'],
+			// The demo's notice and the soft danger button: small text on it.
+			['danger on its soft fill', '--danger', '--danger-soft'],
 			// [D-281]: a chosen option, the soft green with green text.
 			['chosen option', '--primary-text', '--primary-soft'],
 			// [D-114]: the primary as text and lines on the page's own surfaces.

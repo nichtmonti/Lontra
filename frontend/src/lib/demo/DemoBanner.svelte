@@ -26,8 +26,10 @@
 	});
 </script>
 
+<!-- Soft red, the soft danger button's tones: everything here is deleted,
+     and no visitor should take it for a real list. -->
 <div
-	class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-surface-2 px-4 py-1.5 text-center text-meta text-muted-foreground"
+	class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 border-b border-danger-line bg-danger-soft px-4 py-1.5 text-center text-meta text-danger"
 	role="status"
 	data-testid="demo-banner"
 >
