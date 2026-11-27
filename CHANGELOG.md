@@ -6,6 +6,11 @@ Every release tag sits on the commit that adds its entry here (`docs(release): v
 
 Changes land under **Unreleased** in the commit that makes them; the release commit turns that heading into the version's.
 
+## Unreleased
+
+- **Prompt dialogs stay above the on-screen keyboard.** Changing your nickname, renaming or creating a list, joining a list, or naming a passkey on an iPhone could leave the centred dialog partly hidden behind the keyboard once the text field took focus. Centred dialogs now follow the visible viewport above the keyboard ([D-365]).
+- **No blur across the top edge on iPhone.** On iOS 26+, Safari and Home Screen web apps painted a soft system scroll-edge blur across the top of the app bar. An unpainted fixed strip at the top edge keeps WebKit from blurring the header ([D-366]).
+
 ## v0.19.4: times no longer run ahead, and the demo gets its own image and a red notice (2026-11)
 
 **For operators.** Nothing to do before upgrading the app. A demo you run changes its image to `codeberg.org/sclermont/shoppinglist-demo`.
@@ -1129,3 +1134,5 @@ First tagged build: a distroless multi-arch container (amd64 + arm64) with the S
 [D-362]: docs/internals/decisions.md#D-362
 [D-363]: docs/internals/decisions.md#D-363
 [D-364]: docs/internals/decisions.md#D-364
+[D-365]: docs/internals/decisions.md#D-365
+[D-366]: docs/internals/decisions.md#D-366

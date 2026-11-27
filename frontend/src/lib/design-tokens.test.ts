@@ -485,3 +485,22 @@ describe('motion durations are tokens ([D-352])', () => {
 		expect(offenders).toEqual([]);
 	});
 });
+
+// ---- iOS scroll-pocket guard ([D-366]) -------------------------------------
+//
+// WebKit's LocalFrameView::fixedContainerEdges() hides the top scroll-edge
+// blur only when its hit test at (centre-x, 4px) hits a fixed element > 10px
+// tall with a visible background-color (the computed one, not painted pixels),
+// so `background-clip: text` keeps it unpainted and still counted.
+describe('iOS top scroll-pocket guard ([D-366])', () => {
+	it('declares an unpainted >10px fixed strip on --layer-bar', () => {
+		const rule = parseCss(css).find((n) => n.prelude === '.scroll-pocket-guard');
+		expect(rule).toBeDefined();
+		const decls = Object.fromEntries(rule!.decls);
+		expect(decls.position).toBe('fixed');
+		expect(parseFloat(decls['block-size'])).toBeGreaterThan(10);
+		expect(decls['pointer-events']).toBe('none');
+		expect(decls['background-clip']).toBe('text');
+		expect(decls['z-index']).toBe('var(--layer-bar)');
+	});
+});

@@ -576,11 +576,12 @@
 	--focus-max: 420px;
 
 	/* The page's layers, bottom to top ([D-317]): an aisle header stuck under
-	   the bar, the add bar and a screen's sticky foot, then whatever is laid
-	   over the page (the dim, sheets, dialogs, menus, tooltips). The undo
-	   toast and the dragged row take their libraries' own, above these. A
-	   component with layers of its own seals them (`isolate`) and numbers
-	   them 1-3 inside; lint refuses a bare number above that. */
+	   the bar, the add bar, a screen's sticky foot and the top scroll-pocket
+	   guard ([D-366]), then whatever is laid over the page (the dim, sheets,
+	   dialogs, menus, tooltips). The undo toast and the dragged row take their
+	   libraries' own, above these. A component with layers of its own seals
+	   them (`isolate`) and numbers them 1-3 inside; lint refuses a bare number
+	   above that. */
 	--layer-sticky: 5;
 	--layer-bar: 6;
 	--layer-modal: 50;
@@ -766,6 +767,23 @@ textarea,
 	   button, after every add). Clear the snackbar's height plus its own 16px
 	   offset. */
 	padding-block-end: calc(78px + env(safe-area-inset-bottom));
+}
+
+/* Suppresses iOS 26+'s top scroll-pocket blur ([D-366]): WebKit hides the edge
+   blur when its hit test at (centre-x, 4px) lands on a fixed element at least
+   90% wide and over 10px tall with a visible background-color. WebKit reads
+   the computed colour, not the painted pixels, so `background-clip: text` on
+   an empty element paints nothing (no seam on DemoBanner or FocusScreen, no
+   layout shift) and still counts. */
+.scroll-pocket-guard {
+	position: fixed;
+	inset: 0 0 auto;
+	block-size: 11px;
+	z-index: var(--layer-bar);
+	pointer-events: none;
+	background-color: var(--surface);
+	-webkit-background-clip: text;
+	background-clip: text;
 }
 
 /* The toast hugs its content, centred, instead of spanning the phone

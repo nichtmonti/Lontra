@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dialogSurface } from '#lib/components/ui/dialog/dialog-surface.js';
+	import { dialogSurface, fitVisualViewport } from '#lib/components/ui/dialog/dialog-surface.js';
 	import { floatSurface } from '#lib/components/ui/card/card-surface.js';
 	import { AlertDialog as AlertDialogPrimitive } from 'bits-ui';
 	import { cn, type WithoutChild, type WithoutChildrenOrChild } from '#lib/utils.js';
@@ -15,6 +15,10 @@
 	}: WithoutChild<AlertDialogPrimitive.ContentProps> & {
 		portalProps?: WithoutChildrenOrChild<ComponentProps<typeof AlertDialogPortal>>;
 	} = $props();
+
+	$effect(() => {
+		if (ref) return fitVisualViewport(ref);
+	});
 </script>
 
 <AlertDialogPortal {...portalProps}>

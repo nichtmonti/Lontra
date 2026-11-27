@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { dialogSurface } from '#lib/components/ui/dialog/dialog-surface.js';
+	import { dialogSurface, fitVisualViewport } from '#lib/components/ui/dialog/dialog-surface.js';
 	import { floatSurface } from '#lib/components/ui/card/card-surface.js';
 	import { Dialog as DialogPrimitive } from 'bits-ui';
 	import { cn, type WithoutChildrenOrChild } from '#lib/utils.js';
@@ -18,6 +18,10 @@
 		portalProps?: WithoutChildrenOrChild<ComponentProps<typeof DialogPortal>>;
 		children: Snippet;
 	} = $props();
+
+	$effect(() => {
+		if (ref) return fitVisualViewport(ref);
+	});
 </script>
 
 <DialogPortal {...portalProps}>

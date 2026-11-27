@@ -131,6 +131,19 @@ describe('hidden suggestions (§6.11)', () => {
 	});
 });
 
+// [D-366] iOS 26 blurs the top edge unless a fixed strip sits there. Its CSS
+// is pinned in design-tokens.test.ts; this pins that the shell renders it,
+// empty, so `background-clip: text` paints nothing.
+describe('the top scroll-pocket guard', () => {
+	it('renders one empty strip beside the shell', async () => {
+		const { container } = render(Layout, { props: { children } });
+		await screen.findByTestId('page');
+		const guards = container.querySelectorAll('.scroll-pocket-guard');
+		expect(guards).toHaveLength(1);
+		expect(guards[0].childNodes).toHaveLength(0);
+	});
+});
+
 // [D-335] Over plain http:// at any address but localhost the app would look
 // fine and save nothing, so the page says so in place of everything.
 describe('outside a secure context', () => {

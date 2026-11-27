@@ -43,7 +43,7 @@
 	};
 	const LAYERS: Record<string, string> = {
 		'layer-sticky': 'eine Gangüberschrift, unter der Leiste festgehalten',
-		'layer-bar': 'die Eingabeleiste und ein festgehaltener Fuß',
+		'layer-bar': 'die Eingabeleiste, ein festgehaltener Fuß und der obere Randstreifen',
 		'layer-modal': 'was über der Seite liegt: Abdunklung, Blätter, Dialoge, Menüs, Tooltips'
 	};
 	const SURFACES = [

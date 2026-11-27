@@ -203,6 +203,7 @@
      Empty on purpose (and passive, as Svelte makes touchstart). -->
 <svelte:document ontouchstart={() => {}} />
 
+<div class="scroll-pocket-guard"></div>
 <div class="app-shell" data-testid="app-shell">
 	<!-- static/theme.js sets the theme before the first paint; the inline head
 	     script mode-watcher would add never runs here (no SSR, and the CSP
